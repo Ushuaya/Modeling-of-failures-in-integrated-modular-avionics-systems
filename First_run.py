@@ -11,11 +11,11 @@ import pickle
 
 # DEFINING SOME VARAIBLES TO MAKE MODELLING SYSTEM ABLE TO RUN 
 # ----------------------------------------------------------------------
-TASK_CRASHED_ID = 0
+TASK_CRASHED_ID = 6
 MF_PERIOD = 120
 FIXATOR_TIME = 1
 
-GRAPH_INITIAL_APP = ig.Graph(n=12, edges=[[0, 1], [1, 2], [2, 3], [3, 4], [4, 5], [5, 6], [6, 7], [7, 8], [8, 9], [1, 3], [1, 4], [9, 10], [10, 11]])
+GRAPH_INITIAL_APP = ig.Graph(n=12, edges=[[11, 9], [8, 6]])
 GRAPH_INITIAL_APP.vs["duration"] = [random.randint(1,7) for _ in range(len(GRAPH_INITIAL_APP.vs))]
 
 # Partition numbers sequence must start from 0 
@@ -103,8 +103,8 @@ def Write_xml_first_iter(filename, MF_PERIOD, GRAPH_INITIAL_APP, windows, MAP_TA
         #     file.write("\t\t<window partition=\"0\" start=\"{}\" stop=\"{}\"/>\n".format(i[0], i[1]))
 
         file.write("\t</module>\n")
-        # for e in GRAPH_INITIAL_APP.es:
-        #     file.write("\t<link delay=\"0\" dst=\"{}\" src=\"{}\"/>\n".format(e.tuple[1], e.tuple[0]))
+        for e in GRAPH_INITIAL_APP.es:
+            file.write("\t<link delay=\"0\" dst=\"{}\" src=\"{}\"/>\n".format(e.tuple[0], e.tuple[1]))
         file.write("</system>\n")
 
 
@@ -243,7 +243,7 @@ def write_nvp_xml(graph_main_crash, MF_PERIOD, windows_nvp, second_main_app_grap
         file.write("\t</module>\n")
         for e in GRAPH_INITIAL_APP.es:
             # _res indicates, that message must be sent to or from the other version of the task
-            file.write("\t<link delay=\"0\" dst=\"{}\" src=\"{}\"/>\n".format(e.tuple[1], e.tuple[0] ))
+            file.write("\t<link delay=\"0\" dst=\"{}\" src=\"{}\"/>\n".format(e.tuple[0], e.tuple[1] ))
         file.write("</system>\n")
 
 

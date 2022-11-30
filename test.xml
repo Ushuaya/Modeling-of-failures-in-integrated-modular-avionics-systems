@@ -3,27 +3,29 @@
 	<module major_frame="120" name="core1">
 		<partition id="0" name="part0" scheduler="FPPS">
 			<task deadline="119" id="0" name="task0" offset="0" period="120" prio="1" wcet="1"/>
-			<task deadline="119" id="1" name="task1" offset="0" period="120" prio="1" wcet="5"/>
-			<task deadline="119" id="2" name="task2" offset="0" period="120" prio="1" wcet="5"/>
+			<task deadline="119" id="1" name="task1" offset="0" period="120" prio="1" wcet="6"/>
+			<task deadline="119" id="2" name="task2" offset="0" period="120" prio="1" wcet="6"/>
 		</partition>
 		<partition id="1" name="part1" scheduler="FPPS">
-			<task deadline="119" id="3" name="task3" offset="0" period="120" prio="1" wcet="3"/>
-			<task deadline="119" id="4" name="task4" offset="0" period="120" prio="1" wcet="5"/>
-			<task deadline="119" id="5" name="task5" offset="0" period="120" prio="1" wcet="5"/>
+			<task deadline="119" id="3" name="task3" offset="0" period="120" prio="1" wcet="2"/>
+			<task deadline="119" id="4" name="task4" offset="0" period="120" prio="1" wcet="2"/>
+			<task deadline="119" id="5" name="task5" offset="0" period="120" prio="1" wcet="2"/>
 		</partition>
 		<partition id="2" name="part2" scheduler="FPPS">
-			<task deadline="119" id="6" name="task6" offset="0" period="120" prio="1" wcet="6"/>
-			<task deadline="119" id="7" name="task7" offset="0" period="120" prio="1" wcet="2"/>
-			<task deadline="119" id="8" name="task8" offset="0" period="120" prio="1" wcet="6"/>
+			<task deadline="119" id="6" name="task6" offset="0" period="120" prio="1" wcet="3"/>
+			<task deadline="119" id="7" name="task7" offset="0" period="120" prio="1" wcet="3"/>
+			<task deadline="119" id="8" name="task8" offset="0" period="120" prio="1" wcet="4"/>
 		</partition>
 		<partition id="3" name="part3" scheduler="FPPS">
-			<task deadline="119" id="9" name="task9" offset="0" period="120" prio="1" wcet="1"/>
-			<task deadline="119" id="10" name="task10" offset="0" period="120" prio="1" wcet="1"/>
-			<task deadline="119" id="11" name="task11" offset="0" period="120" prio="1" wcet="5"/>
+			<task deadline="119" id="9" name="task9" offset="0" period="120" prio="1" wcet="4"/>
+			<task deadline="119" id="10" name="task10" offset="0" period="120" prio="1" wcet="5"/>
+			<task deadline="119" id="11" name="task11" offset="0" period="120" prio="1" wcet="3"/>
 		</partition>
 		<window partition="0" start="0" stop="20"/>
 		<window partition="1" start="20" stop="40"/>
 		<window partition="2" start="40" stop="60"/>
 		<window partition="3" start="60" stop="80"/>
 	</module>
+	<link delay="0" dst="9" src="11"/>
+	<link delay="0" dst="6" src="8"/>
 </system>
