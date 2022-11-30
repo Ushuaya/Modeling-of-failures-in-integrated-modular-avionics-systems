@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE nta PUBLIC '-//Uppaal Team//DTD Flat System 1.1//EN' 'http://www.it.uu.se/research/group/darts/uppaal/flat-1_2.dtd'>
+<nta>
+	<declaration>typedef struct {
+    int delay;
+} LinkData;</declaration>
+	<template>
+		<name>L</name>
+		<parameter>LinkData &amp;data, int &amp;is_data_ready, broadcast chan&amp; send, broadcast chan&amp; receive</parameter>
+		<declaration>clock transfer_time;</declaration>
+		<location id="id0" x="-153" y="-127">
+			<name x="-187" y="-161">Delivery</name>
+			<committed/>
+		</location>
+		<location id="id1" x="8" y="8">
+			<name x="25" y="0">Busy</name>
+			<label kind="invariant" x="-110" y="17">transfer_time&lt;=data.delay
+&amp;&amp; transfer_time'==1</label>
+		</location>
+		<location id="id2" x="8" y="-127">
+			<name x="-2" y="-161">Idle</name>
+			<label kind="invariant" x="17" y="-118">transfer_time'==0</label>
+		</location>
+		<init ref="id2"/>
+		<transition>
+			<source ref="id0"/>
+			<target ref="id2"/>
+			<label kind="synchronisation" x="-93" y="-144">receive!</label>
+		</transition>
+		<transition>
+			<source ref="id1"/>
+			<target ref="id0"/>
+			<label kind="guard" x="-229" y="-34">transfer_time==data.delay</label>
+			<label kind="assignment" x="-187" y="-59">is_data_ready=1</label>
+		</transition>
+		<transition>
+			<source ref="id2"/>
+			<target ref="id1"/>
+			<label kind="guard" x="17" y="-76">!is_data_ready</label>
+			<label kind="synchronisation" x="17" y="-59">send?</label>
+			<label kind="assignment" x="17" y="-42">transfer_time=0</label>
+		</transition>
+	</template>
+	<system></system>
+	<queries>
+		<query>
+			<formula></formula>
+			<comment></comment>
+		</query>
+	</queries>
+</nta>

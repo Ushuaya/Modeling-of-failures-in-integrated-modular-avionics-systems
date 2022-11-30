@@ -1,0 +1,10 @@
+project(model_builder)
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -O3")
+#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 ")
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../../simulator/core)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/../generated_components)
+link_directories(${CMAKE_CURRRENT_BINARY_DIR}/../../simulator/core)
+link_directories(${CMAKE_CURRRENT_BINARY_DIR}/../generated_components)
+
+add_executable(model_builder model_builder.cpp)
+target_link_libraries(model_builder core generated_components)

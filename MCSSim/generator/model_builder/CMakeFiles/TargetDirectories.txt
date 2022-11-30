@@ -1,0 +1,3 @@
+/Users/volkseriy/Desktop/Научка7сем/Modelling/MCSSim/generator/model_builder/CMakeFiles/model_builder.dir
+/Users/volkseriy/Desktop/Научка7сем/Modelling/MCSSim/generator/model_builder/CMakeFiles/edit_cache.dir
+/Users/volkseriy/Desktop/Научка7сем/Modelling/MCSSim/generator/model_builder/CMakeFiles/rebuild_cache.dir

@@ -1,0 +1,77 @@
+\#include "common.h"
+
+#for $i in $base.keys():
+#for $a in $base[i]:
+\#include "${a.name}.h"
+#end for
+#end for
+
+
+#for $i in $base.keys():
+void create$i (std::string type, std::string _name, Network *n, int p, bool t#slurp
+#set $automaton = $base[i][0]
+#for p in $automaton.typedParams:
+, ${p[1]}* _${p[0]}#slurp
+#end for
+#for p in $automaton.arrayTypedParams:
+, std::vector <${p[1]}*> & _${p[0]}#slurp
+#end for
+#for p in $automaton.vars:
+, Var* _$p#slurp
+#end for
+#for p in $automaton.arrayVars:
+, std::vector <Var*> &_$p#slurp
+#end for
+#for p in $automaton.arrayArrayVars:
+, std::vector < std::vector <Var*> > &_$p#slurp
+#end for
+#for p in $automaton.chans:
+, Channel* _$p#slurp
+#end for
+#for p in $automaton.arrayChans:
+, std::vector <Channel*> &_$p#slurp
+#end for
+#for p in $automaton.timers:
+, Timer* _$p#slurp
+#end for
+#for p in $automaton.arrayTimers:
+, std::vector <Timer*> &_$p#slurp
+#end for
+)
+{
+#for $a in $base[i]:
+	if (type == "$a.name")
+		new $a.name::$a.name ( _name, n, p, t#slurp
+#for p in $a.typedParams:
+, _${p[0]}#slurp
+#end for
+#for p in $a.arrayTypedParams:
+, _${p[0]}#slurp
+#end for
+#for p in $a.vars:
+, _$p#slurp
+#end for
+#for p in $a.arrayVars:
+, _$p#slurp
+#end for
+#for p in $a.arrayArrayVars:
+, _$p#slurp
+#end for
+#for p in $a.chans:
+, _$p#slurp
+#end for
+#for p in $a.arrayChans:
+, _$p#slurp
+#end for
+#for p in $a.timers:
+, _$p#slurp
+#end for
+#for p in $a.arrayTimers:
+, _$p#slurp
+#end for
+);
+
+#end for
+}
+#end for
+

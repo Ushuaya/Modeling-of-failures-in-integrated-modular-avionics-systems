@@ -1,0 +1,237 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE nta PUBLIC '-//Uppaal Team//DTD Flat System 1.1//EN' 'http://www.it.uu.se/research/group/darts/uppaal/flat-1_2.dtd'>
+<nta>
+	<declaration>// Place global declarations here.
+const int MAX_DELAY=1000;
+
+typedef struct {
+    int delay;
+} LinkData;
+
+LinkData data;
+int is_data_ready;
+broadcast chan send;
+broadcast chan receive;</declaration>
+	<template>
+		<name>L_R_1</name>
+		<parameter>LinkData &amp;data, int &amp;is_data_ready, broadcast chan&amp; send, broadcast chan&amp; receive</parameter>
+		<declaration>clock c;</declaration>
+		<location id="id0" x="-552" y="-280">
+			<name x="-595" y="-246">SendFinished</name>
+		</location>
+		<location id="id1" x="-365" y="-391">
+			<name x="-382" y="-425">ERROR</name>
+			<committed/>
+		</location>
+		<location id="id2" x="-552" y="-391">
+			<name x="-595" y="-382">Send</name>
+			<label kind="invariant" x="-544" y="-374">c&lt;=data.delay</label>
+		</location>
+		<location id="id3" x="-705" y="-391">
+			<name x="-731" y="-374">Wait</name>
+		</location>
+		<location id="id4" x="-892" y="-391">
+			<name x="-902" y="-425">Init</name>
+			<committed/>
+		</location>
+		<init ref="id4"/>
+		<transition>
+			<source ref="id0"/>
+			<target ref="id0"/>
+			<label kind="synchronisation" x="-501" y="-263">send!</label>
+			<nail x="-510" y="-263"/>
+			<nail x="-510" y="-246"/>
+		</transition>
+		<transition>
+			<source ref="id0"/>
+			<target ref="id0"/>
+			<label kind="synchronisation" x="-654" y="-263">receive?</label>
+			<nail x="-595" y="-263"/>
+			<nail x="-595" y="-246"/>
+		</transition>
+		<transition>
+			<source ref="id0"/>
+			<target ref="id3"/>
+			<label kind="guard" x="-773" y="-306">is_data_ready==1</label>
+			<label kind="assignment" x="-773" y="-289">is_data_ready=0</label>
+			<nail x="-663" y="-314"/>
+		</transition>
+		<transition>
+			<source ref="id0"/>
+			<target ref="id1"/>
+			<label kind="guard" x="-501" y="-297">c&gt;0 &amp;&amp; is_data_ready==0</label>
+			<nail x="-450" y="-314"/>
+		</transition>
+		<transition>
+			<source ref="id2"/>
+			<target ref="id0"/>
+			<label kind="guard" x="-552" y="-348">c==data.delay</label>
+			<label kind="assignment" x="-552" y="-335">c=0</label>
+		</transition>
+		<transition>
+			<source ref="id2"/>
+			<target ref="id2"/>
+			<label kind="synchronisation" x="-620" y="-518">receive?</label>
+			<nail x="-595" y="-501"/>
+			<nail x="-561" y="-501"/>
+		</transition>
+		<transition>
+			<source ref="id3"/>
+			<target ref="id3"/>
+			<label kind="synchronisation" x="-731" y="-467">receive?</label>
+			<nail x="-680" y="-450"/>
+			<nail x="-731" y="-450"/>
+		</transition>
+		<transition>
+			<source ref="id2"/>
+			<target ref="id2"/>
+			<label kind="synchronisation" x="-553" y="-493">send!</label>
+			<nail x="-552" y="-476"/>
+			<nail x="-510" y="-476"/>
+		</transition>
+		<transition>
+			<source ref="id2"/>
+			<target ref="id1"/>
+			<label kind="guard" x="-510" y="-408">c&lt;data.delay&amp;&amp;
+is_data_ready==1</label>
+		</transition>
+		<transition>
+			<source ref="id3"/>
+			<target ref="id2"/>
+			<label kind="synchronisation" x="-654" y="-408">send!</label>
+			<label kind="assignment" x="-688" y="-391">c=0</label>
+		</transition>
+		<transition>
+			<source ref="id4"/>
+			<target ref="id3"/>
+			<label kind="select" x="-875" y="-408">n: int[0, MAX_DELAY]</label>
+			<label kind="assignment" x="-850" y="-391">data.delay=n</label>
+		</transition>
+	</template>
+	<template>
+		<name>L_R_2</name>
+		<parameter>LinkData &amp;data, int &amp;is_data_ready, broadcast chan&amp; send, broadcast chan&amp; receive</parameter>
+		<declaration>clock c;</declaration>
+		<location id="id5" x="-365" y="-391">
+			<name x="-425" y="-425">ERROR</name>
+			<committed/>
+		</location>
+		<location id="id6" x="-552" y="-391">
+			<name x="-595" y="-382">Send</name>
+		</location>
+		<location id="id7" x="-705" y="-391">
+			<name x="-739" y="-374">Wait</name>
+		</location>
+		<location id="id8" x="-892" y="-391">
+			<name x="-902" y="-425">Init</name>
+			<committed/>
+		</location>
+		<init ref="id8"/>
+		<transition>
+			<source ref="id6"/>
+			<target ref="id6"/>
+			<label kind="synchronisation" x="-578" y="-450">send!</label>
+			<nail x="-578" y="-433"/>
+			<nail x="-535" y="-433"/>
+		</transition>
+		<transition>
+			<source ref="id6"/>
+			<target ref="id5"/>
+			<label kind="guard" x="-484" y="-314">c&gt;data.delay</label>
+			<label kind="synchronisation" x="-476" y="-297">receive?</label>
+			<nail x="-426" y="-314"/>
+		</transition>
+		<transition>
+			<source ref="id6"/>
+			<target ref="id5"/>
+			<label kind="guard" x="-518" y="-408">c&lt;data.delay</label>
+			<label kind="synchronisation" x="-493" y="-391">receive?</label>
+		</transition>
+		<transition>
+			<source ref="id7"/>
+			<target ref="id5"/>
+			<label kind="synchronisation" x="-561" y="-476">receive?</label>
+			<nail x="-705" y="-459"/>
+			<nail x="-365" y="-459"/>
+		</transition>
+		<transition>
+			<source ref="id6"/>
+			<target ref="id7"/>
+			<label kind="guard" x="-680" y="-340">c==data.delay</label>
+			<label kind="synchronisation" x="-663" y="-323">receive?</label>
+			<label kind="assignment" x="-688" y="-314">is_data_ready=0</label>
+			<nail x="-552" y="-323"/>
+			<nail x="-705" y="-323"/>
+		</transition>
+		<transition>
+			<source ref="id7"/>
+			<target ref="id6"/>
+			<label kind="synchronisation" x="-654" y="-408">send!</label>
+			<label kind="assignment" x="-646" y="-391">c=0</label>
+		</transition>
+		<transition>
+			<source ref="id8"/>
+			<target ref="id7"/>
+			<label kind="select" x="-875" y="-408">n: int[0, MAX_DELAY]</label>
+			<label kind="assignment" x="-850" y="-391">data.delay=n</label>
+		</transition>
+	</template>
+	<template>
+		<name x="5" y="5">L</name>
+		<parameter>LinkData &amp;data, int &amp;is_data_ready, broadcast chan&amp; send, broadcast chan&amp; receive</parameter>
+		<declaration>// Place local declarations here.
+clock time;</declaration>
+		<location id="id9" x="-153" y="-127">
+			<name x="-255" y="-161">TransmittingFinished</name>
+			<committed/>
+		</location>
+		<location id="id10" x="8" y="8">
+			<name x="25" y="0">Transmitting</name>
+			<label kind="invariant" x="-110" y="17">time&lt;=data.delay &amp;&amp; time'==1</label>
+		</location>
+		<location id="id11" x="8" y="-119">
+			<name x="-2" y="-153">Idle</name>
+			<label kind="invariant" x="17" y="-110">time'==0</label>
+		</location>
+		<init ref="id11"/>
+		<transition>
+			<source ref="id9"/>
+			<target ref="id11"/>
+			<label kind="synchronisation" x="-93" y="-144">receive!</label>
+		</transition>
+		<transition>
+			<source ref="id10"/>
+			<target ref="id9"/>
+			<label kind="guard" x="-170" y="-42">time==data.delay</label>
+			<label kind="assignment" x="-187" y="-59">is_data_ready=1</label>
+		</transition>
+		<transition>
+			<source ref="id11"/>
+			<target ref="id10"/>
+			<label kind="guard" x="8" y="-89">!is_data_ready</label>
+			<label kind="synchronisation" x="8" y="-72">send?</label>
+			<label kind="assignment" x="8" y="-55">time=0</label>
+		</transition>
+	</template>
+	<system>// Place template instantiations here.
+l = L(data, is_data_ready, send, receive);
+l_r_1 = L_R_1(data, is_data_ready, send, receive);
+l_r_2 = L_R_2(data, is_data_ready, send, receive);
+// List one or more processes to be composed into a system.
+system l, l_r_1;
+</system>
+	<queries>
+		<query>
+			<formula>E&lt;&gt;l_r_2.ERROR
+			</formula>
+			<comment>
+			</comment>
+		</query>
+		<query>
+			<formula>E&lt;&gt;l_r_1.ERROR
+			</formula>
+			<comment>
+			</comment>
+		</query>
+	</queries>
+</nta>

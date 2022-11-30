@@ -1,0 +1,15 @@
+/Users/volkseriy/Desktop/Научка7сем/Modelling/MCSSim/generator/CMakeFiles/edit_cache.dir
+/Users/volkseriy/Desktop/Научка7сем/Modelling/MCSSim/generator/CMakeFiles/rebuild_cache.dir
+/Users/volkseriy/Desktop/Научка7сем/Modelling/MCSSim/generator/simulator/CMakeFiles/edit_cache.dir
+/Users/volkseriy/Desktop/Научка7сем/Modelling/MCSSim/generator/simulator/CMakeFiles/rebuild_cache.dir
+/Users/volkseriy/Desktop/Научка7сем/Modelling/MCSSim/generator/simulator/core/CMakeFiles/core.dir
+/Users/volkseriy/Desktop/Научка7сем/Modelling/MCSSim/generator/simulator/core/CMakeFiles/edit_cache.dir
+/Users/volkseriy/Desktop/Научка7сем/Modelling/MCSSim/generator/simulator/core/CMakeFiles/rebuild_cache.dir
+/Users/volkseriy/Desktop/Научка7сем/Modelling/MCSSim/generator/generator/CMakeFiles/edit_cache.dir
+/Users/volkseriy/Desktop/Научка7сем/Modelling/MCSSim/generator/generator/CMakeFiles/rebuild_cache.dir
+/Users/volkseriy/Desktop/Научка7сем/Modelling/MCSSim/generator/generator/generated_components/CMakeFiles/generated_components.dir
+/Users/volkseriy/Desktop/Научка7сем/Modelling/MCSSim/generator/generator/generated_components/CMakeFiles/edit_cache.dir
+/Users/volkseriy/Desktop/Научка7сем/Modelling/MCSSim/generator/generator/generated_components/CMakeFiles/rebuild_cache.dir
+/Users/volkseriy/Desktop/Научка7сем/Modelling/MCSSim/generator/generator/model_builder/CMakeFiles/model_builder.dir
+/Users/volkseriy/Desktop/Научка7сем/Modelling/MCSSim/generator/generator/model_builder/CMakeFiles/edit_cache.dir
+/Users/volkseriy/Desktop/Научка7сем/Modelling/MCSSim/generator/generator/model_builder/CMakeFiles/rebuild_cache.dir

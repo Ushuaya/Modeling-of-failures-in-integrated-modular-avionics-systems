@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<system>
+	<module major_frame="100" name="core1">
+		<partition id="0" name="part1" scheduler="FPPS">
+			<task deadline="99" id="0" name="task0" offset="0" period="100" prio="1" wcet="1"/>
+			<task deadline="99" id="1" name="task1" offset="0" period="100" prio="1" wcet="4"/>
+			<task deadline="99" id="2" name="task2" offset="0" period="100" prio="1" wcet="4"/>
+			<task deadline="99" id="3" name="task3" offset="0" period="100" prio="1" wcet="1"/>
+			<task deadline="99" id="4" name="task4" offset="0" period="100" prio="1" wcet="1"/>
+			<task deadline="99" id="5" name="task5" offset="0" period="100" prio="1" wcet="4"/>
+			<task deadline="99" id="6" name="task6" offset="0" period="100" prio="1" wcet="3"/>
+			<task deadline="99" id="7" name="task7" offset="0" period="100" prio="1" wcet="4"/>
+			<task deadline="99" id="8" name="task8" offset="0" period="100" prio="1" wcet="2"/>
+			<task deadline="99" id="9" name="task9" offset="0" period="100" prio="1" wcet="2"/>
+		</partition>
+		<window partition="0" start="0" stop="10"/>
+		<window partition="0" start="20" stop="30"/>
+		<window partition="0" start="40" stop="50"/>
+		<window partition="0" start="60" stop="70"/>
+		<window partition="0" start="80" stop="90"/>
+	</module>
+	<link delay="0" dst="0" src="1"/>
+	<link delay="0" dst="1" src="2"/>
+	<link delay="0" dst="2" src="3"/>
+	<link delay="0" dst="3" src="4"/>
+	<link delay="0" dst="4" src="5"/>
+	<link delay="0" dst="5" src="6"/>
+	<link delay="0" dst="6" src="7"/>
+	<link delay="0" dst="7" src="8"/>
+	<link delay="0" dst="8" src="9"/>
+	<link delay="0" dst="1" src="3"/>
+	<link delay="0" dst="1" src="4"/>
+</system>

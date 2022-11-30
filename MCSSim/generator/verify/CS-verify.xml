@@ -1,0 +1,661 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE nta PUBLIC '-//Uppaal Team//DTD Flat System 1.1//EN' 'http://www.it.uu.se/research/group/darts/uppaal/flat-1_2.dtd'>
+<nta>
+	<declaration>// Place global declarations here.
+const int MAX_WIN_NUM=3;
+const int MAX_PART_NUM=3;
+const int MAX_WIN_LEN=3;
+
+typedef struct {
+    int start;
+    int stop;
+    int partitionId;
+} WindowData;
+
+typedef struct {
+    WindowData windows[MAX_WIN_NUM];
+    int numOfWindows;
+    int majorFrame;
+} GlobalSchedulerData;
+
+GlobalSchedulerData data;
+chan wakeup[MAX_PART_NUM];
+chan sleep[MAX_PART_NUM];
+
+clock time;
+int current_window;</declaration>
+	<template>
+		<name>C_R_1_1</name>
+		<parameter>GlobalSchedulerData &amp;data, chan &amp;wakeup[MAX_PART_NUM],chan &amp;sleep[MAX_PART_NUM]</parameter>
+		<declaration>int i=0, j=0, f=0;
+int tmp_time=0;
+clock c, c1;
+
+void start()
+{
+    i=0;
+    if (i == data.numOfWindows-1)
+        f=1;
+    else
+        f=0;
+}
+
+void next()
+{
+    if (i == data.numOfWindows-1) {
+        i=0;
+        c=0;
+    } else {
+        i=i+1;
+    }
+    if (i == data.numOfWindows-1) {
+        f=1;
+    } else {
+        f=0;
+    }
+}</declaration>
+		<location id="id0" x="-363" y="198">
+			<name x="-518" y="229">WaitForNextMajorFrame</name>
+			<label kind="invariant" x="-501" y="246">c &lt;= data.majorFrame</label>
+		</location>
+		<location id="id1" x="-76" y="229">
+			<name x="-102" y="246">ERROR</name>
+			<committed/>
+		</location>
+		<location id="id2" x="-580" y="-117">
+			<name x="-585" y="-147">C</name>
+			<committed/>
+		</location>
+		<location id="id3" x="-363" y="103">
+			<name x="-354" y="111">StopOk</name>
+			<committed/>
+		</location>
+		<location id="id4" x="-458" y="-119">
+			<name x="-467" y="-148">B</name>
+			<committed/>
+		</location>
+		<location id="id5" x="-323" y="-8">
+			<name x="-416" y="-51">WaitForStop</name>
+			<label kind="invariant" x="-510" y="-34">c&lt;=data.windows[i].stop</label>
+		</location>
+		<location id="id6" x="-323" y="-119">
+			<name x="-306" y="-127">A</name>
+			<committed/>
+		</location>
+		<location id="id7" x="-93" y="-8">
+			<name x="-110" y="-42">Stop</name>
+			<label kind="invariant" x="-76" y="-8">c &lt;= data.majorFrame</label>
+		</location>
+		<location id="id8" x="-110" y="-93">
+			<name x="-161" y="-102">Init5</name>
+			<committed/>
+		</location>
+		<location id="id9" x="170" y="-93">
+			<name x="187" y="-102">Init4</name>
+			<committed/>
+		</location>
+		<location id="id10" x="170" y="-238">
+			<name x="160" y="-272">Init3</name>
+			<committed/>
+		</location>
+		<location id="id11" x="-110" y="-238">
+			<name x="-120" y="-272">Init2</name>
+			<committed/>
+		</location>
+		<location id="id12" x="-323" y="-238">
+			<name x="-333" y="-272">Init1</name>
+			<committed/>
+		</location>
+		<location id="id13" x="-527" y="-238">
+			<name x="-537" y="-272">Init0</name>
+			<committed/>
+		</location>
+		<init ref="id13"/>
+		<transition>
+			<source ref="id0"/>
+			<target ref="id1"/>
+			<label kind="select" x="-305" y="198">n:int[0,MAX_PART_NUM-1]</label>
+			<label kind="guard" x="-293" y="212">c&lt;data.majorFrame</label>
+			<label kind="synchronisation" x="-282" y="232">sleep[n]?</label>
+			<nail x="-316" y="227"/>
+		</transition>
+		<transition>
+			<source ref="id0"/>
+			<target ref="id0"/>
+			<label kind="select" x="-351" y="146">n:int[0,MAX_PART_NUM-1]</label>
+			<label kind="synchronisation" x="-350" y="164">wakeup[n]?</label>
+			<nail x="-355" y="164"/>
+			<nail x="-190" y="165"/>
+		</transition>
+		<transition>
+			<source ref="id0"/>
+			<target ref="id2"/>
+			<label kind="guard" x="-567" y="200">c==data.majorFrame</label>
+			<nail x="-582" y="198"/>
+		</transition>
+		<transition>
+			<source ref="id3"/>
+			<target ref="id0"/>
+			<label kind="guard" x="-401" y="142">f==1</label>
+		</transition>
+		<transition>
+			<source ref="id3"/>
+			<target ref="id2"/>
+			<label kind="guard" x="-509" y="87">f==0</label>
+			<nail x="-581" y="103"/>
+		</transition>
+		<transition>
+			<source ref="id2"/>
+			<target ref="id4"/>
+			<label kind="assignment" x="-533" y="-118">next()</label>
+		</transition>
+		<transition>
+			<source ref="id4"/>
+			<target ref="id5"/>
+			<nail x="-405" y="-90"/>
+			<nail x="-322" y="-89"/>
+		</transition>
+		<transition>
+			<source ref="id6"/>
+			<target ref="id4"/>
+			<label kind="assignment" x="-412" y="-116">start()</label>
+		</transition>
+		<transition>
+			<source ref="id7"/>
+			<target ref="id7"/>
+			<label kind="select" x="-297" y="25">n:int[0,MAX_PART_NUM-1]</label>
+			<label kind="synchronisation" x="-297" y="42">wakeup[n]?</label>
+			<nail x="-110" y="59"/>
+			<nail x="-306" y="59"/>
+			<nail x="-306" y="17"/>
+			<nail x="-136" y="17"/>
+		</transition>
+		<transition>
+			<source ref="id7"/>
+			<target ref="id1"/>
+			<label kind="select" x="-34" y="17">n:int[0,MAX_PART_NUM-1]</label>
+			<label kind="guard" x="-51" y="34">n!=data.windows[i].partitionId</label>
+			<label kind="synchronisation" x="-34" y="51">sleep[n]?</label>
+			<nail x="-59" y="34"/>
+			<nail x="-59" y="34"/>
+			<nail x="170" y="34"/>
+			<nail x="170" y="229"/>
+		</transition>
+		<transition>
+			<source ref="id7"/>
+			<target ref="id1"/>
+			<label kind="guard" x="17" y="-25">c1&gt;0</label>
+			<nail x="170" y="-8"/>
+			<nail x="170" y="229"/>
+		</transition>
+		<transition>
+			<source ref="id5"/>
+			<target ref="id1"/>
+			<label kind="select" x="-17" y="-68">n:int[0,MAX_PART_NUM-1]</label>
+			<label kind="guard" x="0" y="-51">c&lt;data.windows[i].stop</label>
+			<label kind="synchronisation" x="85" y="-34">sleep[n]?</label>
+			<nail x="-280" y="-51"/>
+			<nail x="170" y="-51"/>
+			<nail x="170" y="229"/>
+		</transition>
+		<transition>
+			<source ref="id5"/>
+			<target ref="id5"/>
+			<label kind="select" x="-552" y="42">n:int[0,MAX_PART_NUM-1]</label>
+			<label kind="synchronisation" x="-535" y="59">wakeup[n]?</label>
+			<nail x="-357" y="42"/>
+			<nail x="-569" y="42"/>
+			<nail x="-569" y="59"/>
+			<nail x="-339" y="59"/>
+		</transition>
+		<transition>
+			<source ref="id7"/>
+			<target ref="id3"/>
+			<label kind="synchronisation" x="-339" y="86">sleep[data.windows[i].partitionId]?</label>
+			<nail x="-93" y="102"/>
+		</transition>
+		<transition>
+			<source ref="id5"/>
+			<target ref="id7"/>
+			<label kind="guard" x="-297" y="-25">c==data.windows[i].stop</label>
+			<label kind="assignment" x="-170" y="-8">c1=0</label>
+		</transition>
+		<transition>
+			<source ref="id12"/>
+			<target ref="id6"/>
+			<label kind="select" x="-501" y="-204">n:int[1,MAX_WIN_LEN]</label>
+			<label kind="guard" x="-493" y="-187">j==data.numOfWindows</label>
+			<label kind="assignment" x="-544" y="-170">data.majorFrame=tmp_time+n</label>
+		</transition>
+		<transition>
+			<source ref="id8"/>
+			<target ref="id12"/>
+			<label kind="assignment" x="-195" y="-178">j=j+1</label>
+		</transition>
+		<transition>
+			<source ref="id9"/>
+			<target ref="id8"/>
+			<label kind="select" x="-59" y="-110">n:int[0,MAX_PART_NUM-1]</label>
+			<label kind="assignment" x="-59" y="-93">data.windows[j].partitionId=n</label>
+		</transition>
+		<transition>
+			<source ref="id10"/>
+			<target ref="id9"/>
+			<label kind="select" x="-8" y="-187">n:int[1, MAX_WIN_LEN]</label>
+			<label kind="assignment" x="-76" y="-170">data.windows[j].stop=tmp_time+n,
+tmp_time=tmp_time+n</label>
+		</transition>
+		<transition>
+			<source ref="id11"/>
+			<target ref="id10"/>
+			<label kind="select" x="-85" y="-255">n:int[0, MAX_WIN_LEN]</label>
+			<label kind="assignment" x="-92" y="-238">data.windows[j].start = tmp_time+n,
+tmp_time = tmp_time+n</label>
+		</transition>
+		<transition>
+			<source ref="id12"/>
+			<target ref="id11"/>
+			<label kind="guard" x="-297" y="-255">j&lt;data.numOfWindows</label>
+		</transition>
+		<transition>
+			<source ref="id13"/>
+			<target ref="id12"/>
+			<label kind="select" x="-510" y="-255">n: int[1, MAX_WIN_NUM]</label>
+			<label kind="assignment" x="-510" y="-238">data.numOfWindows=n</label>
+		</transition>
+	</template>
+	<template>
+		<name>C_R_1_2</name>
+		<parameter>GlobalSchedulerData &amp;data, chan &amp;wakeup[MAX_PART_NUM],chan &amp;sleep[MAX_PART_NUM]</parameter>
+		<declaration>int i=0, j=0, f=0;
+int tmp_time=0;
+clock c, c1;
+
+void start()
+{
+    i=0;
+    if (i == data.numOfWindows-1)
+        f=1;
+    else
+        f=0;
+}
+
+void next()
+{
+    if (i == data.numOfWindows-1) {
+        i=0;
+        c=0;
+    } else {
+        i=i+1;
+    }
+    if (i == data.numOfWindows-1) {
+        f=1;
+    } else {
+        f=0;
+    }
+}</declaration>
+		<location id="id14" x="-76" y="229">
+			<name x="-110" y="195">ERROR</name>
+			<committed/>
+		</location>
+		<location id="id15" x="-323" y="-8">
+			<name x="-416" y="-51">WaitForStart</name>
+			<label kind="invariant" x="-510" y="-34">c&lt;=data.windows[i].start</label>
+		</location>
+		<location id="id16" x="-93" y="-8">
+			<name x="-110" y="-34">Start</name>
+			<label kind="invariant" x="-76" y="-8">c &lt;= data.majorFrame</label>
+		</location>
+		<location id="id17" x="-363" y="103">
+			<name x="-354" y="111">StartOk</name>
+			<committed/>
+		</location>
+		<location id="id18" x="-323" y="-119">
+			<name x="-306" y="-127">A</name>
+			<committed/>
+		</location>
+		<location id="id19" x="-110" y="-93">
+			<name x="-161" y="-102">Init5</name>
+			<committed/>
+		</location>
+		<location id="id20" x="170" y="-93">
+			<name x="187" y="-102">Init4</name>
+			<committed/>
+		</location>
+		<location id="id21" x="170" y="-238">
+			<name x="160" y="-272">Init3</name>
+			<committed/>
+		</location>
+		<location id="id22" x="-110" y="-238">
+			<name x="-120" y="-272">Init2</name>
+			<committed/>
+		</location>
+		<location id="id23" x="-323" y="-238">
+			<name x="-333" y="-272">Init1</name>
+			<committed/>
+		</location>
+		<location id="id24" x="-527" y="-238">
+			<name x="-537" y="-272">Init0</name>
+			<committed/>
+		</location>
+		<location id="id25" x="-458" y="-119">
+			<name x="-467" y="-148">B</name>
+			<committed/>
+		</location>
+		<location id="id26" x="-580" y="-117">
+			<name x="-585" y="-147">C</name>
+			<committed/>
+		</location>
+		<location id="id27" x="-363" y="198">
+			<name x="-527" y="221">WaitForNextMajorFrame</name>
+			<label kind="invariant" x="-518" y="238">c &lt;= data.majorFrame</label>
+		</location>
+		<init ref="id24"/>
+		<transition>
+			<source ref="id27"/>
+			<target ref="id14"/>
+			<label kind="select" x="-305" y="198">n:int[0,MAX_PART_NUM-1]</label>
+			<label kind="guard" x="-293" y="212">c&lt;data.majorFrame</label>
+			<label kind="synchronisation" x="-282" y="232">wakeup[n]?</label>
+			<nail x="-316" y="227"/>
+		</transition>
+		<transition>
+			<source ref="id27"/>
+			<target ref="id27"/>
+			<label kind="select" x="-351" y="146">n:int[0,MAX_PART_NUM-1]</label>
+			<label kind="synchronisation" x="-350" y="164">sleep[n]?</label>
+			<nail x="-355" y="164"/>
+			<nail x="-190" y="165"/>
+		</transition>
+		<transition>
+			<source ref="id27"/>
+			<target ref="id26"/>
+			<label kind="guard" x="-567" y="200">c==data.majorFrame</label>
+			<nail x="-582" y="198"/>
+		</transition>
+		<transition>
+			<source ref="id17"/>
+			<target ref="id27"/>
+			<label kind="guard" x="-401" y="142">f==1</label>
+		</transition>
+		<transition>
+			<source ref="id17"/>
+			<target ref="id26"/>
+			<label kind="guard" x="-509" y="87">f==0</label>
+			<nail x="-581" y="103"/>
+		</transition>
+		<transition>
+			<source ref="id26"/>
+			<target ref="id25"/>
+			<label kind="assignment" x="-533" y="-118">next()</label>
+		</transition>
+		<transition>
+			<source ref="id25"/>
+			<target ref="id15"/>
+			<nail x="-405" y="-90"/>
+			<nail x="-322" y="-89"/>
+		</transition>
+		<transition>
+			<source ref="id18"/>
+			<target ref="id25"/>
+			<label kind="assignment" x="-412" y="-116">start()</label>
+		</transition>
+		<transition>
+			<source ref="id16"/>
+			<target ref="id16"/>
+			<label kind="select" x="-297" y="42">n:int[0,MAX_PART_NUM-1]</label>
+			<label kind="synchronisation" x="-297" y="59">sleep[n]?</label>
+			<nail x="-110" y="59"/>
+			<nail x="-306" y="59"/>
+			<nail x="-306" y="25"/>
+			<nail x="-144" y="25"/>
+		</transition>
+		<transition>
+			<source ref="id16"/>
+			<target ref="id14"/>
+			<label kind="select" x="-34" y="17">n:int[0,MAX_PART_NUM-1]</label>
+			<label kind="guard" x="-51" y="34">n!=data.windows[i].partitionId</label>
+			<label kind="synchronisation" x="-34" y="51">wakeup[n]?</label>
+			<nail x="-59" y="34"/>
+			<nail x="-59" y="34"/>
+			<nail x="170" y="34"/>
+			<nail x="170" y="229"/>
+		</transition>
+		<transition>
+			<source ref="id16"/>
+			<target ref="id14"/>
+			<label kind="guard" x="17" y="-25">c1&gt;0</label>
+			<nail x="170" y="-8"/>
+			<nail x="170" y="229"/>
+		</transition>
+		<transition>
+			<source ref="id15"/>
+			<target ref="id14"/>
+			<label kind="select" x="-17" y="-68">n:int[0,MAX_PART_NUM-1]</label>
+			<label kind="guard" x="0" y="-51">c&lt;data.windows[i].start</label>
+			<label kind="synchronisation" x="85" y="-34">wakeup[n]?</label>
+			<nail x="-280" y="-51"/>
+			<nail x="170" y="-51"/>
+			<nail x="170" y="229"/>
+		</transition>
+		<transition>
+			<source ref="id15"/>
+			<target ref="id15"/>
+			<label kind="select" x="-552" y="42">n:int[0,MAX_PART_NUM-1]</label>
+			<label kind="synchronisation" x="-535" y="59">sleep[n]?</label>
+			<nail x="-357" y="42"/>
+			<nail x="-569" y="42"/>
+			<nail x="-569" y="59"/>
+			<nail x="-339" y="59"/>
+		</transition>
+		<transition>
+			<source ref="id16"/>
+			<target ref="id17"/>
+			<label kind="synchronisation" x="-339" y="86">wakeup[data.windows[i].partitionId]?</label>
+			<nail x="-93" y="102"/>
+		</transition>
+		<transition>
+			<source ref="id15"/>
+			<target ref="id16"/>
+			<label kind="guard" x="-297" y="-25">c==data.windows[i].start</label>
+			<label kind="assignment" x="-170" y="-8">c1=0</label>
+		</transition>
+		<transition>
+			<source ref="id23"/>
+			<target ref="id18"/>
+			<label kind="select" x="-501" y="-204">n:int[1,MAX_WIN_LEN]</label>
+			<label kind="guard" x="-493" y="-187">j==data.numOfWindows</label>
+			<label kind="assignment" x="-544" y="-170">data.majorFrame=tmp_time+n</label>
+		</transition>
+		<transition>
+			<source ref="id19"/>
+			<target ref="id23"/>
+			<label kind="assignment" x="-195" y="-178">j=j+1</label>
+		</transition>
+		<transition>
+			<source ref="id20"/>
+			<target ref="id19"/>
+			<label kind="select" x="-59" y="-110">n:int[0,MAX_PART_NUM-1]</label>
+			<label kind="assignment" x="-59" y="-93">data.windows[j].partitionId=n</label>
+		</transition>
+		<transition>
+			<source ref="id21"/>
+			<target ref="id20"/>
+			<label kind="select" x="-8" y="-187">n:int[1, MAX_WIN_LEN]</label>
+			<label kind="assignment" x="-76" y="-170">data.windows[j].stop=tmp_time+n,
+tmp_time=tmp_time+n</label>
+		</transition>
+		<transition>
+			<source ref="id22"/>
+			<target ref="id21"/>
+			<label kind="select" x="-85" y="-255">n:int[0, MAX_WIN_LEN]</label>
+			<label kind="assignment" x="-92" y="-238">data.windows[j].start = tmp_time+n,
+tmp_time = tmp_time+n</label>
+		</transition>
+		<transition>
+			<source ref="id23"/>
+			<target ref="id22"/>
+			<label kind="guard" x="-297" y="-255">j&lt;data.numOfWindows</label>
+		</transition>
+		<transition>
+			<source ref="id24"/>
+			<target ref="id23"/>
+			<label kind="select" x="-510" y="-255">n: int[1, MAX_WIN_NUM]</label>
+			<label kind="assignment" x="-510" y="-238">data.numOfWindows=n</label>
+		</transition>
+	</template>
+	<template>
+		<name x="5" y="5">CS</name>
+		<parameter>GlobalSchedulerData &amp;data, chan &amp;wakeup[MAX_PART_NUM],chan &amp;sleep[MAX_PART_NUM]</parameter>
+		<declaration>// Place local declarations here.
+
+int current_partition;
+int last_window;
+
+void next()
+{
+    if (current_window == data.numOfWindows-1) {
+        current_window=0;
+        time=0;
+    } else {
+        current_window=current_window+1;
+    }
+    if (current_window == data.numOfWindows-1) {
+        last_window=1;
+    } else {
+        last_window=0;
+    }
+}
+
+void start()
+{
+    current_window=0;
+    if (current_window == data.numOfWindows-1)
+        last_window=1;
+    else
+        last_window=0;
+}</declaration>
+		<location id="id28" x="-119" y="-212">
+			<name x="-195" y="-246">GetPartition</name>
+			<committed/>
+		</location>
+		<location id="id29" x="-119" y="102">
+			<name x="-170" y="93">Stop</name>
+			<committed/>
+		</location>
+		<location id="id30" x="-119" y="0">
+			<name x="-178" y="-8">Active</name>
+			<label kind="invariant" x="-357" y="-8">time &lt;=
+data.windows[current_window].stop</label>
+		</location>
+		<location id="id31" x="-119" y="-119">
+			<name x="-204" y="-127">PreActive</name>
+			<label kind="invariant" x="-357" y="-127">time &lt;=
+data.windows[current_window].start</label>
+		</location>
+		<location id="id32" x="93" y="-93">
+			<name x="107" y="-111">Next</name>
+			<committed/>
+		</location>
+		<location id="id33" x="48" y="101">
+			<name x="63" y="92">WaitForNewFrame</name>
+			<label kind="invariant" x="61" y="112">time &lt;= data.majorFrame</label>
+		</location>
+		<location id="id34" x="146" y="-211">
+			<name x="135" y="-240">Init</name>
+			<urgent/>
+		</location>
+		<init ref="id34"/>
+		<transition>
+			<source ref="id34"/>
+			<target ref="id28"/>
+			<label kind="assignment" x="-30" y="-208">start()</label>
+		</transition>
+		<transition>
+			<source ref="id29"/>
+			<target ref="id32"/>
+			<label kind="guard" x="-67" y="1">last_window==0</label>
+			<nail x="-68" y="46"/>
+			<nail x="-69" y="-27"/>
+		</transition>
+		<transition>
+			<source ref="id33"/>
+			<target ref="id32"/>
+			<label kind="guard" x="49" y="-10">time == data.majorFrame</label>
+			<nail x="51" y="-52"/>
+		</transition>
+		<transition>
+			<source ref="id29"/>
+			<target ref="id33"/>
+			<label kind="guard" x="-99" y="84">last_window==1</label>
+		</transition>
+		<transition>
+			<source ref="id32"/>
+			<target ref="id28"/>
+			<label kind="assignment" x="-41" y="-93">next()</label>
+			<nail x="-59" y="-93"/>
+		</transition>
+		<transition>
+			<source ref="id28"/>
+			<target ref="id31"/>
+			<label kind="assignment" x="-391" y="-187">current_partition =
+data.windows[current_window].partitionId</label>
+		</transition>
+		<transition>
+			<source ref="id30"/>
+			<target ref="id29"/>
+			<label kind="guard" x="-357" y="25">time ==
+data.windows[current_window].stop</label>
+			<label kind="synchronisation" x="-289" y="59">sleep[current_partition]!</label>
+		</transition>
+		<transition>
+			<source ref="id31"/>
+			<target ref="id30"/>
+			<label kind="guard" x="-357" y="-76">time ==
+data.windows[current_window].start</label>
+			<label kind="synchronisation" x="-297" y="-42">wakeup[current_partition]!</label>
+		</transition>
+	</template>
+	<system>// Place template instantiations here.
+cs = CS(data, wakeup, sleep);
+c_r_1_1 = C_R_1_1(data, wakeup, sleep);
+c_r_1_2 = C_R_1_2(data, wakeup, sleep);
+// List one or more processes to be composed into a system.
+//system cs, cs_p;
+system cs, c_r_1_1;
+//system cs, c_r_1_2;
+//system cs, c_r_1_3;
+    </system>
+	<queries>
+		<query>
+			<formula>E&lt;&gt;deadlock
+			</formula>
+			<comment>
+			</comment>
+		</query>
+		<query>
+			<formula>E&lt;&gt;c_r_1_3.ERROR
+			</formula>
+			<comment>
+			</comment>
+		</query>
+		<query>
+			<formula>E&lt;&gt;c_r_1_2.ERROR
+			</formula>
+			<comment>
+			</comment>
+		</query>
+		<query>
+			<formula>E&lt;&gt;cs_p.ERROR
+			</formula>
+			<comment>
+			</comment>
+		</query>
+		<query>
+			<formula>E&lt;&gt;c_r_1_1.ERROR
+			</formula>
+			<comment>
+			</comment>
+		</query>
+	</queries>
+</nta>

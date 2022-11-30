@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE nta PUBLIC '-//Uppaal Team//DTD Flat System 1.1//EN' 'http://www.it.uu.se/research/group/darts/uppaal/flat-1_2.dtd'>
+<nta>
+	<declaration>
+typedef struct {
+    int start;
+    int stop;
+    int partitionId;
+} WindowData;
+
+typedef struct {
+    WindowData windows[DUMMY_NUM];
+    int numOfWindows;
+    int majorFrame;
+} CoreSchedulerData;</declaration>
+	<template>
+		<name>CS</name>
+		<parameter>CoreSchedulerData &amp;data, chan &amp;wakeup[DUMMY_NUM],chan &amp;sleep[DUMMY_NUM]</parameter>
+		<declaration>int current_window;
+int current_partition;
+int last_window;
+clock time;
+
+void next()
+{
+    if (current_window == data.numOfWindows-1) {
+        current_window=0;
+        time=0;
+    } else {
+        current_window=current_window+1;
+    }
+    if (current_window == data.numOfWindows-1) {
+        last_window=1;
+    } else {
+        last_window=0;
+    }
+}
+
+void start()
+{
+    current_window=0;
+    if (current_window == data.numOfWindows-1)
+        last_window=1;
+    else
+        last_window=0;
+}
+
+</declaration>
+		<location id="id0" x="146" y="-211">
+			<name x="135" y="-240">Init</name>
+			<urgent/>
+		</location>
+		<location id="id1" x="-119" y="-212">
+			<name x="-195" y="-246">GetPartition</name>
+			<committed/>
+		</location>
+		<location id="id2" x="-119" y="102">
+			<name x="-170" y="93">Stop</name>
+			<committed/>
+		</location>
+		<location id="id3" x="93" y="-93">
+			<name x="107" y="-111">Next</name>
+			<committed/>
+		</location>
+		<location id="id4" x="48" y="101">
+			<name x="63" y="92">WaitForNewFrame</name>
+			<label kind="invariant" x="61" y="112">time &lt;= data.majorFrame</label>
+		</location>
+		<location id="id5" x="-119" y="0">
+			<name x="-178" y="-8">Active</name>
+			<label kind="invariant" x="-357" y="-8">time &lt;=
+data.windows[current_window].stop</label>
+		</location>
+		<location id="id6" x="-119" y="-119">
+			<name x="-204" y="-127">PreActive</name>
+			<label kind="invariant" x="-357" y="-127">time &lt;=
+data.windows[current_window].start</label>
+		</location>
+		<init ref="id0"/>
+		<transition>
+			<source ref="id0"/>
+			<target ref="id1"/>
+			<label kind="assignment" x="-30" y="-208">start()</label>
+		</transition>
+		<transition>
+			<source ref="id2"/>
+			<target ref="id3"/>
+			<label kind="guard" x="-67" y="1">last_window==0</label>
+			<nail x="-68" y="46"/>
+			<nail x="-69" y="-27"/>
+		</transition>
+		<transition>
+			<source ref="id4"/>
+			<target ref="id3"/>
+			<label kind="guard" x="49" y="-10">time == data.majorFrame</label>
+			<nail x="51" y="-52"/>
+		</transition>
+		<transition>
+			<source ref="id2"/>
+			<target ref="id4"/>
+			<label kind="guard" x="-99" y="84">last_window==1</label>
+		</transition>
+		<transition>
+			<source ref="id3"/>
+			<target ref="id1"/>
+			<label kind="assignment" x="-41" y="-93">next()</label>
+			<nail x="-59" y="-93"/>
+		</transition>
+		<transition>
+			<source ref="id1"/>
+			<target ref="id6"/>
+			<label kind="assignment" x="-382" y="-187">current_partition =
+data.windows[current_window].partitionId</label>
+		</transition>
+		<transition>
+			<source ref="id5"/>
+			<target ref="id2"/>
+			<label kind="guard" x="-357" y="25">time ==
+data.windows[current_window].stop</label>
+			<label kind="synchronisation" x="-280" y="59">sleep[current_partition]!</label>
+		</transition>
+		<transition>
+			<source ref="id6"/>
+			<target ref="id5"/>
+			<label kind="guard" x="-357" y="-76">time ==
+data.windows[current_window].start</label>
+			<label kind="synchronisation" x="-297" y="-42">wakeup[current_partition]!</label>
+		</transition>
+	</template>
+	<system></system>
+	<queries>
+		<query>
+			<formula></formula>
+			<comment></comment>
+		</query>
+	</queries>
+</nta>

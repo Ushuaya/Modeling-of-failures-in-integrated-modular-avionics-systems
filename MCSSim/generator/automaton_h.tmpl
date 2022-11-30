@@ -1,0 +1,172 @@
+\#ifndef __${automaton.name.upper()}__H_
+\#define __${automaton.name.upper()}__H_
+
+\#include "automaton.h"
+\#include "common.h"
+
+namespace $automaton.name {
+
+class $automaton.name:public Automaton {
+	$automaton.name *automaton;
+public:
+#for p in $automaton.typedParams:
+	${p[1]}* ${p[0]};
+#end for
+#for p in $automaton.arrayTypedParams:
+	std::vector <${p[1]}*> &${p[0]};
+#end for
+
+#for p in $automaton.vars:
+	Var* $p;
+#end for
+
+#for p in $automaton.arrayVars:
+	std::vector <Var*> &$p;
+#end for
+
+#for p in $automaton.arrayArrayVars:
+	std::vector <std::vector <Var*> > &$p;
+#end for
+
+#for p in $automaton.chans:
+	Channel* $p;
+#end for
+
+#for p in $automaton.arrayChans:
+	std::vector <Channel*> &$p;
+#end for
+
+
+#for p in $automaton.timers:
+	Timer* $p;
+#end for
+
+#for p in $automaton.arrayTimers:
+	std::vector <Timer*> &$p;
+#end for
+
+#for p in $automaton.localVars:
+	Var $p;
+#end for
+
+#for p in $automaton.localClocks:
+	Timer $p;
+#end for
+
+#for p in $automaton.localArrayClocks.keys():
+	std::vector <Timer*> $p;
+#end for
+
+	${automaton.name}(std::string _name, Network *n, int p, bool t#slurp
+#for p in $automaton.typedParams:
+, ${p[1]}* _${p[0]}#slurp
+#end for
+#for p in $automaton.arrayTypedParams:
+, std::vector <${p[1]}*> & _${p[0]}#slurp
+#end for
+#for p in $automaton.vars:
+, Var* _$p#slurp
+#end for
+#for p in $automaton.arrayVars:
+, std::vector <Var*> &_$p#slurp
+#end for
+#for p in $automaton.arrayArrayVars:
+, std::vector < std::vector <Var*> > &_$p#slurp
+#end for
+#for p in $automaton.chans:
+, Channel* _$p#slurp
+#end for
+#for p in $automaton.arrayChans:
+, std::vector <Channel*> &_$p#slurp
+#end for
+#for p in $automaton.timers:
+, Timer* _$p#slurp
+#end for
+#for p in $automaton.arrayTimers:
+, std::vector <Timer*> &_$p#slurp
+#end for
+);
+
+$automaton.declaration
+};
+
+#silent $automaton.transitions.sort(key=lambda x: x.channel_prio)
+
+#set $tnum = 0
+#for t in $automaton.transitions:
+class ${automaton.states[$t.src].name}_${automaton.states[$t.dst].name}_$tnum: public Transition {
+	${automaton.name}* automaton;
+	$t.local
+
+public:
+#if $t.channel=="":
+	${automaton.states[$t.src].name}_${automaton.states[$t.dst].name}_$tnum (Network *_net, Location *_next, ${automaton.name} *_aut): Transition(_net, _next), automaton(_aut) {}
+#else:
+	${automaton.states[$t.src].name}_${automaton.states[$t.dst].name}_$tnum (Network *_net, Location *_next, ${automaton.name} *_aut): Transition(_net, _next), automaton(_aut)
+	{
+		is_sender = ${str(t.is_sender).lower()};
+	}
+#end if
+
+#if $t.guard!="":
+	virtual bool guard()
+	{
+		return $t.guard;
+	}
+#end if
+
+#if $t.complex_guard!="":
+	virtual bool guard()
+	{
+		$t.complex_guard
+	}
+#end if
+
+
+#if $t.action!="":
+	virtual void action()
+	{
+		$t.action;
+	}
+#end if
+
+#if $t.channel!="":
+	virtual bool synchronize()
+	{
+		channel = &($t.channel);
+		return Transition::synchronize();
+	}
+
+	virtual bool needSync()
+	{
+		return true;
+	}
+#end if
+
+};
+#set $tnum = $tnum + 1
+
+#end for
+
+#for s in $automaton.states.values():
+class $s.name: public Location {
+	${automaton.name}* automaton;
+public:
+	$s.name (Network *n, std::string _name, bool init, bool committed, ${automaton.name} *a): Location (n, _name, init, committed), automaton(a) {}
+#if $len($s.timers) != 0:
+	virtual bool checkTimer(Timer *__t)
+	{
+#for t in $s.timers:
+		if ( __t == ${t[0]})
+			return ${t[1]};
+#end for
+		return true;
+	}
+#end if
+};
+
+#end for
+
+}
+
+\#endif
