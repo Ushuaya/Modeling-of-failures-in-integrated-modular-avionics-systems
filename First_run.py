@@ -177,19 +177,23 @@ def write_nvp_xml(graph_main_crash, MF_PERIOD, windows_nvp, second_main_app_grap
         Task_id_cout = 0 # Varaible to create unique numeric ids of tasks
         tmp_count = 0
         for q_partition in All_graphs_nvp_dict:
-            file.write("\t\t<partition id=\"{}\" name=\"part_{}\" scheduler=\"FPPS\">\n".format(All_win_dict[q_partition], q_partition ))
-            for i in range(len(All_graphs_nvp_dict[q_partition].vs)):
-                # if q_partition != "Fixator":
-                #     file.write("\t\t\t<task deadline=\"{}\" id=\"{}\" name=\"task_{}\" offset=\"0\" period=\"{}\" prio=\"1\" wcet=\"{}\"/>\n".format(MF_period - 1, str(All_graphs_nvp_dict[q_partition].vs[i]["name"]), q_partition + str(i), MF_period, All_graphs_nvp_dict[q_partition].vs[i]["duration"]))
-                # else: 
-                #     file.write("\t\t\t<task deadline=\"{}\" id=\"{}\" name=\"task_{}\" offset=\"0\" period=\"{}\" prio=\"1\" wcet=\"{}\"/>\n".format(MF_period - 1, str(int(All_graphs_nvp_dict[q_partition].vs[i]["name"]) + len(g.vs.indices)), q_partition + str(i), MF_period, All_graphs_nvp_dict[q_partition].vs[i]["duration"]))
-                if q_partition != "Main" and q_partition != "Main_crash":
-                    file.write("\t\t\t<task deadline=\"{}\" id=\"{}\" name=\"task_{}\" offset=\"0\" period=\"{}\" prio=\"1\" wcet=\"{}\"/>\n".format(MF_PERIOD - 1, Task_id_cout, q_partition + str(i), MF_PERIOD, All_graphs_nvp_dict[q_partition].vs[i]["duration"]))
-                else:
-                    file.write("\t\t\t<task deadline=\"{}\" id=\"{}\" name=\"task_{}\" offset=\"0\" period=\"{}\" prio=\"1\" wcet=\"{}\"/>\n".format(MF_PERIOD - 1, str(int(All_graphs_nvp_dict[q_partition].vs[i]["name"])), q_partition + str(i), MF_PERIOD, All_graphs_nvp_dict[q_partition].vs[i]["duration"]))
-                Task_id_cout += 1
-            tmp_count += 1
-            file.write("\t\t</partition>\n\n")
+            if (q_partition == "Main"):
+                file.write("\t\t<partition id=\"{}\" name=\"part_{}\" scheduler=\"FPPS\">\n".format(All_win_dict[q_partition], q_partition ))
+
+            else:
+                file.write("\t\t<partition id=\"{}\" name=\"part_{}\" scheduler=\"FPPS\">\n".format(All_win_dict[q_partition], q_partition ))
+                for i in range(len(All_graphs_nvp_dict[q_partition].vs)):
+                    # if q_partition != "Fixator":
+                    #     file.write("\t\t\t<task deadline=\"{}\" id=\"{}\" name=\"task_{}\" offset=\"0\" period=\"{}\" prio=\"1\" wcet=\"{}\"/>\n".format(MF_period - 1, str(All_graphs_nvp_dict[q_partition].vs[i]["name"]), q_partition + str(i), MF_period, All_graphs_nvp_dict[q_partition].vs[i]["duration"]))
+                    # else: 
+                    #     file.write("\t\t\t<task deadline=\"{}\" id=\"{}\" name=\"task_{}\" offset=\"0\" period=\"{}\" prio=\"1\" wcet=\"{}\"/>\n".format(MF_period - 1, str(int(All_graphs_nvp_dict[q_partition].vs[i]["name"]) + len(g.vs.indices)), q_partition + str(i), MF_period, All_graphs_nvp_dict[q_partition].vs[i]["duration"]))
+                    if q_partition != "Main" and q_partition != "Main_crash":
+                        file.write("\t\t\t<task deadline=\"{}\" id=\"{}\" name=\"task_{}\" offset=\"0\" period=\"{}\" prio=\"1\" wcet=\"{}\"/>\n".format(MF_PERIOD - 1, Task_id_cout, q_partition + str(i), MF_PERIOD, All_graphs_nvp_dict[q_partition].vs[i]["duration"]))
+                    else:
+                        file.write("\t\t\t<task deadline=\"{}\" id=\"{}\" name=\"task_{}\" offset=\"0\" period=\"{}\" prio=\"1\" wcet=\"{}\"/>\n".format(MF_PERIOD - 1, str(int(All_graphs_nvp_dict[q_partition].vs[i]["name"])), q_partition + str(i), MF_PERIOD, All_graphs_nvp_dict[q_partition].vs[i]["duration"]))
+                    Task_id_cout += 1
+                tmp_count += 1
+                file.write("\t\t</partition>\n\n")
 
         file.write("\t\t<partition id=\"4\" name=\"part_Reserve\" scheduler=\"FPPS\">\n")
         #file.write("\t\t\t<task deadline=\"299\" id=\"reserve\" name=\"reserve\" offset=\"0\" period=\"300\" prio=\"1\" wcet=\"100\"/>\n")
