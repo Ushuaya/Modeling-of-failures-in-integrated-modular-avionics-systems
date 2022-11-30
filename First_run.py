@@ -17,16 +17,7 @@ FIXATOR_TIME = 1
 GRAPH_INITIAL_APP = ig.Graph(n=12, edges=[[0, 1], [1, 2], [2, 3], [3, 4], [4, 5], [5, 6], [6, 7], [7, 8], [8, 9], [1, 3], [1, 4], [9, 10], [10, 11]])
 GRAPH_INITIAL_APP.vs["duration"] = [5 for _ in range(len(GRAPH_INITIAL_APP.vs))]
 
-# Partition numbers sequence must start from 0 
-MAP_PARTITION_TASK = {0: (0, 1, 2), 1: (3, 4, 5), 2: (6, 7, 8), 3: (9, 10, 11)}
-MAP_PARTITION_WINDOW = {0: (0, 20), 1: (20, 40), 2: (40, 60), 3: (60, 80)}
-# hense we can create:
-# ---
-MAP_WINDOW_PARTITION = dict((v,k) for k,v in MAP_PARTITION_WINDOW.items())
-MAP_WINDOWSTARTTIME_PARTITION = dict((v[0] ,k) for k,v in MAP_PARTITION_WINDOW.items())
-# ---
-
-WINDOWS = [MAP_PARTITION_WINDOW[i] for i in MAP_PARTITION_WINDOW]
+WINDOWS = [[0, 10], [10, 20], [20, 30], [30, 50], [50, 60]]
 PICTURE_FILENAME_INITIAL_APP = "initial_app"
 PICTURE_FILENAME_NVP = "nvp_fault"
 # ----------------------------------------------------------------------
@@ -70,34 +61,21 @@ def create_double_visualization(filename1, filename2, task_crasshed_id):
     with open("num_test.pkl", "wb") as file:
         pickle.dump(next_test, file)
     
-def Write_xml_first_iter(filename, MF_PERIOD, GRAPH_INITIAL_APP, windows, MAP_TASK_PARTITION, PARTITION_WINDOW):
+def Write_xml_first_iter(filename, MF_PERIOD, GRAPH_INITIAL_APP, windows):
     with open(filename, "w") as file: 
         file.write("<?xml version=\"1.0\" ?>\n")
         file.write("<system>\n")
         file.write("\t<module major_frame=\"{}\" name=\"core1\">\n".format(MF_PERIOD))
-
-        for i in MAP_TASK_PARTITION: 
-            file.write("\t\t<partition id=\"{}\" name=\"part{}\" scheduler=\"FPPS\">\n".format(i,i,))
-            for j in MAP_TASK_PARTITION[i]:
-                file.write("\t\t\t<task deadline=\"{}\" id=\"{}\" name=\"task{}\" offset=\"0\" period=\"{}\" prio=\"1\" wcet=\"{}\"/>\n".format(MF_PERIOD - 1, j, j, MF_PERIOD, GRAPH_INITIAL_APP.vs[i]["duration"]))
-            file.write("\t\t</partition>\n")
-
-        # file.write("\t\t<partition id=\"0\" name=\"part1\" scheduler=\"FPPS\">\n")
-        # for i in range(len(GRAPH_INITIAL_APP.vs)):
-        #     file.write("\t\t\t<task deadline=\"{}\" id=\"{}\" name=\"task{}\" offset=\"0\" period=\"{}\" prio=\"1\" wcet=\"{}\"/>\n".format(MF_PERIOD - 1, i, i, MF_PERIOD, GRAPH_INITIAL_APP.vs[i]["duration"]))
-        # file.write("\t\t</partition>\n")
-
-
-        for i in PARTITION_WINDOW:
-            file.write("\t\t<window partition=\"{}\" start=\"{}\" stop=\"{}\"/>\n".format(i, PARTITION_WINDOW[i][0], PARTITION_WINDOW[i][1]))
-
-
-        # for i in windows:
-        #     file.write("\t\t<window partition=\"0\" start=\"{}\" stop=\"{}\"/>\n".format(i[0], i[1]))
-
+        file.write("\t\t<partition id=\"0\" name=\"part1\" scheduler=\"FPPS\">\n")
+        for i in range(len(GRAPH_INITIAL_APP.vs)):
+            file.write("\t\t\t<task deadline=\"{}\" id=\"{}\" name=\"task{}\" offset=\"0\" period=\"{}\" prio=\"1\" wcet=\"{}\"/>\n".format(MF_PERIOD - 1, i, i, MF_PERIOD, GRAPH_INITIAL_APP.vs[i]["duration"]))
+        
+        file.write("\t\t</partition>\n")
+        for i in windows:
+            file.write("\t\t<window partition=\"0\" start=\"{}\" stop=\"{}\"/>\n".format(i[0], i[1]))
         file.write("\t</module>\n")
-        # for e in GRAPH_INITIAL_APP.es:
-        #     file.write("\t<link delay=\"0\" dst=\"{}\" src=\"{}\"/>\n".format(e.tuple[1], e.tuple[0]))
+        for e in GRAPH_INITIAL_APP.es:
+            file.write("\t<link delay=\"0\" dst=\"{}\" src=\"{}\"/>\n".format(e.tuple[1], e.tuple[0]))
         file.write("</system>\n")
 
 
@@ -224,7 +202,7 @@ for i in WINDOWS:
 
 # CREATING XML FILE FOR FIRST ITERATION OF ALGORYTHM 
 # --------------------------------------------------------------------------------------------------------------
-Write_xml_first_iter("test.xml", MF_PERIOD, GRAPH_INITIAL_APP, WINDOWS, MAP_PARTITION_TASK, MAP_PARTITION_WINDOW)
+Write_xml_first_iter("test.xml", MF_PERIOD, GRAPH_INITIAL_APP, WINDOWS)
 # --------------------------------------------------------------------------------------------------------------
 
 
@@ -241,11 +219,6 @@ parsing = parser_.INTERVAL()
 """Here specify input file."""
 inter = parsing.create_int("result.txt")
 parsing.print_intervals()
-
-# 
-# --------------------------------------------------------------------------------------------------------------
-# --------------------------------------------------------------------------------------------------------------
-
 
 
 visioner1 = vision.VISUALISER()
@@ -268,7 +241,7 @@ windows_nvp = []
 cur_time = 0
 for win in WINDOWS: 
     if win[0] != window_crashed["window_time"][0]:
-        windows_nvp += [Window_elem("Main" + "_part_" + str(MAP_WINDOWSTARTTIME_PARTITION[win[0]]), [cur_time, win[1] - win[0] + cur_time])]
+        windows_nvp += [Window_elem("Main", [cur_time, win[1] - win[0] + cur_time])]
         cur_time += win[1] - win[0]
         windows_nvp += [Window_elem("Fixator", [cur_time, cur_time + FIXATOR_TIME])]
         cur_time += FIXATOR_TIME
