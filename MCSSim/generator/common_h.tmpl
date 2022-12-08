@@ -1,0 +1,50 @@
+\#ifndef __COMMON__H_
+\#define __COMMON__H_
+
+\#include <vector>
+\#include <string>
+\#include "network.h"
+\#include "channel.h"
+\#include "timer.h"
+\#include "var.h"
+
+\#define DUMMY_NUM 100000000
+
+#for n in $declarations:
+$n
+#end for
+
+#for $i in $base.keys():
+void create$i (std::string type, std::string _name, Network *n, int p, bool t#slurp
+#set $automaton = $base[i][0]
+#for p in $automaton.typedParams:
+, ${p[1]}* _${p[0]}#slurp
+#end for
+#for p in $automaton.arrayTypedParams:
+, std::vector <${p[1]}*> & _${p[0]}#slurp
+#end for
+#for p in $automaton.vars:
+, Var* _$p#slurp
+#end for
+#for p in $automaton.arrayVars:
+, std::vector <Var*> &_$p#slurp
+#end for
+#for p in $automaton.arrayArrayVars:
+, std::vector < std::vector <Var*> > &_$p#slurp
+#end for
+#for p in $automaton.chans:
+, Channel* _$p#slurp
+#end for
+#for p in $automaton.arrayChans:
+, std::vector <Channel*> &_$p#slurp
+#end for
+#for p in $automaton.timers:
+, Timer* _$p#slurp
+#end for
+#for p in $automaton.arrayTimers:
+, std::vector <Timer*> &_$p#slurp
+#end for
+);
+#end for
+
+\#endif

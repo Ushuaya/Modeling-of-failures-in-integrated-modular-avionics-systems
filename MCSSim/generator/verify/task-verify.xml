@@ -1,0 +1,2105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE nta PUBLIC '-//Uppaal Team//DTD Flat System 1.1//EN' 'http://www.it.uu.se/research/group/darts/uppaal/flat-1_2.dtd'>
+<nta>
+	<declaration>const int MAX_NUM_OF_INPUT_LINKS=1;
+//const int MAX_PERIOD=81;
+//const int MAX_INT=82;
+const int MAX_PERIOD=22;
+const int MAX_INT=23;
+
+// Place global declarations here.
+typedef struct {
+    int id;
+    int wcet;
+    int prio;
+    int offset;
+    int period;
+    int deadline;
+
+    int numOfInputLinks;
+} TaskData;
+
+TaskData t;
+int is_ready;
+int abs_deadline;
+int is_data_ready[MAX_NUM_OF_INPUT_LINKS];
+ chan exec; 
+ chan preempt;
+ chan ready;
+ chan finished;
+ broadcast chan send;
+ broadcast chan receive;
+
+typedef struct {
+    TaskData tasks[10];
+    int numOfTasks;
+} LocalSchedulerData;
+
+typedef struct {
+    int start;
+    int stop;
+    int partitionId;
+} WindowData;
+
+typedef struct {
+    WindowData windows[10];
+    int numOfWindows;
+    int majorFrame;
+} GlobalSchedulerData;
+
+typedef struct {
+    int delay;
+} LinkData;
+
+clock local_timer;</declaration>
+	<template>
+		<name>T_R_7</name>
+		<parameter>TaskData &amp;data, int &amp;is_ready, int &amp;abs_deadline, int &amp;is_data_ready[MAX_NUM_OF_INPUT_LINKS],  chan &amp;exec,  chan &amp;preempt,  chan &amp;ready,  chan&amp;finished, broadcast chan&amp; send,  broadcast chan&amp; receive</parameter>
+		<declaration>clock c;
+
+bool dataReset()
+{
+    for (i: int[0, MAX_NUM_OF_INPUT_LINKS-1]) {
+        if (i&gt;=data.numOfInputLinks)
+            return true;
+        if (is_data_ready[i])
+            return false;
+
+    }
+    return true;
+}</declaration>
+		<location id="id0" x="-1062" y="-170">
+			<name x="-1072" y="-204">L2</name>
+			<committed/>
+		</location>
+		<location id="id1" x="-586" y="-161">
+			<name x="-654" y="-170">ERROR</name>
+		</location>
+		<location id="id2" x="-450" y="-42">
+			<name x="-433" y="-51">WaitForReset</name>
+		</location>
+		<location id="id3" x="-578" y="-42">
+			<name x="-603" y="-68">L1</name>
+			<committed/>
+		</location>
+		<location id="id4" x="-493" y="-204">
+			<name x="-510" y="-187">Init4</name>
+			<committed/>
+		</location>
+		<location id="id5" x="-773" y="-204">
+			<name x="-765" y="-195">Init5</name>
+			<committed/>
+		</location>
+		<location id="id6" x="-314" y="-204">
+			<name x="-297" y="-212">Init3</name>
+			<committed/>
+		</location>
+		<location id="id7" x="-314" y="-280">
+			<name x="-348" y="-263">Init2</name>
+			<committed/>
+		</location>
+		<location id="id8" x="-493" y="-280">
+			<name x="-510" y="-263">Init1</name>
+			<committed/>
+		</location>
+		<location id="id9" x="-774" y="-280">
+			<name x="-790" y="-263">Init0</name>
+			<committed/>
+		</location>
+		<location id="id10" x="-773" y="-42">
+			<name x="-816" y="-34">Work</name>
+			<label kind="invariant" x="-1054" y="-25">c&lt;=data.period &amp;&amp;
+abs_deadline + data.period &lt; MAX_INT</label>
+		</location>
+		<init ref="id9"/>
+		<transition>
+			<source ref="id0"/>
+			<target ref="id10"/>
+			<label kind="synchronisation" x="-1044" y="-187">receive!</label>
+			<nail x="-807" y="-170"/>
+		</transition>
+		<transition>
+			<source ref="id10"/>
+			<target ref="id0"/>
+			<label kind="select" x="-1054" y="-161">i:int[0,MAX_NUM_OF_INPUT_LINKS-1]</label>
+			<label kind="guard" x="-1054" y="-144">i&lt;data.numOfInputLinks</label>
+			<label kind="assignment" x="-1054" y="-127">is_data_ready[i]=1</label>
+			<nail x="-824" y="-85"/>
+			<nail x="-1062" y="-85"/>
+		</transition>
+		<transition>
+			<source ref="id2"/>
+			<target ref="id1"/>
+			<label kind="guard" x="-578" y="-136">c&gt;data.period &amp;&amp; !dataReset()</label>
+			<nail x="-586" y="-102"/>
+		</transition>
+		<transition>
+			<source ref="id2"/>
+			<target ref="id10"/>
+			<label kind="guard" x="-705" y="-17">c==data.period &amp;&amp; dataReset()</label>
+			<label kind="assignment" x="-646" y="0">c=0</label>
+			<nail x="-450" y="0"/>
+			<nail x="-714" y="0"/>
+		</transition>
+		<transition>
+			<source ref="id3"/>
+			<target ref="id2"/>
+			<label kind="guard" x="-561" y="-59">!dataReset()</label>
+		</transition>
+		<transition>
+			<source ref="id3"/>
+			<target ref="id10"/>
+			<label kind="guard" x="-697" y="-102">dataReset()</label>
+			<label kind="assignment" x="-687" y="-85">c=0</label>
+			<nail x="-578" y="-85"/>
+			<nail x="-705" y="-85"/>
+		</transition>
+		<transition>
+			<source ref="id10"/>
+			<target ref="id3"/>
+			<label kind="guard" x="-739" y="-59">c==data.period</label>
+		</transition>
+		<transition>
+			<source ref="id5"/>
+			<target ref="id10"/>
+		</transition>
+		<transition>
+			<source ref="id10"/>
+			<target ref="id10"/>
+			<label kind="synchronisation" x="-756" y="34">exec!</label>
+			<nail x="-748" y="34"/>
+			<nail x="-722" y="34"/>
+		</transition>
+		<transition>
+			<source ref="id10"/>
+			<target ref="id10"/>
+			<label kind="synchronisation" x="-807" y="8">ready?</label>
+			<nail x="-782" y="8"/>
+			<nail x="-765" y="8"/>
+		</transition>
+		<transition>
+			<source ref="id4"/>
+			<target ref="id5"/>
+			<label kind="select" x="-705" y="-238">o:int[0,MAX_PERIOD-1]</label>
+			<label kind="guard" x="-731" y="-221">o+data.wcet&lt;=data.deadline</label>
+			<label kind="assignment" x="-680" y="-204">data.offset=o</label>
+		</transition>
+		<transition>
+			<source ref="id6"/>
+			<target ref="id4"/>
+			<label kind="select" x="-476" y="-221">w:int[1,MAX_PERIOD]</label>
+			<label kind="guard" x="-467" y="-204">w&lt;=data.deadline</label>
+			<label kind="assignment" x="-467" y="-187">data.wcet=w</label>
+		</transition>
+		<transition>
+			<source ref="id7"/>
+			<target ref="id6"/>
+			<label kind="select" x="-306" y="-272">d:int[1,MAX_PERIOD]</label>
+			<label kind="guard" x="-306" y="-238">d&lt;=data.period</label>
+			<label kind="assignment" x="-306" y="-255">data.deadline=d</label>
+		</transition>
+		<transition>
+			<source ref="id8"/>
+			<target ref="id7"/>
+			<label kind="select" x="-476" y="-297">p:int[1,MAX_PERIOD]</label>
+			<label kind="assignment" x="-476" y="-280">data.period=p</label>
+		</transition>
+		<transition>
+			<source ref="id9"/>
+			<target ref="id8"/>
+			<label kind="select" x="-756" y="-297">n:int[1, MAX_NUM_OF_INPUT_LINKS]</label>
+			<label kind="assignment" x="-739" y="-280">data.numOfInputLinks=n</label>
+		</transition>
+		<transition>
+			<source ref="id10"/>
+			<target ref="id10"/>
+			<label kind="synchronisation" x="-765" y="-93">send?</label>
+			<nail x="-739" y="-76"/>
+			<nail x="-765" y="-76"/>
+		</transition>
+		<transition>
+			<source ref="id10"/>
+			<target ref="id10"/>
+			<label kind="synchronisation" x="-1062" y="-76">finished?</label>
+			<nail x="-994" y="-75"/>
+			<nail x="-994" y="-59"/>
+		</transition>
+		<transition>
+			<source ref="id10"/>
+			<target ref="id10"/>
+			<label kind="synchronisation" x="-866" y="-212">preempt!</label>
+			<nail x="-790" y="-195"/>
+			<nail x="-807" y="-195"/>
+		</transition>
+	</template>
+	<template>
+		<name>T_R_3</name>
+		<parameter>TaskData &amp;data, int &amp;is_ready, int &amp;abs_deadline, int &amp;is_data_ready[MAX_NUM_OF_INPUT_LINKS],  chan &amp;exec,  chan &amp;preempt,  chan &amp;ready,  chan&amp;finished, broadcast chan&amp; send,  broadcast chan&amp; receive</parameter>
+		<declaration>clock c1;
+clock c2;
+
+bool allDataReady()
+{
+    for (i: int[0, MAX_NUM_OF_INPUT_LINKS-1]) {
+        if (i&gt;=data.numOfInputLinks)
+            return true;
+        if (!is_data_ready[i])
+            return false;
+
+    }
+    return true;
+}
+
+bool dataReset()
+{
+    for (i: int[0, MAX_NUM_OF_INPUT_LINKS-1]) {
+        if (i&gt;=data.numOfInputLinks)
+            return true;
+        if (is_data_ready[i])
+            return false;
+
+    }
+    return true;
+}</declaration>
+		<location id="id11" x="-612" y="-195">
+			<name x="-501" y="-187">WaitForNewPeriod</name>
+			<label kind="invariant" x="-501" y="-170">c2&lt;=data.period</label>
+		</location>
+		<location id="id12" x="-374" y="-51">
+			<name x="-384" y="-85">ERROR</name>
+			<committed/>
+		</location>
+		<location id="id13" x="-603" y="-51">
+			<name x="-646" y="-43">Finish</name>
+			<label kind="invariant" x="-578" y="-85">c1'==1
+&amp;&amp; c2&lt;=data.period</label>
+		</location>
+		<location id="id14" x="-773" y="-51">
+			<name x="-824" y="-68">Exec</name>
+			<label kind="invariant" x="-960" y="-77">c1'==1&amp;&amp;
+c2&lt;=data.deadline
+&amp;&amp; c1&lt;=data.wcet</label>
+		</location>
+		<location id="id15" x="-773" y="-195">
+			<name x="-816" y="-195">Wait</name>
+			<label kind="invariant" x="-909" y="-195">c1'==0&amp;&amp;
+c2&lt;=data.deadline</label>
+		</location>
+		<location id="id16" x="-493" y="-400">
+			<name x="-510" y="-383">Init4</name>
+			<committed/>
+		</location>
+		<location id="id17" x="-773" y="-400">
+			<name x="-765" y="-391">Init5</name>
+			<committed/>
+		</location>
+		<location id="id18" x="-314" y="-400">
+			<name x="-297" y="-408">Init3</name>
+			<committed/>
+		</location>
+		<location id="id19" x="-314" y="-476">
+			<name x="-348" y="-459">Init2</name>
+			<committed/>
+		</location>
+		<location id="id20" x="-493" y="-476">
+			<name x="-510" y="-459">Init1</name>
+			<committed/>
+		</location>
+		<location id="id21" x="-774" y="-476">
+			<name x="-790" y="-459">Init0</name>
+			<committed/>
+		</location>
+		<init ref="id21"/>
+		<transition>
+			<source ref="id11"/>
+			<target ref="id12"/>
+			<label kind="synchronisation" x="-297" y="-212">finished?</label>
+			<nail x="-229" y="-195"/>
+			<nail x="-229" y="-127"/>
+		</transition>
+		<transition>
+			<source ref="id15"/>
+			<target ref="id11"/>
+			<label kind="guard" x="-765" y="-161">c2==data.deadline</label>
+			<nail x="-705" y="-161"/>
+		</transition>
+		<transition>
+			<source ref="id11"/>
+			<target ref="id11"/>
+			<label kind="synchronisation" x="-561" y="-178">receive!</label>
+			<nail x="-561" y="-161"/>
+			<nail x="-561" y="-170"/>
+		</transition>
+		<transition>
+			<source ref="id11"/>
+			<target ref="id11"/>
+			<label kind="synchronisation" x="-552" y="-187">send?</label>
+			<nail x="-552" y="-178"/>
+			<nail x="-552" y="-187"/>
+		</transition>
+		<transition>
+			<source ref="id11"/>
+			<target ref="id11"/>
+			<label kind="select" x="-484" y="-255">i:int[0, MAX_NUM_OF_INPUT_LINKS-1]</label>
+			<label kind="guard" x="-484" y="-238">i&lt;data.numOfInputLinks</label>
+			<label kind="assignment" x="-484" y="-221">is_data_ready[i]=1</label>
+			<nail x="-510" y="-212"/>
+			<nail x="-493" y="-246"/>
+			<nail x="-493" y="-204"/>
+		</transition>
+		<transition>
+			<source ref="id11"/>
+			<target ref="id11"/>
+			<label kind="synchronisation" x="-578" y="-229">preempt!</label>
+			<nail x="-578" y="-229"/>
+			<nail x="-578" y="-204"/>
+		</transition>
+		<transition>
+			<source ref="id11"/>
+			<target ref="id11"/>
+			<label kind="guard" x="-603" y="-255">c2&lt;data.period</label>
+			<label kind="synchronisation" x="-595" y="-246">exec!</label>
+			<nail x="-603" y="-238"/>
+			<nail x="-586" y="-229"/>
+		</transition>
+		<transition>
+			<source ref="id11"/>
+			<target ref="id11"/>
+			<label kind="synchronisation" x="-654" y="-246">ready?</label>
+			<nail x="-637" y="-221"/>
+			<nail x="-612" y="-229"/>
+		</transition>
+		<transition>
+			<source ref="id11"/>
+			<target ref="id15"/>
+			<label kind="guard" x="-739" y="-212">c2==data.period</label>
+			<label kind="assignment" x="-739" y="-195">c1=0,c2=0</label>
+		</transition>
+		<transition>
+			<source ref="id13"/>
+			<target ref="id11"/>
+			<label kind="synchronisation" x="-612" y="-153">preempt?</label>
+			<nail x="-620" y="-119"/>
+		</transition>
+		<transition>
+			<source ref="id13"/>
+			<target ref="id11"/>
+			<label kind="synchronisation" x="-705" y="-119">finished?</label>
+			<nail x="-637" y="-110"/>
+		</transition>
+		<transition>
+			<source ref="id15"/>
+			<target ref="id12"/>
+			<label kind="synchronisation" x="-297" y="-85">finished?</label>
+			<nail x="-688" y="-357"/>
+			<nail x="-518" y="-357"/>
+			<nail x="-484" y="-332"/>
+			<nail x="-212" y="-331"/>
+			<nail x="-212" y="-127"/>
+		</transition>
+		<transition>
+			<source ref="id13"/>
+			<target ref="id13"/>
+			<label kind="synchronisation" x="-612" y="0">ready?</label>
+			<nail x="-603" y="0"/>
+			<nail x="-569" y="0"/>
+		</transition>
+		<transition>
+			<source ref="id13"/>
+			<target ref="id13"/>
+			<label kind="synchronisation" x="-544" y="0">receive!</label>
+			<nail x="-544" y="25"/>
+			<nail x="-544" y="8"/>
+		</transition>
+		<transition>
+			<source ref="id13"/>
+			<target ref="id13"/>
+			<label kind="synchronisation" x="-544" y="-26">send?</label>
+			<nail x="-544" y="0"/>
+			<nail x="-544" y="-17"/>
+		</transition>
+		<transition>
+			<source ref="id13"/>
+			<target ref="id13"/>
+			<label kind="synchronisation" x="-612" y="-127">exec!</label>
+			<nail x="-603" y="-110"/>
+			<nail x="-586" y="-110"/>
+		</transition>
+		<transition>
+			<source ref="id13"/>
+			<target ref="id13"/>
+			<label kind="select" x="-510" y="-144">i:int[0, MAX_NUM_OF_INPUT_LINKS-1]</label>
+			<label kind="guard" x="-510" y="-127">i&lt;data.numOfInputLinks</label>
+			<label kind="assignment" x="-510" y="-110">is_data_ready[i]=1</label>
+			<nail x="-518" y="-153"/>
+			<nail x="-518" y="-102"/>
+			<nail x="-552" y="-102"/>
+		</transition>
+		<transition>
+			<source ref="id14"/>
+			<target ref="id14"/>
+			<label kind="select" x="-884" y="67">i:int[0, MAX_NUM_OF_INPUT_LINKS-1]</label>
+			<label kind="guard" x="-833" y="84">i&lt;data.numOfInputLinks</label>
+			<label kind="assignment" x="-824" y="101">is_data_ready[i]=1</label>
+			<nail x="-782" y="67"/>
+			<nail x="-739" y="67"/>
+		</transition>
+		<transition>
+			<source ref="id15"/>
+			<target ref="id15"/>
+			<label kind="select" x="-569" y="-323">i:int[0, MAX_NUM_OF_INPUT_LINKS-1]</label>
+			<label kind="guard" x="-569" y="-306">i&lt;data.numOfInputLinks</label>
+			<label kind="assignment" x="-569" y="-289">is_data_ready[i]=1</label>
+			<nail x="-578" y="-272"/>
+			<nail x="-578" y="-314"/>
+			<nail x="-603" y="-280"/>
+		</transition>
+		<transition>
+			<source ref="id14"/>
+			<target ref="id14"/>
+			<label kind="synchronisation" x="-884" y="-26">ready?</label>
+			<nail x="-841" y="8"/>
+			<nail x="-841" y="-17"/>
+		</transition>
+		<transition>
+			<source ref="id14"/>
+			<target ref="id14"/>
+			<label kind="synchronisation" x="-901" y="8">receive!</label>
+			<nail x="-833" y="25"/>
+			<nail x="-850" y="25"/>
+		</transition>
+		<transition>
+			<source ref="id14"/>
+			<target ref="id14"/>
+			<label kind="synchronisation" x="-875" y="34">send?</label>
+			<nail x="-833" y="34"/>
+			<nail x="-816" y="34"/>
+		</transition>
+		<transition>
+			<source ref="id14"/>
+			<target ref="id14"/>
+			<label kind="synchronisation" x="-824" y="34">exec!</label>
+			<nail x="-807" y="34"/>
+			<nail x="-790" y="34"/>
+		</transition>
+		<transition>
+			<source ref="id14"/>
+			<target ref="id12"/>
+			<label kind="guard" x="-722" y="25">c1 &lt; data.wcet &amp;&amp; c2 &lt; data.deadline</label>
+			<label kind="synchronisation" x="-688" y="42">finished?</label>
+			<nail x="-722" y="42"/>
+			<nail x="-442" y="42"/>
+		</transition>
+		<transition>
+			<source ref="id14"/>
+			<target ref="id15"/>
+			<label kind="synchronisation" x="-867" y="-144">preempt!</label>
+			<nail x="-799" y="-136"/>
+		</transition>
+		<transition>
+			<source ref="id15"/>
+			<target ref="id15"/>
+			<label kind="synchronisation" x="-909" y="-255">preempt!</label>
+			<nail x="-841" y="-255"/>
+			<nail x="-841" y="-238"/>
+		</transition>
+		<transition>
+			<source ref="id15"/>
+			<target ref="id15"/>
+			<label kind="synchronisation" x="-909" y="-289">receive!</label>
+			<nail x="-850" y="-289"/>
+			<nail x="-850" y="-272"/>
+		</transition>
+		<transition>
+			<source ref="id15"/>
+			<target ref="id15"/>
+			<label kind="synchronisation" x="-901" y="-314">send?</label>
+			<nail x="-841" y="-314"/>
+			<nail x="-858" y="-314"/>
+		</transition>
+		<transition>
+			<source ref="id15"/>
+			<target ref="id15"/>
+			<label kind="synchronisation" x="-850" y="-382">ready?</label>
+			<label kind="assignment" x="-850" y="-365">c1=0</label>
+			<nail x="-807" y="-348"/>
+			<nail x="-824" y="-348"/>
+		</transition>
+		<transition>
+			<source ref="id14"/>
+			<target ref="id13"/>
+			<label kind="guard" x="-748" y="-34">c1==data.wcet</label>
+			<label kind="assignment" x="-705" y="-17">c1=0</label>
+			<nail x="-688" y="-34"/>
+		</transition>
+		<transition>
+			<source ref="id14"/>
+			<target ref="id13"/>
+			<label kind="guard" x="-756" y="-85">c2==data.deadline</label>
+			<label kind="assignment" x="-722" y="-68">c1=0</label>
+		</transition>
+		<transition>
+			<source ref="id13"/>
+			<target ref="id12"/>
+			<label kind="guard" x="-442" y="-51">c1&gt;0</label>
+		</transition>
+		<transition>
+			<source ref="id15"/>
+			<target ref="id14"/>
+			<label kind="guard" x="-773" y="-136">c2&lt;data.period</label>
+			<label kind="synchronisation" x="-773" y="-119">exec!</label>
+			<nail x="-773" y="-153"/>
+		</transition>
+		<transition>
+			<source ref="id17"/>
+			<target ref="id15"/>
+		</transition>
+		<transition>
+			<source ref="id16"/>
+			<target ref="id17"/>
+			<label kind="select" x="-705" y="-434">o:int[0,MAX_PERIOD-1]</label>
+			<label kind="guard" x="-731" y="-417">o+data.wcet&lt;=data.deadline</label>
+			<label kind="assignment" x="-680" y="-400">data.offset=o</label>
+		</transition>
+		<transition>
+			<source ref="id18"/>
+			<target ref="id16"/>
+			<label kind="select" x="-467" y="-417">w:int[1,MAX_PERIOD]</label>
+			<label kind="guard" x="-467" y="-400">w&lt;=data.deadline</label>
+			<label kind="assignment" x="-467" y="-383">data.wcet=w</label>
+		</transition>
+		<transition>
+			<source ref="id19"/>
+			<target ref="id18"/>
+			<label kind="select" x="-306" y="-468">d:int[1,MAX_PERIOD]</label>
+			<label kind="guard" x="-306" y="-434">d&lt;=data.period</label>
+			<label kind="assignment" x="-306" y="-451">data.deadline=d</label>
+		</transition>
+		<transition>
+			<source ref="id20"/>
+			<target ref="id19"/>
+			<label kind="select" x="-476" y="-493">p:int[1,MAX_PERIOD]</label>
+			<label kind="assignment" x="-476" y="-476">data.period=p</label>
+		</transition>
+		<transition>
+			<source ref="id21"/>
+			<target ref="id20"/>
+			<label kind="select" x="-756" y="-493">n:int[1, MAX_NUM_OF_INPUT_LINKS]</label>
+			<label kind="assignment" x="-739" y="-476">data.numOfInputLinks=n</label>
+		</transition>
+	</template>
+	<template>
+		<name>T_R_3_1</name>
+		<parameter>TaskData &amp;data, int &amp;is_ready, int &amp;abs_deadline, int &amp;is_data_ready[MAX_NUM_OF_INPUT_LINKS],  chan &amp;exec,  chan &amp;preempt,  chan &amp;ready,  chan&amp;finished, broadcast chan&amp; send,  broadcast chan&amp; receive</parameter>
+		<declaration>clock c;</declaration>
+		<location id="id22" x="-433" y="-68">
+			<name x="-416" y="-76">ERROR</name>
+			<committed/>
+		</location>
+		<location id="id23" x="-773" y="-68">
+			<name x="-850" y="-76">Finished</name>
+			<label kind="invariant" x="-892" y="-59">c&lt;data.period</label>
+		</location>
+		<location id="id24" x="-773" y="-187">
+			<name x="-875" y="-187">CanBeReady</name>
+			<label kind="invariant" x="-892" y="-170">c&lt;=data.period</label>
+		</location>
+		<location id="id25" x="-493" y="-306">
+			<name x="-510" y="-289">Init4</name>
+			<committed/>
+		</location>
+		<location id="id26" x="-773" y="-306">
+			<name x="-765" y="-297">Init5</name>
+			<committed/>
+		</location>
+		<location id="id27" x="-314" y="-306">
+			<name x="-297" y="-314">Init3</name>
+			<committed/>
+		</location>
+		<location id="id28" x="-314" y="-382">
+			<name x="-348" y="-365">Init2</name>
+			<committed/>
+		</location>
+		<location id="id29" x="-493" y="-382">
+			<name x="-510" y="-365">Init1</name>
+			<committed/>
+		</location>
+		<location id="id30" x="-774" y="-382">
+			<name x="-790" y="-365">Init0</name>
+			<committed/>
+		</location>
+		<init ref="id30"/>
+		<transition>
+			<source ref="id24"/>
+			<target ref="id24"/>
+			<label kind="guard" x="-646" y="-203">c==0</label>
+			<label kind="synchronisation" x="-646" y="-186">finished?</label>
+			<nail x="-646" y="-195"/>
+			<nail x="-646" y="-178"/>
+		</transition>
+		<transition>
+			<source ref="id23"/>
+			<target ref="id23"/>
+			<label kind="synchronisation" x="-782" y="-17">finished?</label>
+			<nail x="-731" y="-17"/>
+			<nail x="-765" y="-17"/>
+		</transition>
+		<transition>
+			<source ref="id23"/>
+			<target ref="id23"/>
+			<label kind="synchronisation" x="-833" y="-34">ready?</label>
+			<nail x="-782" y="-34"/>
+			<nail x="-782" y="-17"/>
+			<nail x="-765" y="-42"/>
+		</transition>
+		<transition>
+			<source ref="id23"/>
+			<target ref="id23"/>
+			<label kind="synchronisation" x="-688" y="-17">preempt!</label>
+			<nail x="-690" y="9"/>
+			<nail x="-690" y="-8"/>
+		</transition>
+		<transition>
+			<source ref="id23"/>
+			<target ref="id23"/>
+			<label kind="synchronisation" x="-697" y="-51">exec!</label>
+			<nail x="-697" y="-42"/>
+			<nail x="-697" y="-25"/>
+		</transition>
+		<transition>
+			<source ref="id23"/>
+			<target ref="id23"/>
+			<label kind="synchronisation" x="-909" y="-110">receive!</label>
+			<nail x="-850" y="-119"/>
+			<nail x="-850" y="-93"/>
+		</transition>
+		<transition>
+			<source ref="id23"/>
+			<target ref="id23"/>
+			<label kind="synchronisation" x="-629" y="-93">send?</label>
+			<nail x="-637" y="-93"/>
+			<nail x="-637" y="-76"/>
+		</transition>
+		<transition>
+			<source ref="id23"/>
+			<target ref="id23"/>
+			<label kind="select" x="-570" y="-169">i:int[0, MAX_NUM_OF_INPUT_LINKS-1]</label>
+			<label kind="guard" x="-570" y="-152">i&lt;data.numOfInputLinks</label>
+			<label kind="assignment" x="-570" y="-135">is_data_ready[i]=1</label>
+			<nail x="-620" y="-127"/>
+			<nail x="-578" y="-161"/>
+			<nail x="-578" y="-110"/>
+		</transition>
+		<transition>
+			<source ref="id23"/>
+			<target ref="id22"/>
+			<label kind="guard" x="-705" y="-68">is_ready &amp;&amp; c&lt;data.period &amp;&amp; c&gt;0</label>
+		</transition>
+		<transition>
+			<source ref="id23"/>
+			<target ref="id24"/>
+			<nail x="-731" y="-136"/>
+		</transition>
+		<transition>
+			<source ref="id24"/>
+			<target ref="id24"/>
+			<label kind="guard" x="-714" y="-162">c==data.period</label>
+			<label kind="assignment" x="-714" y="-153">c=0</label>
+			<nail x="-714" y="-136"/>
+			<nail x="-714" y="-162"/>
+		</transition>
+		<transition>
+			<source ref="id24"/>
+			<target ref="id23"/>
+			<label kind="guard" x="-807" y="-144">c&gt;0</label>
+			<label kind="synchronisation" x="-833" y="-127">finished?</label>
+		</transition>
+		<transition>
+			<source ref="id24"/>
+			<target ref="id24"/>
+			<label kind="select" x="-637" y="-263">i:int[0, MAX_NUM_OF_INPUT_LINKS-1]</label>
+			<label kind="guard" x="-637" y="-246">i&lt;data.numOfInputLinks</label>
+			<label kind="assignment" x="-637" y="-229">is_data_ready[i]=1</label>
+			<nail x="-646" y="-263"/>
+			<nail x="-646" y="-212"/>
+		</transition>
+		<transition>
+			<source ref="id24"/>
+			<target ref="id24"/>
+			<label kind="synchronisation" x="-901" y="-221">preempt!</label>
+			<nail x="-836" y="-224"/>
+			<nail x="-836" y="-207"/>
+		</transition>
+		<transition>
+			<source ref="id24"/>
+			<target ref="id24"/>
+			<label kind="synchronisation" x="-858" y="-246">exec!</label>
+			<nail x="-816" y="-246"/>
+			<nail x="-816" y="-229"/>
+		</transition>
+		<transition>
+			<source ref="id24"/>
+			<target ref="id24"/>
+			<label kind="synchronisation" x="-858" y="-272">ready?</label>
+			<nail x="-807" y="-272"/>
+			<nail x="-807" y="-246"/>
+		</transition>
+		<transition>
+			<source ref="id24"/>
+			<target ref="id24"/>
+			<label kind="synchronisation" x="-841" y="-297">receive!</label>
+			<nail x="-782" y="-280"/>
+			<nail x="-799" y="-280"/>
+		</transition>
+		<transition>
+			<source ref="id24"/>
+			<target ref="id24"/>
+			<label kind="synchronisation" x="-697" y="-289">send?</label>
+			<nail x="-697" y="-255"/>
+			<nail x="-697" y="-289"/>
+		</transition>
+		<transition>
+			<source ref="id26"/>
+			<target ref="id24"/>
+		</transition>
+		<transition>
+			<source ref="id25"/>
+			<target ref="id26"/>
+			<label kind="select" x="-705" y="-340">o:int[0,MAX_PERIOD-1]</label>
+			<label kind="guard" x="-731" y="-323">o+data.wcet&lt;=data.deadline</label>
+			<label kind="assignment" x="-680" y="-306">data.offset=o</label>
+		</transition>
+		<transition>
+			<source ref="id27"/>
+			<target ref="id25"/>
+			<label kind="select" x="-467" y="-323">w:int[1,MAX_PERIOD]</label>
+			<label kind="guard" x="-467" y="-306">w&lt;=data.deadline</label>
+			<label kind="assignment" x="-467" y="-289">data.wcet=w</label>
+		</transition>
+		<transition>
+			<source ref="id28"/>
+			<target ref="id27"/>
+			<label kind="select" x="-306" y="-374">d:int[1,MAX_PERIOD]</label>
+			<label kind="guard" x="-306" y="-340">d&lt;=data.period</label>
+			<label kind="assignment" x="-306" y="-357">data.deadline=d</label>
+		</transition>
+		<transition>
+			<source ref="id29"/>
+			<target ref="id28"/>
+			<label kind="select" x="-476" y="-399">p:int[1,MAX_PERIOD]</label>
+			<label kind="assignment" x="-476" y="-382">data.period=p</label>
+		</transition>
+		<transition>
+			<source ref="id30"/>
+			<target ref="id29"/>
+			<label kind="select" x="-756" y="-399">n:int[1, MAX_NUM_OF_INPUT_LINKS]</label>
+			<label kind="assignment" x="-739" y="-382">data.numOfInputLinks=n</label>
+		</transition>
+	</template>
+	<template>
+		<name>T_R_4</name>
+		<parameter>TaskData &amp;data, int &amp;is_ready, int &amp;abs_deadline, int &amp;is_data_ready[MAX_NUM_OF_INPUT_LINKS],  chan &amp;exec,  chan &amp;preempt,  chan &amp;ready,  chan&amp;finished, broadcast chan&amp; send,  broadcast chan&amp; receive</parameter>
+		<declaration>clock c1;
+clock c2;
+
+bool allDataReady()
+{
+    for (i: int[0, MAX_NUM_OF_INPUT_LINKS-1]) {
+        if (i&gt;=data.numOfInputLinks)
+            return true;
+        if (!is_data_ready[i])
+            return false;
+
+    }
+    return true;
+}
+
+bool dataReset()
+{
+    for (i: int[0, MAX_NUM_OF_INPUT_LINKS-1]) {
+        if (i&gt;=data.numOfInputLinks)
+            return true;
+        if (is_data_ready[i])
+            return false;
+
+    }
+    return true;
+}</declaration>
+		<location id="id31" x="-629" y="0">
+			<name x="-629" y="8">Finish1</name>
+			<label kind="invariant" x="-629" y="17">c2&lt;=data.period</label>
+		</location>
+		<location id="id32" x="-289" y="-8">
+			<name x="-280" y="0">Finish2</name>
+			<label kind="invariant" x="-280" y="17">c2&lt;=data.period</label>
+		</location>
+		<location id="id33" x="-612" y="-195">
+			<name x="-501" y="-187">WaitForNewPeriod</name>
+			<label kind="invariant" x="-501" y="-170">c2&lt;=data.period</label>
+		</location>
+		<location id="id34" x="-204" y="-8">
+			<name x="-170" y="-17">ERROR</name>
+			<committed/>
+		</location>
+		<location id="id35" x="-875" y="0">
+			<name x="-926" y="-17">Exec</name>
+			<label kind="invariant" x="-1062" y="-26">c1'==1&amp;&amp;
+c1&lt;=data.wcet</label>
+		</location>
+		<location id="id36" x="-867" y="-195">
+			<name x="-910" y="-195">Wait</name>
+			<label kind="invariant" x="-1020" y="-195">c1'==0&amp;&amp;
+c2&lt;=data.deadline</label>
+		</location>
+		<location id="id37" x="-493" y="-400">
+			<name x="-510" y="-383">Init4</name>
+			<committed/>
+		</location>
+		<location id="id38" x="-773" y="-400">
+			<name x="-765" y="-391">Init5</name>
+			<committed/>
+		</location>
+		<location id="id39" x="-314" y="-400">
+			<name x="-297" y="-408">Init3</name>
+			<committed/>
+		</location>
+		<location id="id40" x="-314" y="-476">
+			<name x="-348" y="-459">Init2</name>
+			<committed/>
+		</location>
+		<location id="id41" x="-493" y="-476">
+			<name x="-510" y="-459">Init1</name>
+			<committed/>
+		</location>
+		<location id="id42" x="-774" y="-476">
+			<name x="-790" y="-459">Init0</name>
+			<committed/>
+		</location>
+		<init ref="id42"/>
+		<transition>
+			<source ref="id36"/>
+			<target ref="id33"/>
+			<label kind="guard" x="-807" y="-195">c2==data.deadline</label>
+		</transition>
+		<transition>
+			<source ref="id32"/>
+			<target ref="id34"/>
+			<label kind="synchronisation" x="-263" y="42">send?</label>
+			<nail x="-263" y="42"/>
+			<nail x="-229" y="42"/>
+		</transition>
+		<transition>
+			<source ref="id35"/>
+			<target ref="id34"/>
+			<label kind="guard" x="-263" y="144">c1&lt;data.wcet</label>
+			<label kind="synchronisation" x="-212" y="161">send?</label>
+			<nail x="-671" y="161"/>
+			<nail x="-161" y="161"/>
+			<nail x="-161" y="17"/>
+		</transition>
+		<transition>
+			<source ref="id32"/>
+			<target ref="id32"/>
+			<label kind="synchronisation" x="-442" y="8">receive!</label>
+			<nail x="-382" y="25"/>
+			<nail x="-382" y="17"/>
+		</transition>
+		<transition>
+			<source ref="id32"/>
+			<target ref="id32"/>
+			<label kind="synchronisation" x="-459" y="-8">preempt!</label>
+			<nail x="-391" y="8"/>
+			<nail x="-391" y="0"/>
+		</transition>
+		<transition>
+			<source ref="id32"/>
+			<target ref="id32"/>
+			<label kind="synchronisation" x="-442" y="-25">exec!</label>
+			<nail x="-399" y="-8"/>
+			<nail x="-399" y="-17"/>
+		</transition>
+		<transition>
+			<source ref="id32"/>
+			<target ref="id32"/>
+			<label kind="synchronisation" x="-408" y="-42">ready?</label>
+			<nail x="-357" y="-42"/>
+			<nail x="-357" y="-25"/>
+		</transition>
+		<transition>
+			<source ref="id31"/>
+			<target ref="id31"/>
+			<label kind="synchronisation" x="-595" y="-17">preempt!</label>
+			<nail x="-603" y="-8"/>
+			<nail x="-603" y="8"/>
+		</transition>
+		<transition>
+			<source ref="id31"/>
+			<target ref="id31"/>
+			<label kind="synchronisation" x="-603" y="-34">finished?</label>
+			<nail x="-612" y="-34"/>
+			<nail x="-612" y="-17"/>
+		</transition>
+		<transition>
+			<source ref="id31"/>
+			<target ref="id31"/>
+			<label kind="synchronisation" x="-620" y="-59">ready?</label>
+			<nail x="-637" y="-51"/>
+			<nail x="-629" y="-51"/>
+		</transition>
+		<transition>
+			<source ref="id31"/>
+			<target ref="id31"/>
+			<label kind="synchronisation" x="-646" y="-76">exec!</label>
+			<nail x="-663" y="-51"/>
+			<nail x="-654" y="-68"/>
+		</transition>
+		<transition>
+			<source ref="id31"/>
+			<target ref="id31"/>
+			<label kind="synchronisation" x="-739" y="-68">receive!</label>
+			<nail x="-697" y="-42"/>
+			<nail x="-688" y="-51"/>
+		</transition>
+		<transition>
+			<source ref="id32"/>
+			<target ref="id32"/>
+			<label kind="select" x="-663" y="-102">i:int[0, MAX_NUM_OF_INPUT_LINKS-1]</label>
+			<label kind="guard" x="-561" y="-85">i&lt;data.numOfInputLinks</label>
+			<label kind="assignment" x="-518" y="-68">is_data_ready[i]=1</label>
+			<nail x="-382" y="-68"/>
+			<nail x="-382" y="-93"/>
+		</transition>
+		<transition>
+			<source ref="id31"/>
+			<target ref="id31"/>
+			<label kind="select" x="-646" y="42">i:int[0, MAX_NUM_OF_INPUT_LINKS-1]</label>
+			<label kind="guard" x="-654" y="59">i&lt;data.numOfInputLinks</label>
+			<label kind="assignment" x="-663" y="76">is_data_ready[i]=1</label>
+			<nail x="-671" y="93"/>
+			<nail x="-671" y="51"/>
+		</transition>
+		<transition>
+			<source ref="id33"/>
+			<target ref="id34"/>
+			<label kind="synchronisation" x="-297" y="-144">send?</label>
+			<nail x="-501" y="-178"/>
+			<nail x="-501" y="-144"/>
+			<nail x="-255" y="-119"/>
+		</transition>
+		<transition>
+			<source ref="id31"/>
+			<target ref="id34"/>
+			<label kind="guard" x="-510" y="136">c1&gt;0</label>
+			<nail x="-680" y="42"/>
+			<nail x="-680" y="136"/>
+			<nail x="-204" y="136"/>
+		</transition>
+		<transition>
+			<source ref="id31"/>
+			<target ref="id33"/>
+			<label kind="guard" x="-688" y="-153">c1==0</label>
+			<label kind="synchronisation" x="-688" y="-144">send?</label>
+			<nail x="-705" y="-93"/>
+			<nail x="-637" y="-136"/>
+		</transition>
+		<transition>
+			<source ref="id35"/>
+			<target ref="id31"/>
+			<label kind="guard" x="-773" y="-25">c1==data.wcet</label>
+			<label kind="synchronisation" x="-756" y="0">finished?</label>
+			<label kind="assignment" x="-748" y="17">c1=0</label>
+		</transition>
+		<transition>
+			<source ref="id35"/>
+			<target ref="id33"/>
+			<label kind="guard" x="-841" y="-68">c1&lt;data.wcet</label>
+			<label kind="synchronisation" x="-850" y="-51">finished?</label>
+			<nail x="-807" y="-119"/>
+			<nail x="-748" y="-136"/>
+			<nail x="-663" y="-153"/>
+		</transition>
+		<transition>
+			<source ref="id32"/>
+			<target ref="id33"/>
+			<label kind="guard" x="-365" y="-110">c1==0</label>
+			<label kind="synchronisation" x="-408" y="-127">finished?</label>
+			<nail x="-314" y="-76"/>
+			<nail x="-501" y="-136"/>
+		</transition>
+		<transition>
+			<source ref="id32"/>
+			<target ref="id34"/>
+			<label kind="guard" x="-272" y="-25">c1&gt;0</label>
+		</transition>
+		<transition>
+			<source ref="id35"/>
+			<target ref="id32"/>
+			<label kind="guard" x="-399" y="68">c1==data.wcet</label>
+			<label kind="synchronisation" x="-357" y="85">send?</label>
+			<label kind="assignment" x="-357" y="110">c1=0</label>
+			<nail x="-688" y="102"/>
+			<nail x="-289" y="102"/>
+		</transition>
+		<transition>
+			<source ref="id33"/>
+			<target ref="id33"/>
+			<label kind="synchronisation" x="-612" y="-170">receive!</label>
+			<nail x="-586" y="-170"/>
+			<nail x="-603" y="-161"/>
+		</transition>
+		<transition>
+			<source ref="id33"/>
+			<target ref="id33"/>
+			<label kind="synchronisation" x="-459" y="-204">finished?</label>
+			<nail x="-467" y="-204"/>
+			<nail x="-467" y="-187"/>
+		</transition>
+		<transition>
+			<source ref="id33"/>
+			<target ref="id33"/>
+			<label kind="select" x="-484" y="-255">i:int[0, MAX_NUM_OF_INPUT_LINKS-1]</label>
+			<label kind="guard" x="-484" y="-238">i&lt;data.numOfInputLinks</label>
+			<label kind="assignment" x="-484" y="-221">is_data_ready[i]=1</label>
+			<nail x="-510" y="-212"/>
+			<nail x="-493" y="-246"/>
+			<nail x="-493" y="-204"/>
+		</transition>
+		<transition>
+			<source ref="id33"/>
+			<target ref="id33"/>
+			<label kind="synchronisation" x="-578" y="-229">preempt!</label>
+			<nail x="-578" y="-229"/>
+			<nail x="-578" y="-204"/>
+		</transition>
+		<transition>
+			<source ref="id33"/>
+			<target ref="id33"/>
+			<label kind="guard" x="-603" y="-255">c2&lt;data.period</label>
+			<label kind="synchronisation" x="-595" y="-246">exec!</label>
+			<nail x="-603" y="-238"/>
+			<nail x="-586" y="-229"/>
+		</transition>
+		<transition>
+			<source ref="id33"/>
+			<target ref="id33"/>
+			<label kind="synchronisation" x="-654" y="-246">ready?</label>
+			<nail x="-637" y="-221"/>
+			<nail x="-612" y="-229"/>
+		</transition>
+		<transition>
+			<source ref="id33"/>
+			<target ref="id36"/>
+			<label kind="guard" x="-782" y="-246">c2==data.period</label>
+			<label kind="assignment" x="-782" y="-229">c1=0,c2=0</label>
+			<nail x="-756" y="-212"/>
+		</transition>
+		<transition>
+			<source ref="id36"/>
+			<target ref="id34"/>
+			<label kind="synchronisation" x="-204" y="-170">send?</label>
+			<nail x="-680" y="-357"/>
+			<nail x="-510" y="-357"/>
+			<nail x="-476" y="-332"/>
+			<nail x="-204" y="-331"/>
+			<nail x="-204" y="-127"/>
+		</transition>
+		<transition>
+			<source ref="id35"/>
+			<target ref="id35"/>
+			<label kind="select" x="-1062" y="118">i:int[0, MAX_NUM_OF_INPUT_LINKS-1]</label>
+			<label kind="guard" x="-960" y="135">i&lt;data.numOfInputLinks</label>
+			<label kind="assignment" x="-926" y="152">is_data_ready[i]=1</label>
+			<nail x="-884" y="118"/>
+			<nail x="-841" y="118"/>
+		</transition>
+		<transition>
+			<source ref="id36"/>
+			<target ref="id36"/>
+			<label kind="select" x="-662" y="-331">i:int[0, MAX_NUM_OF_INPUT_LINKS-1]</label>
+			<label kind="guard" x="-662" y="-314">i&lt;data.numOfInputLinks</label>
+			<label kind="assignment" x="-662" y="-297">is_data_ready[i]=1</label>
+			<nail x="-671" y="-297"/>
+			<nail x="-671" y="-322"/>
+			<nail x="-713" y="-314"/>
+		</transition>
+		<transition>
+			<source ref="id35"/>
+			<target ref="id35"/>
+			<label kind="synchronisation" x="-994" y="34">ready?</label>
+			<nail x="-943" y="59"/>
+			<nail x="-943" y="34"/>
+		</transition>
+		<transition>
+			<source ref="id35"/>
+			<target ref="id35"/>
+			<label kind="synchronisation" x="-1003" y="59">receive!</label>
+			<nail x="-935" y="76"/>
+			<nail x="-952" y="76"/>
+		</transition>
+		<transition>
+			<source ref="id35"/>
+			<target ref="id35"/>
+			<label kind="synchronisation" x="-926" y="85">exec!</label>
+			<nail x="-909" y="85"/>
+			<nail x="-892" y="85"/>
+		</transition>
+		<transition>
+			<source ref="id35"/>
+			<target ref="id36"/>
+			<label kind="synchronisation" x="-969" y="-136">preempt!</label>
+			<nail x="-901" y="-127"/>
+		</transition>
+		<transition>
+			<source ref="id36"/>
+			<target ref="id36"/>
+			<label kind="synchronisation" x="-1003" y="-255">preempt!</label>
+			<nail x="-935" y="-255"/>
+			<nail x="-935" y="-238"/>
+		</transition>
+		<transition>
+			<source ref="id36"/>
+			<target ref="id36"/>
+			<label kind="synchronisation" x="-1003" y="-289">receive!</label>
+			<nail x="-944" y="-289"/>
+			<nail x="-944" y="-272"/>
+		</transition>
+		<transition>
+			<source ref="id36"/>
+			<target ref="id36"/>
+			<label kind="synchronisation" x="-1012" y="-331">finished?</label>
+			<nail x="-935" y="-314"/>
+			<nail x="-952" y="-314"/>
+		</transition>
+		<transition>
+			<source ref="id36"/>
+			<target ref="id36"/>
+			<label kind="synchronisation" x="-944" y="-382">ready?</label>
+			<label kind="assignment" x="-944" y="-365">c1=0</label>
+			<nail x="-901" y="-348"/>
+			<nail x="-918" y="-348"/>
+		</transition>
+		<transition>
+			<source ref="id36"/>
+			<target ref="id35"/>
+			<label kind="guard" x="-858" y="-153">c2&lt;data.period</label>
+			<label kind="synchronisation" x="-850" y="-136">exec!</label>
+			<nail x="-858" y="-127"/>
+		</transition>
+		<transition>
+			<source ref="id38"/>
+			<target ref="id36"/>
+		</transition>
+		<transition>
+			<source ref="id37"/>
+			<target ref="id38"/>
+			<label kind="select" x="-705" y="-434">o:int[0,MAX_PERIOD-1]</label>
+			<label kind="guard" x="-731" y="-417">o+data.wcet&lt;=data.deadline</label>
+			<label kind="assignment" x="-680" y="-400">data.offset=o</label>
+		</transition>
+		<transition>
+			<source ref="id39"/>
+			<target ref="id37"/>
+			<label kind="select" x="-467" y="-417">w:int[1,MAX_PERIOD]</label>
+			<label kind="guard" x="-467" y="-400">w&lt;=data.deadline</label>
+			<label kind="assignment" x="-467" y="-383">data.wcet=w</label>
+		</transition>
+		<transition>
+			<source ref="id40"/>
+			<target ref="id39"/>
+			<label kind="select" x="-306" y="-468">d:int[1,MAX_PERIOD]</label>
+			<label kind="guard" x="-306" y="-434">d&lt;=data.period</label>
+			<label kind="assignment" x="-306" y="-451">data.deadline=d</label>
+		</transition>
+		<transition>
+			<source ref="id41"/>
+			<target ref="id40"/>
+			<label kind="select" x="-476" y="-493">p:int[1,MAX_PERIOD]</label>
+			<label kind="assignment" x="-476" y="-476">data.period=p</label>
+		</transition>
+		<transition>
+			<source ref="id42"/>
+			<target ref="id41"/>
+			<label kind="select" x="-756" y="-493">n:int[1, MAX_NUM_OF_INPUT_LINKS]</label>
+			<label kind="assignment" x="-739" y="-476">data.numOfInputLinks=n</label>
+		</transition>
+	</template>
+	<template>
+		<name>T_R_1</name>
+		<parameter>TaskData &amp;data, int &amp;is_ready, int &amp;abs_deadline, int &amp;is_data_ready[MAX_NUM_OF_INPUT_LINKS],  chan &amp;exec,  chan &amp;preempt,  chan &amp;ready,  chan&amp;finished, broadcast chan&amp; send,  broadcast chan&amp; receive</parameter>
+		<declaration>// Для любой задачи верно, что некоторая ее работа может быть поставлена на выполнение,
+// только если она является готовой.
+clock c;</declaration>
+		<location id="id43" x="-467" y="-144">
+			<name x="-450" y="-161">End</name>
+			<committed/>
+		</location>
+		<location id="id44" x="-680" y="17">
+			<name x="-705" y="33">ERROR</name>
+			<committed/>
+		</location>
+		<location id="id45" x="-433" y="-110">
+			<name x="-501" y="-102">CanExec</name>
+			<label kind="invariant" x="-544" y="-85">c&lt;data.period</label>
+		</location>
+		<location id="id46" x="-773" y="-110">
+			<name x="-875" y="-110">CanNotExec</name>
+			<label kind="invariant" x="-901" y="-93">c&lt;=data.period</label>
+		</location>
+		<location id="id47" x="-493" y="-204">
+			<name x="-510" y="-187">Init4</name>
+			<committed/>
+		</location>
+		<location id="id48" x="-773" y="-204">
+			<name x="-765" y="-195">Init5</name>
+			<committed/>
+		</location>
+		<location id="id49" x="-314" y="-204">
+			<name x="-297" y="-212">Init3</name>
+			<committed/>
+		</location>
+		<location id="id50" x="-314" y="-280">
+			<name x="-348" y="-263">Init2</name>
+			<committed/>
+		</location>
+		<location id="id51" x="-493" y="-280">
+			<name x="-510" y="-263">Init1</name>
+			<committed/>
+		</location>
+		<location id="id52" x="-774" y="-280">
+			<name x="-790" y="-263">Init0</name>
+			<committed/>
+		</location>
+		<init ref="id52"/>
+		<transition>
+			<source ref="id43"/>
+			<target ref="id46"/>
+			<label kind="guard" x="-705" y="-161">c==data.period</label>
+			<label kind="assignment" x="-704" y="-144">c=0</label>
+			<nail x="-722" y="-144"/>
+		</transition>
+		<transition>
+			<source ref="id45"/>
+			<target ref="id43"/>
+		</transition>
+		<transition>
+			<source ref="id45"/>
+			<target ref="id44"/>
+			<label kind="guard" x="-671" y="-42">!is_ready</label>
+			<label kind="synchronisation" x="-663" y="-25">exec!</label>
+			<nail x="-433" y="-25"/>
+			<nail x="-680" y="-25"/>
+		</transition>
+		<transition>
+			<source ref="id46"/>
+			<target ref="id46"/>
+			<label kind="guard" x="-986" y="-59">c==data.period</label>
+			<label kind="assignment" x="-986" y="-42">c=0</label>
+			<nail x="-790" y="-59"/>
+			<nail x="-986" y="-59"/>
+			<nail x="-790" y="-76"/>
+		</transition>
+		<transition>
+			<source ref="id45"/>
+			<target ref="id45"/>
+			<label kind="synchronisation" x="-382" y="42">finished?</label>
+			<nail x="-391" y="42"/>
+			<nail x="-391" y="68"/>
+		</transition>
+		<transition>
+			<source ref="id45"/>
+			<target ref="id45"/>
+			<label kind="guard" x="-314" y="-187">is_ready</label>
+			<label kind="synchronisation" x="-314" y="-170">exec!</label>
+			<nail x="-314" y="-178"/>
+			<nail x="-314" y="-161"/>
+		</transition>
+		<transition>
+			<source ref="id45"/>
+			<target ref="id44"/>
+			<label kind="guard" x="-637" y="0">!is_ready</label>
+			<label kind="synchronisation" x="-561" y="17">ready?</label>
+			<nail x="-433" y="17"/>
+		</transition>
+		<transition>
+			<source ref="id45"/>
+			<target ref="id45"/>
+			<label kind="select" x="-374" y="-102">i:int[0,MAX_NUM_OF_INPUT_LINKS-1]</label>
+			<label kind="guard" x="-374" y="-85">i&lt;data.numOfInputLinks</label>
+			<label kind="assignment" x="-374" y="-68">is_data_ready[i]=1</label>
+			<nail x="-382" y="-51"/>
+			<nail x="-382" y="-102"/>
+		</transition>
+		<transition>
+			<source ref="id45"/>
+			<target ref="id45"/>
+			<label kind="synchronisation" x="-374" y="-42">preempt?</label>
+			<nail x="-382" y="-42"/>
+			<nail x="-382" y="-17"/>
+		</transition>
+		<transition>
+			<source ref="id45"/>
+			<target ref="id45"/>
+			<label kind="synchronisation" x="-280" y="-127">send?</label>
+			<nail x="-280" y="-127"/>
+			<nail x="-289" y="-110"/>
+		</transition>
+		<transition>
+			<source ref="id46"/>
+			<target ref="id46"/>
+			<label kind="synchronisation" x="-765" y="-161">send?</label>
+			<nail x="-739" y="-144"/>
+			<nail x="-765" y="-144"/>
+		</transition>
+		<transition>
+			<source ref="id45"/>
+			<target ref="id45"/>
+			<label kind="synchronisation" x="-238" y="-170">receive!</label>
+			<nail x="-238" y="-144"/>
+			<nail x="-238" y="-161"/>
+		</transition>
+		<transition>
+			<source ref="id45"/>
+			<target ref="id45"/>
+			<label kind="guard" x="-382" y="-17">is_ready</label>
+			<label kind="synchronisation" x="-382" y="0">ready?</label>
+			<nail x="-391" y="17"/>
+			<nail x="-391" y="-8"/>
+		</transition>
+		<transition>
+			<source ref="id46"/>
+			<target ref="id46"/>
+			<label kind="synchronisation" x="-1062" y="-144">finished?</label>
+			<nail x="-994" y="-143"/>
+			<nail x="-994" y="-127"/>
+		</transition>
+		<transition>
+			<source ref="id46"/>
+			<target ref="id46"/>
+			<label kind="synchronisation" x="-884" y="-144">receive!</label>
+			<nail x="-824" y="-153"/>
+			<nail x="-824" y="-136"/>
+		</transition>
+		<transition>
+			<source ref="id46"/>
+			<target ref="id46"/>
+			<label kind="select" x="-1071" y="-204">i:int[0,MAX_NUM_OF_INPUT_LINKS-1]</label>
+			<label kind="guard" x="-986" y="-187">i&lt;data.numOfInputLinks</label>
+			<label kind="assignment" x="-952" y="-170">is_data_ready[i]=1</label>
+			<nail x="-816" y="-204"/>
+			<nail x="-816" y="-161"/>
+		</transition>
+		<transition>
+			<source ref="id46"/>
+			<target ref="id46"/>
+			<label kind="synchronisation" x="-875" y="-238">preempt!</label>
+			<nail x="-799" y="-221"/>
+			<nail x="-816" y="-221"/>
+		</transition>
+		<transition>
+			<source ref="id46"/>
+			<target ref="id44"/>
+			<label kind="guard" x="-816" y="17">c &lt; data.period</label>
+			<label kind="synchronisation" x="-782" y="34">exec!</label>
+			<nail x="-773" y="17"/>
+		</transition>
+		<transition>
+			<source ref="id46"/>
+			<target ref="id44"/>
+			<label kind="guard" x="-705" y="-85">!is_ready &amp;&amp;
+c &lt; data.period</label>
+			<label kind="synchronisation" x="-739" y="-25">ready?</label>
+			<nail x="-705" y="-59"/>
+		</transition>
+		<transition>
+			<source ref="id46"/>
+			<target ref="id45"/>
+			<label kind="guard" x="-654" y="-127">is_ready</label>
+			<label kind="synchronisation" x="-646" y="-110">ready?</label>
+		</transition>
+		<transition>
+			<source ref="id48"/>
+			<target ref="id46"/>
+		</transition>
+		<transition>
+			<source ref="id47"/>
+			<target ref="id48"/>
+			<label kind="select" x="-705" y="-238">o:int[0,MAX_PERIOD-1]</label>
+			<label kind="guard" x="-731" y="-221">o+data.wcet&lt;=data.deadline</label>
+			<label kind="assignment" x="-680" y="-204">data.offset=o</label>
+		</transition>
+		<transition>
+			<source ref="id49"/>
+			<target ref="id47"/>
+			<label kind="select" x="-476" y="-221">w:int[1,MAX_PERIOD]</label>
+			<label kind="guard" x="-467" y="-204">w&lt;=data.deadline</label>
+			<label kind="assignment" x="-467" y="-187">data.wcet=w</label>
+		</transition>
+		<transition>
+			<source ref="id50"/>
+			<target ref="id49"/>
+			<label kind="select" x="-306" y="-272">d:int[1,MAX_PERIOD]</label>
+			<label kind="guard" x="-306" y="-238">d&lt;=data.period</label>
+			<label kind="assignment" x="-306" y="-255">data.deadline=d</label>
+		</transition>
+		<transition>
+			<source ref="id51"/>
+			<target ref="id50"/>
+			<label kind="select" x="-476" y="-297">p:int[1,MAX_PERIOD]</label>
+			<label kind="assignment" x="-476" y="-280">data.period=p</label>
+		</transition>
+		<transition>
+			<source ref="id52"/>
+			<target ref="id51"/>
+			<label kind="select" x="-756" y="-297">n:int[1, MAX_NUM_OF_INPUT_LINKS]</label>
+			<label kind="assignment" x="-739" y="-280">data.numOfInputLinks=n</label>
+		</transition>
+	</template>
+	<template>
+		<name>T_R_2</name>
+		<parameter>TaskData &amp;data, int &amp;is_ready, int &amp;abs_deadline, int &amp;is_data_ready[MAX_NUM_OF_INPUT_LINKS],  chan &amp;exec,  chan &amp;preempt,  chan &amp;ready,  chan&amp;finished, broadcast chan&amp; send,  broadcast chan&amp; receive</parameter>
+		<declaration>// Для любой задачи верно, что очередная ее работа становится готовой,
+// как только становятся выполненными два условия: модельное время достигает
+// левой границы директивного интервала; получены сообщения от всех соответствующих
+// работ-отправителей (если задача зависит по данным от других задач)
+
+clock c1;
+clock c2;
+
+bool allDataReady()
+{
+    for (i: int[0, MAX_NUM_OF_INPUT_LINKS-1]) {
+        if (i&gt;=data.numOfInputLinks)
+            return true;
+        if (!is_data_ready[i])
+            return false;
+
+    }
+    return true;
+}
+
+bool dataReset()
+{
+    for (i: int[0, MAX_NUM_OF_INPUT_LINKS-1]) {
+        if (i&gt;=data.numOfInputLinks)
+            return true;
+        if (is_data_ready[i])
+            return false;
+
+    }
+    return true;
+}</declaration>
+		<location id="id53" x="-833" y="391">
+			<committed/>
+		</location>
+		<location id="id54" x="-442" y="340">
+			<committed/>
+		</location>
+		<location id="id55" x="-714" y="-229">
+			<committed/>
+		</location>
+		<location id="id56" x="-544" y="340">
+			<name x="-501" y="306">WaitForNewPeriod</name>
+			<label kind="invariant" x="-391" y="289">c1&lt;=data.period</label>
+		</location>
+		<location id="id57" x="-680" y="144">
+			<committed/>
+		</location>
+		<location id="id58" x="-773" y="144">
+			<name x="-867" y="161">NotReady2</name>
+			<label kind="invariant" x="-935" y="144">c1&lt;=data.deadline</label>
+		</location>
+		<location id="id59" x="-833" y="340">
+			<name x="-901" y="340">Ready</name>
+			<label kind="invariant" x="-1054" y="340">c1&lt;=data.deadline</label>
+		</location>
+		<location id="id60" x="-773" y="-144">
+			<name x="-875" y="-161">NotReady1</name>
+			<label kind="invariant" x="-765" y="-136">c1&lt;=data.offset</label>
+		</location>
+		<location id="id61" x="-1045" y="25">
+			<name x="-1037" y="0">ERROR</name>
+			<committed/>
+		</location>
+		<location id="id62" x="-493" y="-306">
+			<name x="-510" y="-289">Init4</name>
+			<committed/>
+		</location>
+		<location id="id63" x="-773" y="-306">
+			<name x="-765" y="-297">Init5</name>
+			<committed/>
+		</location>
+		<location id="id64" x="-314" y="-306">
+			<name x="-297" y="-314">Init3</name>
+			<committed/>
+		</location>
+		<location id="id65" x="-314" y="-382">
+			<name x="-348" y="-365">Init2</name>
+			<committed/>
+		</location>
+		<location id="id66" x="-493" y="-382">
+			<name x="-510" y="-365">Init1</name>
+			<committed/>
+		</location>
+		<location id="id67" x="-774" y="-382">
+			<name x="-790" y="-365">Init0</name>
+			<committed/>
+		</location>
+		<init ref="id67"/>
+		<transition>
+			<source ref="id56"/>
+			<target ref="id61"/>
+			<label kind="guard" x="-501" y="8">c1&gt;data.deadline</label>
+			<label kind="synchronisation" x="-425" y="25">ready?</label>
+			<nail x="-569" y="212"/>
+			<nail x="-382" y="68"/>
+			<nail x="-382" y="42"/>
+			<nail x="-1020" y="42"/>
+		</transition>
+		<transition>
+			<source ref="id53"/>
+			<target ref="id59"/>
+			<label kind="synchronisation" x="-909" y="374">receive!</label>
+			<nail x="-858" y="365"/>
+		</transition>
+		<transition>
+			<source ref="id59"/>
+			<target ref="id53"/>
+			<label kind="select" x="-824" y="365">i: int[0, MAX_NUM_OF_INPUT_LINKS-1]</label>
+			<label kind="guard" x="-824" y="348">i&lt;data.numOfInputLinks</label>
+			<label kind="assignment" x="-816" y="382">is_data_ready[i]=1</label>
+		</transition>
+		<transition>
+			<source ref="id56"/>
+			<target ref="id56"/>
+			<label kind="guard" x="-722" y="221">c1&lt;=data.deadline</label>
+			<label kind="synchronisation" x="-629" y="204">ready?</label>
+			<nail x="-595" y="255"/>
+			<nail x="-595" y="238"/>
+		</transition>
+		<transition>
+			<source ref="id58"/>
+			<target ref="id61"/>
+			<label kind="guard" x="-986" y="-8">c1&lt;data.deadline
+&amp;&amp;!allDataReady()</label>
+			<label kind="synchronisation" x="-986" y="25">ready?</label>
+			<nail x="-867" y="25"/>
+		</transition>
+		<transition>
+			<source ref="id58"/>
+			<target ref="id58"/>
+			<label kind="synchronisation" x="-739" y="195">finished?</label>
+			<nail x="-756" y="204"/>
+			<nail x="-739" y="195"/>
+		</transition>
+		<transition>
+			<source ref="id58"/>
+			<target ref="id58"/>
+			<label kind="synchronisation" x="-909" y="119">preempt!</label>
+			<nail x="-833" y="119"/>
+			<nail x="-833" y="136"/>
+		</transition>
+		<transition>
+			<source ref="id58"/>
+			<target ref="id58"/>
+			<label kind="synchronisation" x="-858" y="102">exec!</label>
+			<nail x="-816" y="102"/>
+			<nail x="-816" y="119"/>
+		</transition>
+		<transition>
+			<source ref="id58"/>
+			<target ref="id58"/>
+			<label kind="synchronisation" x="-816" y="68">send?</label>
+			<nail x="-782" y="85"/>
+			<nail x="-799" y="85"/>
+		</transition>
+		<transition>
+			<source ref="id59"/>
+			<target ref="id59"/>
+			<label kind="synchronisation" x="-875" y="204">send?</label>
+			<nail x="-867" y="221"/>
+			<nail x="-850" y="221"/>
+		</transition>
+		<transition>
+			<source ref="id59"/>
+			<target ref="id59"/>
+			<label kind="synchronisation" x="-977" y="246">preempt!</label>
+			<nail x="-901" y="271"/>
+			<nail x="-901" y="246"/>
+		</transition>
+		<transition>
+			<source ref="id59"/>
+			<target ref="id59"/>
+			<label kind="synchronisation" x="-935" y="297">exec!</label>
+			<nail x="-892" y="314"/>
+			<nail x="-892" y="297"/>
+		</transition>
+		<transition>
+			<source ref="id59"/>
+			<target ref="id59"/>
+			<label kind="synchronisation" x="-841" y="229">finished?</label>
+			<nail x="-824" y="246"/>
+			<nail x="-790" y="246"/>
+		</transition>
+		<transition>
+			<source ref="id56"/>
+			<target ref="id56"/>
+			<label kind="synchronisation" x="-654" y="289">finished?</label>
+			<nail x="-595" y="297"/>
+			<nail x="-595" y="314"/>
+		</transition>
+		<transition>
+			<source ref="id54"/>
+			<target ref="id56"/>
+			<label kind="synchronisation" x="-510" y="323">receive!</label>
+		</transition>
+		<transition>
+			<source ref="id56"/>
+			<target ref="id54"/>
+			<label kind="select" x="-425" y="340">i:int[0, MAX_NUM_OF_INPUT_LINKS-1]</label>
+			<label kind="guard" x="-433" y="357">i&lt;data.numOfInputLinks</label>
+			<label kind="assignment" x="-433" y="374">is_data_ready[i]=1</label>
+			<nail x="-442" y="391"/>
+		</transition>
+		<transition>
+			<source ref="id56"/>
+			<target ref="id56"/>
+			<label kind="synchronisation" x="-501" y="246">send?</label>
+			<nail x="-501" y="255"/>
+			<nail x="-501" y="280"/>
+		</transition>
+		<transition>
+			<source ref="id56"/>
+			<target ref="id56"/>
+			<label kind="synchronisation" x="-501" y="212">preempt!</label>
+			<nail x="-501" y="238"/>
+			<nail x="-510" y="212"/>
+		</transition>
+		<transition>
+			<source ref="id56"/>
+			<target ref="id56"/>
+			<label kind="synchronisation" x="-561" y="221">exec!</label>
+			<nail x="-552" y="246"/>
+			<nail x="-535" y="246"/>
+		</transition>
+		<transition>
+			<source ref="id60"/>
+			<target ref="id61"/>
+			<label kind="guard" x="-986" y="-110">c1&lt;data.offset||
+!allDataReady()</label>
+			<label kind="synchronisation" x="-960" y="-76">ready?</label>
+			<nail x="-807" y="-76"/>
+			<nail x="-1045" y="-76"/>
+		</transition>
+		<transition>
+			<source ref="id60"/>
+			<target ref="id60"/>
+			<label kind="synchronisation" x="-765" y="-272">send?</label>
+			<nail x="-748" y="-255"/>
+			<nail x="-765" y="-255"/>
+		</transition>
+		<transition>
+			<source ref="id60"/>
+			<target ref="id60"/>
+			<label kind="synchronisation" x="-892" y="-229">finished?</label>
+			<nail x="-824" y="-229"/>
+			<nail x="-824" y="-212"/>
+		</transition>
+		<transition>
+			<source ref="id60"/>
+			<target ref="id60"/>
+			<label kind="synchronisation" x="-892" y="-255">preempt!</label>
+			<nail x="-807" y="-246"/>
+			<nail x="-824" y="-246"/>
+		</transition>
+		<transition>
+			<source ref="id60"/>
+			<target ref="id60"/>
+			<label kind="synchronisation" x="-816" y="-272">exec!</label>
+			<nail x="-782" y="-255"/>
+			<nail x="-799" y="-255"/>
+		</transition>
+		<transition>
+			<source ref="id55"/>
+			<target ref="id60"/>
+			<label kind="synchronisation" x="-697" y="-178">receive!</label>
+		</transition>
+		<transition>
+			<source ref="id60"/>
+			<target ref="id55"/>
+			<label kind="select" x="-697" y="-229">i:int[0, MAX_NUM_OF_INPUT_LINKS-1]</label>
+			<label kind="guard" x="-697" y="-212">i&lt;data.numOfInputLinks&amp;&amp;c1&gt;0</label>
+			<label kind="assignment" x="-697" y="-195">is_data_ready[i]=1</label>
+			<nail x="-714" y="-161"/>
+		</transition>
+		<transition>
+			<source ref="id58"/>
+			<target ref="id56"/>
+			<label kind="guard" x="-714" y="170">c1==data.deadline</label>
+			<nail x="-722" y="187"/>
+			<nail x="-586" y="187"/>
+		</transition>
+		<transition>
+			<source ref="id59"/>
+			<target ref="id56"/>
+			<label kind="guard" x="-765" y="306">c1==data.deadline</label>
+			<nail x="-688" y="323"/>
+		</transition>
+		<transition>
+			<source ref="id56"/>
+			<target ref="id60"/>
+			<label kind="guard" x="-451" y="-178">c1==data.period
+&amp;&amp;dataReset()</label>
+			<label kind="assignment" x="-434" y="-144">c1=0</label>
+			<nail x="-272" y="119"/>
+			<nail x="-272" y="-144"/>
+			<nail x="-706" y="-144"/>
+		</transition>
+		<transition>
+			<source ref="id59"/>
+			<target ref="id56"/>
+			<label kind="synchronisation" x="-654" y="340">ready?</label>
+		</transition>
+		<transition>
+			<source ref="id59"/>
+			<target ref="id61"/>
+			<label kind="guard" x="-1045" y="187">c2&gt;0&amp;&amp;
+c1&lt;data.deadline</label>
+			<nail x="-901" y="221"/>
+			<nail x="-1045" y="221"/>
+		</transition>
+		<transition>
+			<source ref="id58"/>
+			<target ref="id59"/>
+			<label kind="guard" x="-773" y="238">allDataReady()
+&amp;&amp;c1&lt;data.deadline</label>
+			<label kind="assignment" x="-773" y="272">c2=0</label>
+			<nail x="-773" y="289"/>
+		</transition>
+		<transition>
+			<source ref="id57"/>
+			<target ref="id58"/>
+			<label kind="synchronisation" x="-756" y="127">receive!</label>
+		</transition>
+		<transition>
+			<source ref="id58"/>
+			<target ref="id57"/>
+			<label kind="select" x="-671" y="51">i:int[0, MAX_NUM_OF_INPUT_LINKS-1]</label>
+			<label kind="guard" x="-671" y="68">i&lt;data.numOfInputLinks
+&amp;&amp;c1&lt;data.deadline&amp;&amp;c1&gt;0</label>
+			<label kind="assignment" x="-671" y="102">is_data_ready[i]=1</label>
+			<nail x="-680" y="59"/>
+		</transition>
+		<transition>
+			<source ref="id60"/>
+			<target ref="id58"/>
+			<label kind="guard" x="-773" y="-25">c1==data.offset&amp;&amp;
+!allDataReady()</label>
+		</transition>
+		<transition>
+			<source ref="id60"/>
+			<target ref="id59"/>
+			<label kind="guard" x="-1062" y="-178">c1==data.offset&amp;&amp;
+allDataReady()</label>
+			<label kind="assignment" x="-1054" y="-144">c2=0</label>
+			<nail x="-1062" y="-144"/>
+			<nail x="-1062" y="297"/>
+		</transition>
+		<transition>
+			<source ref="id63"/>
+			<target ref="id60"/>
+		</transition>
+		<transition>
+			<source ref="id62"/>
+			<target ref="id63"/>
+			<label kind="select" x="-705" y="-340">o:int[0,MAX_PERIOD-1]</label>
+			<label kind="guard" x="-731" y="-323">o+data.wcet&lt;=data.deadline</label>
+			<label kind="assignment" x="-680" y="-306">data.offset=o</label>
+		</transition>
+		<transition>
+			<source ref="id64"/>
+			<target ref="id62"/>
+			<label kind="select" x="-467" y="-323">w:int[1,MAX_PERIOD]</label>
+			<label kind="guard" x="-467" y="-306">w&lt;=data.deadline</label>
+			<label kind="assignment" x="-467" y="-289">data.wcet=w</label>
+		</transition>
+		<transition>
+			<source ref="id65"/>
+			<target ref="id64"/>
+			<label kind="select" x="-306" y="-374">d:int[1,MAX_PERIOD]</label>
+			<label kind="guard" x="-306" y="-340">d&lt;=data.period</label>
+			<label kind="assignment" x="-306" y="-357">data.deadline=d</label>
+		</transition>
+		<transition>
+			<source ref="id66"/>
+			<target ref="id65"/>
+			<label kind="select" x="-476" y="-399">p:int[1,MAX_PERIOD]</label>
+			<label kind="assignment" x="-476" y="-382">data.period=p</label>
+		</transition>
+		<transition>
+			<source ref="id67"/>
+			<target ref="id66"/>
+			<label kind="select" x="-756" y="-399">n:int[1, MAX_NUM_OF_INPUT_LINKS]</label>
+			<label kind="assignment" x="-739" y="-382">data.numOfInputLinks=n</label>
+		</transition>
+	</template>
+	<template>
+		<name x="5" y="5">Task</name>
+		<parameter>TaskData &amp;data, int &amp;is_ready, int &amp;abs_deadline, int &amp;is_data_ready[MAX_NUM_OF_INPUT_LINKS],   chan &amp;exec,  chan &amp;preempt, chan &amp;ready,  chan&amp;finished,  broadcast chan&amp; send, broadcast chan&amp; receive</parameter>
+		<declaration>// Place local declarations here.
+clock exec_timer;
+
+
+bool allDataReady()
+{
+    for (i: int[0, MAX_NUM_OF_INPUT_LINKS-1]) {
+        if (i&gt;=data.numOfInputLinks)
+            return true;
+        if (!is_data_ready[i])
+            return false;
+
+    }
+    return true;
+}
+
+void getData()
+{
+    for (i: int[0, MAX_NUM_OF_INPUT_LINKS-1]) {
+        is_data_ready[i] = 0;
+        if (i&gt;=data.numOfInputLinks)
+            return;
+    }
+}
+
+void resetData()
+{
+    for (i: int[0, MAX_NUM_OF_INPUT_LINKS-1]) {
+        is_data_ready[i] = 0;
+        if (i&gt;=data.numOfInputLinks)
+            return;
+    }
+}</declaration>
+		<location id="id68" x="-3162" y="-3757">
+			<name x="-3179" y="-3782">Start</name>
+			<urgent/>
+		</location>
+		<location id="id69" x="-2380" y="-3357">
+			<committed/>
+		</location>
+		<location id="id70" x="-2855" y="-3544">
+			<name x="-2838" y="-3552">WaitingForData</name>
+			<label kind="invariant" x="-3017" y="-3536">exec_timer'==0&amp;&amp;
+local_timer&lt;=data.deadline</label>
+		</location>
+		<location id="id71" x="-2380" y="-3612">
+			<name x="-2371" y="-3655">WaitingForNewPeriod</name>
+			<label kind="invariant" x="-2363" y="-3629">exec_timer'==0&amp;&amp;
+local_timer&lt;=data.period</label>
+		</location>
+		<location id="id72" x="-2380" y="-3476">
+			<name x="-2368" y="-3500">Finished</name>
+			<committed/>
+		</location>
+		<location id="id73" x="-2694" y="-3357">
+			<name x="-2737" y="-3383">Exec</name>
+			<label kind="invariant" x="-2898" y="-3366">local_timer&lt;=data.deadline
+&amp;&amp;exec_timer&lt;=data.wcet</label>
+		</location>
+		<location id="id74" x="-2618" y="-3459">
+			<name x="-2677" y="-3476">Ready</name>
+			<label kind="invariant" x="-2601" y="-3476">exec_timer'==0&amp;&amp;
+local_timer&lt;=data.deadline</label>
+		</location>
+		<location id="id75" x="-2677" y="-3527">
+			<name x="-2660" y="-3553">SendReadySig</name>
+			<committed/>
+		</location>
+		<location id="id76" x="-2915" y="-3757">
+			<name x="-2898" y="-3782">Dormant</name>
+			<label kind="invariant" x="-3077" y="-3731">exec_timer'==0&amp;&amp;
+local_timer&lt;=data.offset</label>
+		</location>
+		<init ref="id68"/>
+		<transition>
+			<source ref="id68"/>
+			<target ref="id76"/>
+			<label kind="guard" x="-3145" y="-3774">data.deadline != 0</label>
+			<label kind="assignment" x="-3145" y="-3757">abs_deadline = data.deadline</label>
+		</transition>
+		<transition>
+			<source ref="id70"/>
+			<target ref="id70"/>
+			<label kind="guard" x="-2856" y="-3612">local_timer==0</label>
+			<label kind="synchronisation" x="-2839" y="-3595">receive?</label>
+			<label kind="assignment" x="-2839" y="-3578">resetData()</label>
+			<nail x="-2864" y="-3612"/>
+			<nail x="-2839" y="-3578"/>
+		</transition>
+		<transition>
+			<source ref="id76"/>
+			<target ref="id76"/>
+			<label kind="guard" x="-2813" y="-3740">local_timer==0</label>
+			<label kind="synchronisation" x="-2813" y="-3723">receive?</label>
+			<label kind="assignment" x="-2813" y="-3706">resetData()</label>
+			<nail x="-2822" y="-3706"/>
+			<nail x="-2813" y="-3748"/>
+		</transition>
+		<transition>
+			<source ref="id71"/>
+			<target ref="id76"/>
+			<label kind="guard" x="-2822" y="-3774">local_timer==data.period &amp;&amp; abs_deadline &lt;= MAX_INT</label>
+			<label kind="assignment" x="-2694" y="-3757">local_timer=0, exec_timer=0,resetData(),
+abs_deadline=abs_deadline+data.period</label>
+			<nail x="-2405" y="-3757"/>
+		</transition>
+		<transition>
+			<source ref="id73"/>
+			<target ref="id72"/>
+			<label kind="guard" x="-2677" y="-3297">local_timer==data.deadline &amp;&amp; exec_timer &lt; data.wcet</label>
+			<nail x="-2694" y="-3281"/>
+			<nail x="-2253" y="-3280"/>
+			<nail x="-2252" y="-3476"/>
+		</transition>
+		<transition>
+			<source ref="id69"/>
+			<target ref="id72"/>
+			<label kind="synchronisation" x="-2371" y="-3434">send!</label>
+		</transition>
+		<transition>
+			<source ref="id73"/>
+			<target ref="id69"/>
+			<label kind="guard" x="-2609" y="-3374">exec_timer==data.wcet</label>
+		</transition>
+		<transition>
+			<source ref="id70"/>
+			<target ref="id71"/>
+			<label kind="guard" x="-2711" y="-3808">local_timer==data.deadline</label>
+			<label kind="assignment" x="-2711" y="-3791">is_ready=0</label>
+			<nail x="-3196" y="-3629"/>
+			<nail x="-3196" y="-3791"/>
+			<nail x="-2380" y="-3791"/>
+		</transition>
+		<transition>
+			<source ref="id74"/>
+			<target ref="id71"/>
+			<label kind="guard" x="-2533" y="-3604">local_timer==
+data.deadline</label>
+			<label kind="assignment" x="-2482" y="-3553">is_ready=0</label>
+		</transition>
+		<transition>
+			<source ref="id70"/>
+			<target ref="id75"/>
+			<label kind="guard" x="-2830" y="-3510">allDataReady()&amp;&amp;
+local_timer&lt;data.deadline
+&amp;&amp;local_timer&gt;0</label>
+			<label kind="synchronisation" x="-2822" y="-3459">receive?</label>
+			<label kind="assignment" x="-2822" y="-3442">is_ready=1</label>
+			<nail x="-2771" y="-3510"/>
+		</transition>
+		<transition>
+			<source ref="id70"/>
+			<target ref="id70"/>
+			<label kind="guard" x="-3145" y="-3578">!allDataReady()&amp;&amp;
+local_timer&gt;0</label>
+			<label kind="synchronisation" x="-3085" y="-3544">receive?</label>
+			<nail x="-3017" y="-3536"/>
+			<nail x="-3017" y="-3570"/>
+		</transition>
+		<transition>
+			<source ref="id76"/>
+			<target ref="id70"/>
+			<label kind="guard" x="-3060" y="-3680">local_timer==data.offset
+&amp;&amp;!allDataReady()</label>
+		</transition>
+		<transition>
+			<source ref="id72"/>
+			<target ref="id71"/>
+			<label kind="synchronisation" x="-2380" y="-3561">finished!</label>
+			<label kind="assignment" x="-2380" y="-3544">is_ready=0</label>
+		</transition>
+		<transition>
+			<source ref="id73"/>
+			<target ref="id74"/>
+			<label kind="synchronisation" x="-2652" y="-3400">preempt?</label>
+			<nail x="-2626" y="-3417"/>
+		</transition>
+		<transition>
+			<source ref="id74"/>
+			<target ref="id73"/>
+			<label kind="guard" x="-2873" y="-3417">local_timer&lt;data.deadline</label>
+			<label kind="synchronisation" x="-2737" y="-3408">exec?</label>
+			<nail x="-2694" y="-3442"/>
+		</transition>
+		<transition>
+			<source ref="id75"/>
+			<target ref="id74"/>
+			<label kind="synchronisation" x="-2643" y="-3502">ready!</label>
+		</transition>
+		<transition>
+			<source ref="id76"/>
+			<target ref="id75"/>
+			<label kind="guard" x="-2728" y="-3663">local_timer==data.offset
+&amp;&amp;allDataReady()</label>
+			<label kind="assignment" x="-2711" y="-3629">is_ready=1</label>
+			<nail x="-2737" y="-3638"/>
+		</transition>
+	</template>
+	<system>// Place template instantiations here.
+T = Task(t, is_ready, abs_deadline, is_data_ready, exec, preempt, ready, finished, send, receive);
+// List one or more processes to be composed into a system.
+r_1 = T_R_1(t, is_ready, abs_deadline, is_data_ready, exec, preempt, ready, finished, send, receive);
+r_2 = T_R_2(t, is_ready, abs_deadline, is_data_ready, exec, preempt, ready, finished, send, receive);
+r_3 = T_R_3(t, is_ready, abs_deadline, is_data_ready, exec, preempt, ready, finished, send, receive);
+r_3_1 = T_R_3_1(t, is_ready, abs_deadline, is_data_ready, exec, preempt, ready, finished, send, receive);
+r_4 = T_R_4(t, is_ready, abs_deadline, is_data_ready, exec, preempt, ready, finished, send, receive);
+r_7 = T_R_7(t, is_ready, abs_deadline, is_data_ready, exec, preempt, ready, finished, send, receive);
+//system T,r_1;
+system T,r_7;
+//system T, p;
+//system T,r_2;
+//system r_3, T;
+//system r_3_1, T;
+//system r_4, T;
+    </system>
+	<queries>
+		<query>
+			<formula>E&lt;&gt; (abs_deadline &lt; MAX_INT)  &amp;&amp; (r_1.c - T.local_timer &gt; 0  &amp;&amp; r_1.c - T.local_timer &lt; T.data.period)
+			</formula>
+			<comment>
+			</comment>
+		</query>
+		<query>
+			<formula>E&lt;&gt;  (abs_deadline &lt; MAX_INT)  &amp;&amp; r_3_1.ERROR
+			</formula>
+			<comment>
+			</comment>
+		</query>
+		<query>
+			<formula>E&lt;&gt;  (abs_deadline &lt; MAX_INT)  &amp;&amp; r_3.ERROR</formula>
+			<comment></comment>
+		</query>
+		<query>
+			<formula>E&lt;&gt;  (abs_deadline &lt; MAX_INT)  &amp;&amp; r_2.ERROR</formula>
+			<comment></comment>
+		</query>
+		<query>
+			<formula>E&lt;&gt;  (abs_deadline &lt; MAX_INT)  &amp;&amp; r_1.ERROR</formula>
+			<comment></comment>
+		</query>
+		<query>
+			<formula>E&lt;&gt;  (abs_deadline &lt; MAX_INT)  &amp;&amp; r_4.ERROR</formula>
+			<comment></comment>
+		</query>
+		<query>
+			<formula>E&lt;&gt;  (abs_deadline &lt; MAX_INT)  &amp;&amp; r_7.ERROR
+			</formula>
+			<comment>
+			</comment>
+		</query>
+		<query>
+			<formula>E&lt;&gt; p.ERROR
+			</formula>
+			<comment>
+			</comment>
+		</query>
+	</queries>
+</nta>

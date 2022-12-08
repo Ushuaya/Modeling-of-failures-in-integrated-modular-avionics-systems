@@ -1,0 +1,4 @@
+CHEETAH_TEMPLATES := automaton_h.tmpl automaton_cpp.tmpl cmakelists.tmpl common_h.tmpl common_cpp.tmpl
+
+all: $(CHEETAH_TEMPLATES)
+	cheetah compile $?

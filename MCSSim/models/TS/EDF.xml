@@ -1,0 +1,179 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE nta PUBLIC '-//Uppaal Team//DTD Flat System 1.1//EN' 'http://www.it.uu.se/research/group/darts/uppaal/flat-1_2.dtd'>
+<nta>
+	<declaration>typedef struct {
+    int numOfTasks;
+} TaskSchedulerData;</declaration>
+	<template>
+		<name>EDF</name>
+		<parameter>TaskSchedulerData &amp;data, int &amp;abs_deadline[DUMMY_NUM], int &amp;is_ready[DUMMY_NUM], int &amp;prio[DUMMY_NUM], int &amp;id[DUMMY_NUM],  chan &amp;wakeup, chan&amp;sleep, chan&amp;ready, chan&amp;finished, chan&amp;exec[DUMMY_NUM], chan&amp;preempt[DUMMY_NUM]</parameter>
+		<declaration>int current;
+
+int get_job()
+{
+    meta int res = -1;
+    for (i : int[0,data.numOfTasks-1]) {
+        if (is_ready[i]) {
+            if (res == -1 || (abs_deadline[i]&lt;abs_deadline[res]))
+                res = i;
+        }
+    }
+
+    if (res == -1)
+        return res;
+
+    for (i : int[0, data.numOfTasks-1]) {
+        if (is_ready[i]) {
+            if ((abs_deadline[i] == abs_deadline[res]) &amp;&amp; (id[i] &lt; id[res]))
+                res = i;
+        }
+    }
+    return res;
+}</declaration>
+		<location id="id0" x="-85" y="-255">
+			<name x="-95" y="-289">NewJob</name>
+			<committed/>
+		</location>
+		<location id="id1" x="-493" y="-144">
+			<name x="-569" y="-161">Sleeping</name>
+		</location>
+		<location id="id2" x="-357" y="-212">
+			<name x="-408" y="-246">SendPreempt</name>
+			<committed/>
+		</location>
+		<location id="id3" x="25" y="-212">
+			<name x="15" y="-246">Preempting</name>
+			<committed/>
+		</location>
+		<location id="id4" x="-204" y="-178">
+			<name x="-280" y="-212">Executing</name>
+		</location>
+		<location id="id5" x="25" y="-17">
+			<name x="42" y="-25">Scheduling</name>
+			<committed/>
+		</location>
+		<location id="id6" x="-204" y="-17">
+			<name x="-229" y="-51">Waiting</name>
+		</location>
+		<init ref="id1"/>
+		<transition>
+			<source ref="id3"/>
+			<target ref="id5"/>
+			<label kind="synchronisation" x="-17" y="-110">finished?</label>
+			<nail x="51" y="-102"/>
+		</transition>
+		<transition>
+			<source ref="id2"/>
+			<target ref="id1"/>
+			<label kind="synchronisation" x="-442" y="-229">finished?</label>
+			<nail x="-425" y="-204"/>
+		</transition>
+		<transition>
+			<source ref="id6"/>
+			<target ref="id5"/>
+			<label kind="synchronisation" x="-127" y="-34">ready?</label>
+			<label kind="testcode">4</label>
+		</transition>
+		<transition>
+			<source ref="id1"/>
+			<target ref="id1"/>
+			<label kind="synchronisation" x="-552" y="-102">ready?</label>
+			<label kind="testcode">4</label>
+			<nail x="-510" y="-102"/>
+			<nail x="-561" y="-102"/>
+		</transition>
+		<transition>
+			<source ref="id6"/>
+			<target ref="id1"/>
+			<label kind="synchronisation" x="-382" y="-34">sleep?</label>
+			<label kind="testcode">3</label>
+			<nail x="-382" y="-8"/>
+		</transition>
+		<transition>
+			<source ref="id4"/>
+			<target ref="id5"/>
+			<label kind="synchronisation" x="-85" y="-153">finished?</label>
+			<label kind="testcode">1</label>
+			<nail x="-93" y="-144"/>
+		</transition>
+		<transition>
+			<source ref="id1"/>
+			<target ref="id5"/>
+			<label kind="synchronisation" x="-391" y="-102">wakeup?</label>
+			<label kind="testcode">3</label>
+		</transition>
+		<transition>
+			<source ref="id5"/>
+			<target ref="id1"/>
+			<label kind="synchronisation" x="-442" y="59">sleep?</label>
+			<label kind="testcode">3</label>
+			<nail x="-17" y="76"/>
+			<nail x="-493" y="76"/>
+		</transition>
+		<transition>
+			<source ref="id5"/>
+			<target ref="id5"/>
+			<label kind="synchronisation" x="51" y="42">ready?</label>
+			<label kind="testcode">4</label>
+			<nail x="34" y="68"/>
+			<nail x="136" y="68"/>
+		</transition>
+		<transition>
+			<source ref="id0"/>
+			<target ref="id4"/>
+			<label kind="guard" x="-246" y="-272">get_job()==current</label>
+			<nail x="-204" y="-255"/>
+		</transition>
+		<transition>
+			<source ref="id4"/>
+			<target ref="id0"/>
+			<label kind="synchronisation" x="-186" y="-233">ready?</label>
+			<label kind="testcode">4</label>
+		</transition>
+		<transition>
+			<source ref="id0"/>
+			<target ref="id3"/>
+			<label kind="guard" x="-59" y="-263">get_job()!=current</label>
+		</transition>
+		<transition>
+			<source ref="id2"/>
+			<target ref="id1"/>
+			<label kind="synchronisation" x="-442" y="-170">preempt[current]!</label>
+			<label kind="testcode">2</label>
+		</transition>
+		<transition>
+			<source ref="id4"/>
+			<target ref="id2"/>
+			<label kind="synchronisation" x="-297" y="-187">sleep?</label>
+			<label kind="testcode">3</label>
+		</transition>
+		<transition>
+			<source ref="id3"/>
+			<target ref="id5"/>
+			<label kind="synchronisation" x="59" y="-178">preempt[current]!</label>
+			<label kind="testcode">2</label>
+			<nail x="76" y="-136"/>
+		</transition>
+		<transition>
+			<source ref="id5"/>
+			<target ref="id4"/>
+			<label kind="guard" x="-186" y="-131">get_job()!=-1</label>
+			<label kind="synchronisation" x="-186" y="-114">exec[get_job()]!</label>
+			<label kind="assignment" x="-186" y="-97">current=get_job()</label>
+			<label kind="testcode">5</label>
+		</transition>
+		<transition>
+			<source ref="id5"/>
+			<target ref="id6"/>
+			<label kind="guard" x="-119" y="34">get_job()==-1</label>
+			<nail x="-93" y="34"/>
+		</transition>
+	</template>
+	<system></system>
+	<queries>
+		<query>
+			<formula></formula>
+			<comment></comment>
+		</query>
+	</queries>
+</nta>

@@ -1,0 +1,3 @@
+project(generator)
+add_subdirectory(generated_components)
+add_subdirectory(model_builder)

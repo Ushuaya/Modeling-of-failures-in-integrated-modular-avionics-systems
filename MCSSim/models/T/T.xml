@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE nta PUBLIC '-//Uppaal Team//DTD Flat System 1.1//EN' 'http://www.it.uu.se/research/group/darts/uppaal/flat-1_2.dtd'>
+<nta>
+	<declaration>typedef struct {
+    int wcet;
+    int offset;
+    int period;
+    int deadline;
+
+    int numOfInputLinks;
+} TaskData;</declaration>
+	<template>
+		<name x="5" y="5">T</name>
+		<parameter>TaskData &amp;data, int &amp;abs_deadline, int &amp;is_ready, int &amp;prio, int &amp;is_data_ready[DUMMY_NUM],  chan &amp;exec, chan &amp;preempt, chan &amp;ready, chan&amp;finished, broadcast chan&amp; send, broadcast chan&amp; receive</parameter>
+		<declaration>// Place local declarations here.
+clock exec_timer;
+clock local_timer;
+
+bool allDataReady()
+{
+    for (i: int[0, DUMMY_NUM-1]) {
+        if (i&gt;=data.numOfInputLinks)
+            return true;
+        if (!is_data_ready[i])
+            return false;
+
+    }
+    return true;
+}
+
+void getData()
+{
+    for (i: int[0, DUMMY_NUM-1]) {
+        if (i&gt;=data.numOfInputLinks)
+            return;
+        is_data_ready[i] = 0;
+    }
+}
+
+void resetData()
+{
+        for (i: int[0, DUMMY_NUM-1]) {
+        if (i&gt;=data.numOfInputLinks)
+            return;
+        is_data_ready[i] = 0;
+    }
+}</declaration>
+		<location id="id0" x="-3162" y="-3757">
+			<name x="-3179" y="-3791">Start</name>
+			<urgent/>
+		</location>
+		<location id="id1" x="-2380" y="-3357">
+			<name x="-2371" y="-3391">Send</name>
+			<committed/>
+		</location>
+		<location id="id2" x="-2855" y="-3544">
+			<name x="-2838" y="-3552">WaitingForData</name>
+			<label kind="invariant" x="-3017" y="-3536">exec_timer'==0&amp;&amp;
+local_timer&lt;=data.deadline</label>
+		</location>
+		<location id="id3" x="-2380" y="-3612">
+			<name x="-2371" y="-3655">WaitingForNewPeriod</name>
+			<label kind="invariant" x="-2363" y="-3629">exec_timer'==0&amp;&amp;
+local_timer&lt;=data.period</label>
+		</location>
+		<location id="id4" x="-2380" y="-3476">
+			<name x="-2371" y="-3502">Finished</name>
+			<committed/>
+		</location>
+		<location id="id5" x="-2694" y="-3357">
+			<name x="-2737" y="-3383">Exec</name>
+			<label kind="invariant" x="-2898" y="-3366">local_timer&lt;=data.deadline
+&amp;&amp;exec_timer&lt;=data.wcet</label>
+		</location>
+		<location id="id6" x="-2618" y="-3459">
+			<name x="-2677" y="-3476">Ready</name>
+			<label kind="invariant" x="-2601" y="-3476">exec_timer'==0&amp;&amp;
+local_timer&lt;=data.deadline</label>
+		</location>
+		<location id="id7" x="-2677" y="-3527">
+			<name x="-2660" y="-3553">SendReadySig</name>
+			<committed/>
+		</location>
+		<location id="id8" x="-2915" y="-3757">
+			<name x="-2898" y="-3782">Dormant</name>
+			<label kind="invariant" x="-3077" y="-3731">exec_timer'==0&amp;&amp;
+local_timer&lt;=data.offset</label>
+		</location>
+		<init ref="id0"/>
+		<transition>
+			<source ref="id0"/>
+			<target ref="id8"/>
+			<label kind="guard" x="-3145" y="-3774">data.deadline != 0</label>
+			<label kind="assignment" x="-3145" y="-3757">abs_deadline = data.deadline</label>
+		</transition>
+		<transition>
+			<source ref="id2"/>
+			<target ref="id2"/>
+			<label kind="guard" x="-2856" y="-3612">local_timer==0</label>
+			<label kind="synchronisation" x="-2839" y="-3595">receive?</label>
+			<label kind="assignment" x="-2839" y="-3578">resetData()</label>
+			<nail x="-2864" y="-3612"/>
+			<nail x="-2839" y="-3578"/>
+		</transition>
+		<transition>
+			<source ref="id8"/>
+			<target ref="id8"/>
+			<label kind="guard" x="-2813" y="-3740">local_timer==0</label>
+			<label kind="synchronisation" x="-2813" y="-3723">receive?</label>
+			<label kind="assignment" x="-2813" y="-3706">resetData()</label>
+			<nail x="-2822" y="-3706"/>
+			<nail x="-2813" y="-3748"/>
+		</transition>
+		<transition>
+			<source ref="id3"/>
+			<target ref="id8"/>
+			<label kind="guard" x="-2822" y="-3774">local_timer==data.period</label>
+			<label kind="assignment" x="-2694" y="-3757">local_timer=0, exec_timer=0,resetData(),
+abs_deadline=abs_deadline+data.period</label>
+			<nail x="-2405" y="-3757"/>
+		</transition>
+		<transition>
+			<source ref="id5"/>
+			<target ref="id4"/>
+			<label kind="guard" x="-2677" y="-3297">local_timer==data.deadline &amp;&amp; exec_timer &lt; data.wcet</label>
+			<nail x="-2694" y="-3281"/>
+			<nail x="-2253" y="-3280"/>
+			<nail x="-2252" y="-3476"/>
+		</transition>
+		<transition>
+			<source ref="id1"/>
+			<target ref="id4"/>
+			<label kind="synchronisation" x="-2371" y="-3434">send!</label>
+		</transition>
+		<transition>
+			<source ref="id5"/>
+			<target ref="id1"/>
+			<label kind="guard" x="-2609" y="-3374">exec_timer==data.wcet</label>
+		</transition>
+		<transition>
+			<source ref="id2"/>
+			<target ref="id3"/>
+			<label kind="guard" x="-2711" y="-3808">local_timer==data.deadline</label>
+			<label kind="assignment" x="-2711" y="-3791">is_ready=0</label>
+			<nail x="-3196" y="-3629"/>
+			<nail x="-3196" y="-3791"/>
+			<nail x="-2380" y="-3791"/>
+		</transition>
+		<transition>
+			<source ref="id6"/>
+			<target ref="id3"/>
+			<label kind="guard" x="-2533" y="-3604">local_timer==
+data.deadline</label>
+			<label kind="assignment" x="-2482" y="-3553">is_ready=0</label>
+		</transition>
+		<transition>
+			<source ref="id2"/>
+			<target ref="id7"/>
+			<label kind="guard" x="-2830" y="-3510">allDataReady()&amp;&amp;
+local_timer&lt;data.deadline
+&amp;&amp;local_timer&gt;0</label>
+			<label kind="synchronisation" x="-2822" y="-3459">receive?</label>
+			<label kind="assignment" x="-2822" y="-3442">is_ready=1</label>
+			<nail x="-2771" y="-3510"/>
+		</transition>
+		<transition>
+			<source ref="id2"/>
+			<target ref="id2"/>
+			<label kind="guard" x="-3145" y="-3578">!allDataReady()&amp;&amp;
+local_timer&gt;0</label>
+			<label kind="synchronisation" x="-3085" y="-3544">receive?</label>
+			<nail x="-3017" y="-3536"/>
+			<nail x="-3017" y="-3570"/>
+		</transition>
+		<transition>
+			<source ref="id8"/>
+			<target ref="id2"/>
+			<label kind="guard" x="-3060" y="-3680">local_timer==data.offset
+&amp;&amp;!allDataReady()</label>
+		</transition>
+		<transition>
+			<source ref="id4"/>
+			<target ref="id3"/>
+			<label kind="synchronisation" x="-2380" y="-3561">finished!</label>
+			<label kind="assignment" x="-2380" y="-3544">is_ready=0</label>
+		</transition>
+		<transition>
+			<source ref="id5"/>
+			<target ref="id6"/>
+			<label kind="synchronisation" x="-2652" y="-3400">preempt?</label>
+			<nail x="-2626" y="-3417"/>
+		</transition>
+		<transition>
+			<source ref="id6"/>
+			<target ref="id5"/>
+			<label kind="guard" x="-2873" y="-3417">local_timer&lt;data.deadline</label>
+			<label kind="synchronisation" x="-2737" y="-3408">exec?</label>
+			<nail x="-2694" y="-3442"/>
+		</transition>
+		<transition>
+			<source ref="id7"/>
+			<target ref="id6"/>
+			<label kind="synchronisation" x="-2643" y="-3502">ready!</label>
+		</transition>
+		<transition>
+			<source ref="id8"/>
+			<target ref="id7"/>
+			<label kind="guard" x="-2728" y="-3663">local_timer==data.offset
+&amp;&amp;allDataReady()</label>
+			<label kind="assignment" x="-2711" y="-3629">is_ready=1</label>
+			<nail x="-2737" y="-3638"/>
+		</transition>
+	</template>
+	<system></system>
+	<queries>
+		<query>
+			<formula></formula>
+			<comment></comment>
+		</query>
+	</queries>
+</nta>

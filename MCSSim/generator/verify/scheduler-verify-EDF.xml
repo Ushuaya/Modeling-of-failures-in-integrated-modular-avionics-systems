@@ -1,0 +1,4584 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE nta PUBLIC '-//Uppaal Team//DTD Flat System 1.1//EN' 'http://www.it.uu.se/research/group/darts/uppaal/flat-1_2.dtd'>
+<nta>
+	<declaration>
+const int MAX_TASKS_NUM = 3;
+const int MAX_DEADLINE=3;
+
+typedef struct {
+    int numOfTasks;
+} LocalSchedulerData;
+
+LocalSchedulerData data;
+int is_ready[MAX_TASKS_NUM];
+int abs_deadline[MAX_TASKS_NUM];
+int prio[MAX_TASKS_NUM];
+int id[MAX_TASKS_NUM]; 
+ chan wakeup;
+ chan sleep;
+ chan ready;
+ chan finished;
+ chan exec[MAX_TASKS_NUM];
+ chan preempt[MAX_TASKS_NUM];
+</declaration>
+	<template>
+		<name>R_4_5</name>
+		<parameter>LocalSchedulerData &amp;data, int &amp;abs_deadline[MAX_TASKS_NUM],  int &amp;is_ready[MAX_TASKS_NUM], int &amp;prio[MAX_TASKS_NUM], int &amp;id[MAX_TASKS_NUM], chan &amp;wakeup,  chan&amp;sleep, chan&amp;ready,  chan&amp;finished,  chan&amp;exec[MAX_TASKS_NUM],  chan&amp;preempt[MAX_TASKS_NUM]</parameter>
+		<declaration>// {Для любого раздела верно, что для фиксированного состояния очереди готовых работ выбор работы для постановки на выполнение осуществляется однозначно.
+int j;
+
+bool check_prio(int p)
+{
+    for (j: int[0,MAX_TASKS_NUM-1]) {
+        if (j == data.numOfTasks) {
+            return true;
+        }
+        if (prio[j]==p) {
+            return false;
+        }
+    }
+    return true;
+}
+
+bool check_id(int i)
+{
+    for (j: int[0,MAX_TASKS_NUM-1]) {
+        if (j == data.numOfTasks) {
+            return true;
+        }
+        if (id[j]==i) {
+            return false;
+        }
+    }
+    return true;
+}
+
+bool has_ready_job()
+{
+    for (j: int[0,MAX_TASKS_NUM-1]) {
+        if (j == data.numOfTasks) {
+            return false;
+        }
+        if (is_ready[j]==1) {
+            return true;
+        }
+    }
+    return false;
+}
+</declaration>
+		<location id="id0" x="397" y="453">
+			<name x="387" y="419">L2</name>
+			<urgent/>
+		</location>
+		<location id="id1" x="182" y="449">
+			<name x="148" y="449">L1</name>
+			<urgent/>
+		</location>
+		<location id="id2" x="622" y="454">
+			<name x="612" y="420">ERROR</name>
+			<urgent/>
+		</location>
+		<location id="id3" x="185" y="222">
+			<name x="141" y="229">Work</name>
+		</location>
+		<location id="id4" x="183" y="355">
+			<name x="200" y="338">L0</name>
+			<urgent/>
+		</location>
+		<location id="id5" x="162" y="-68">
+			<name x="152" y="-102">Init1</name>
+			<committed/>
+		</location>
+		<location id="id6" x="600" y="-65">
+			<name x="590" y="-99">Init3</name>
+			<committed/>
+		</location>
+		<location id="id7" x="340" y="-68">
+			<name x="330" y="-102">Init2</name>
+			<committed/>
+		</location>
+		<location id="id8" x="-68" y="-68">
+			<name x="-78" y="-102">Init0</name>
+			<committed/>
+		</location>
+		<location id="id9" x="342" y="-18">
+			<committed/>
+		</location>
+		<init ref="id8"/>
+		<transition>
+			<source ref="id3"/>
+			<target ref="id3"/>
+			<label kind="select" x="-53" y="345">i:int[0,MAX_TASKS_NUM-1],
+_id: int [0, MAX_TASKS_NUM]</label>
+			<label kind="guard" x="-49" y="377">i&lt;data.numOfTasks
+&amp;&amp;check_id(_id)</label>
+			<label kind="assignment" x="-48" y="412">id[i]=_id</label>
+			<nail x="-31" y="248"/>
+			<nail x="-32" y="340"/>
+			<nail x="79" y="342"/>
+			<nail x="-27" y="270"/>
+			<nail x="-19" y="252"/>
+		</transition>
+		<transition>
+			<source ref="id3"/>
+			<target ref="id3"/>
+			<label kind="select" x="-59" y="-7">i:int[0,MAX_TASKS_NUM-1],
+_prio: int [0, MAX_TASKS_NUM]</label>
+			<label kind="guard" x="-9" y="25">i&lt;data.numOfTasks
+&amp;&amp;check_prio(_prio)</label>
+			<label kind="assignment" x="64" y="59">prio[i] = _prio</label>
+			<nail x="195" y="89"/>
+			<nail x="158" y="-5"/>
+		</transition>
+		<transition>
+			<source ref="id9"/>
+			<target ref="id5"/>
+			<label kind="assignment" x="226" y="-37">j=j+1</label>
+		</transition>
+		<transition>
+			<source ref="id6"/>
+			<target ref="id9"/>
+			<label kind="select" x="360" y="-14">_id: int [0, MAX_TASKS_NUM]</label>
+			<label kind="guard" x="365" y="1">check_id(_id)</label>
+			<label kind="assignment" x="367" y="19">id[j]=_id</label>
+			<nail x="600" y="-16"/>
+		</transition>
+		<transition>
+			<source ref="id3"/>
+			<target ref="id3"/>
+			<label kind="select" x="346" y="54">i:int[0,MAX_TASKS_NUM-1],
+d:int[0,MAX_DEADLINE]</label>
+			<label kind="guard" x="346" y="87">i&lt;data.numOfTasks</label>
+			<label kind="assignment" x="345" y="103">abs_deadline[i]=d</label>
+			<nail x="338" y="54"/>
+			<nail x="338" y="131"/>
+			<nail x="295" y="131"/>
+		</transition>
+		<transition>
+			<source ref="id1"/>
+			<target ref="id0"/>
+			<label kind="synchronisation" x="248" y="429">ready!</label>
+		</transition>
+		<transition>
+			<source ref="id4"/>
+			<target ref="id1"/>
+			<label kind="synchronisation" x="187" y="379">finished!</label>
+		</transition>
+		<transition>
+			<source ref="id0"/>
+			<target ref="id2"/>
+			<label kind="select" x="419" y="427">i:int[0,MAX_TASKS_NUM-1]</label>
+			<label kind="guard" x="419" y="455">i&lt;data.numOfTasks
+&amp;&amp;i!=j</label>
+			<label kind="synchronisation" x="416" y="489">exec[i]?</label>
+		</transition>
+		<transition>
+			<source ref="id0"/>
+			<target ref="id3"/>
+			<label kind="select" x="327" y="338">i:int[0,MAX_TASKS_NUM-1]</label>
+			<label kind="guard" x="355" y="357">i&lt;data.numOfTasks
+&amp;&amp;i==j</label>
+			<label kind="synchronisation" x="365" y="392">exec[i]?</label>
+		</transition>
+		<transition>
+			<source ref="id5"/>
+			<target ref="id3"/>
+			<label kind="guard" x="24" y="-35">j==data.numOfTasks</label>
+			<nail x="221" y="110"/>
+		</transition>
+		<transition>
+			<source ref="id3"/>
+			<target ref="id3"/>
+			<label kind="select" x="364" y="264">i: int[0, MAX_TASKS_NUM-1]</label>
+			<label kind="guard" x="364" y="281">i&lt;data.numOfTasks</label>
+			<label kind="synchronisation" x="364" y="298">preempt[i]?</label>
+			<nail x="364" y="273"/>
+			<nail x="364" y="298"/>
+		</transition>
+		<transition>
+			<source ref="id3"/>
+			<target ref="id3"/>
+			<label kind="guard" x="304" y="222">has_ready_job()</label>
+			<label kind="synchronisation" x="304" y="239">ready!</label>
+			<nail x="304" y="247"/>
+			<nail x="304" y="213"/>
+		</transition>
+		<transition>
+			<source ref="id3"/>
+			<target ref="id3"/>
+			<label kind="select" x="295" y="145">i:int[0,MAX_TASKS_NUM-1],
+f:int[0,1]</label>
+			<label kind="guard" x="304" y="179">i&lt;data.numOfTasks</label>
+			<label kind="assignment" x="304" y="196">is_ready[i]=f</label>
+			<nail x="287" y="171"/>
+			<nail x="304" y="196"/>
+		</transition>
+		<transition>
+			<source ref="id3"/>
+			<target ref="id3"/>
+			<label kind="synchronisation" x="16" y="196">wakeup!</label>
+			<nail x="83" y="188"/>
+			<nail x="83" y="222"/>
+		</transition>
+		<transition>
+			<source ref="id3"/>
+			<target ref="id3"/>
+			<label kind="synchronisation" x="83" y="162">sleep!</label>
+			<nail x="117" y="171"/>
+			<nail x="125" y="196"/>
+		</transition>
+		<transition>
+			<source ref="id3"/>
+			<target ref="id3"/>
+			<label kind="synchronisation" x="86" y="139">finished!</label>
+			<nail x="142" y="154"/>
+			<nail x="151" y="188"/>
+		</transition>
+		<transition>
+			<source ref="id3"/>
+			<target ref="id4"/>
+			<label kind="select" x="-10" y="255">i: int[0, MAX_TASKS_NUM-1]</label>
+			<label kind="guard" x="41" y="272">i&lt;data.numOfTasks</label>
+			<label kind="synchronisation" x="126" y="288">exec[i]?</label>
+			<label kind="assignment" x="157" y="307">j=i</label>
+		</transition>
+		<transition>
+			<source ref="id7"/>
+			<target ref="id6"/>
+			<label kind="select" x="357" y="-85">_prio: int [0, MAX_TASKS_NUM]</label>
+			<label kind="guard" x="383" y="-68">check_prio(_prio)</label>
+			<label kind="assignment" x="374" y="-51">prio[j] = _prio</label>
+		</transition>
+		<transition>
+			<source ref="id5"/>
+			<target ref="id7"/>
+			<label kind="guard" x="179" y="-85">j &lt; data.numOfTasks</label>
+		</transition>
+		<transition>
+			<source ref="id8"/>
+			<target ref="id5"/>
+			<label kind="select" x="-51" y="-85">n : int [1, MAX_TASKS_NUM]</label>
+			<label kind="assignment" x="-42" y="-68">data.numOfTasks = n</label>
+		</transition>
+	</template>
+	<template>
+		<name>R_8</name>
+		<parameter>LocalSchedulerData &amp;data, int &amp;abs_deadline[MAX_TASKS_NUM],  int &amp;is_ready[MAX_TASKS_NUM], int &amp;prio[MAX_TASKS_NUM], int &amp;id[MAX_TASKS_NUM], chan &amp;wakeup,  chan&amp;sleep, chan&amp;ready,  chan&amp;finished,  chan&amp;exec[MAX_TASKS_NUM],  chan&amp;preempt[MAX_TASKS_NUM]</parameter>
+		<declaration>// Для любого раздела верно, что планировщик этого раздела мгновенно реагирует на события открытия и закрытия очередного окна этого раздела
+int j;
+clock c;
+
+bool check_prio(int p)
+{
+    for (j: int[0,MAX_TASKS_NUM-1]) {
+        if (j == data.numOfTasks) {
+            return true;
+        }
+        if (prio[j]==p) {
+            return false;
+        }
+    }
+    return true;
+}
+
+bool check_id(int i)
+{
+    for (j: int[0,MAX_TASKS_NUM-1]) {
+        if (j == data.numOfTasks) {
+            return true;
+        }
+        if (id[j]==i) {
+            return false;
+        }
+    }
+    return true;
+}
+
+
+bool has_ready_job()
+{
+    for (j: int[0,MAX_TASKS_NUM-1]) {
+        if (j == data.numOfTasks) {
+            return false;
+        }
+        if (is_ready[j]==1) {
+            return true;
+        }
+    }
+    return false;
+}</declaration>
+		<location id="id10" x="-42" y="51">
+			<name x="-42" y="25">ERROR</name>
+			<urgent/>
+		</location>
+		<location id="id11" x="-382" y="51">
+			<name x="-391" y="67">L1</name>
+			<label kind="invariant" x="-408" y="76">c&lt;=0</label>
+		</location>
+		<location id="id12" x="-391" y="-136">
+			<name x="-408" y="-170">L0</name>
+		</location>
+		<location id="id13" x="-223" y="-273">
+			<committed/>
+		</location>
+		<location id="id14" x="-403" y="-323">
+			<name x="-413" y="-357">Init1</name>
+			<committed/>
+		</location>
+		<location id="id15" x="35" y="-320">
+			<name x="25" y="-354">Init3</name>
+			<committed/>
+		</location>
+		<location id="id16" x="-225" y="-323">
+			<name x="-235" y="-357">Init2</name>
+			<committed/>
+		</location>
+		<location id="id17" x="-633" y="-323">
+			<name x="-643" y="-357">Init0</name>
+			<committed/>
+		</location>
+		<init ref="id17"/>
+		<transition>
+			<source ref="id11"/>
+			<target ref="id11"/>
+			<label kind="select" x="-796" y="43">i:int[0,MAX_TASKS_NUM-1],
+_prio: int [0, MAX_TASKS_NUM]</label>
+			<label kind="guard" x="-727" y="78">i&lt;data.numOfTasks
+&amp;&amp;check_prio(_prio)</label>
+			<label kind="assignment" x="-678" y="115">prio[i] = _prio</label>
+			<nail x="-562" y="55"/>
+			<nail x="-577" y="128"/>
+			<nail x="-576" y="45"/>
+		</transition>
+		<transition>
+			<source ref="id11"/>
+			<target ref="id11"/>
+			<label kind="select" x="-715" y="-47">i:int[0,MAX_TASKS_NUM-1],
+_id: int [0, MAX_TASKS_NUM]</label>
+			<label kind="guard" x="-661" y="-13">i&lt;data.numOfTasks
+&amp;&amp;check_id(_id)</label>
+			<label kind="assignment" x="-582" y="19">id[i]=_id</label>
+			<nail x="-495" y="9"/>
+			<nail x="-515" y="-43"/>
+			<nail x="-516" y="24"/>
+		</transition>
+		<transition>
+			<source ref="id12"/>
+			<target ref="id12"/>
+			<label kind="select" x="-786" y="-282">i:int[0,MAX_TASKS_NUM-1],
+_id: int [0, MAX_TASKS_NUM]</label>
+			<label kind="guard" x="-727" y="-250">i&lt;data.numOfTasks
+&amp;&amp;check_id(_id)</label>
+			<label kind="assignment" x="-649" y="-220">id[i]=_id</label>
+			<nail x="-585" y="-199"/>
+			<nail x="-584" y="-271"/>
+		</transition>
+		<transition>
+			<source ref="id12"/>
+			<target ref="id12"/>
+			<label kind="select" x="-121" y="-232">i:int[0,MAX_TASKS_NUM-1],
+_prio: int [0, MAX_TASKS_NUM]</label>
+			<label kind="guard" x="-120" y="-197">i&lt;data.numOfTasks
+&amp;&amp;check_prio(_prio)</label>
+			<label kind="assignment" x="-116" y="-167">prio[i] = _prio</label>
+			<nail x="-281" y="-172"/>
+			<nail x="-168" y="-198"/>
+			<nail x="-142" y="-217"/>
+			<nail x="-126" y="-217"/>
+			<nail x="-127" y="-165"/>
+			<nail x="-294" y="-164"/>
+		</transition>
+		<transition>
+			<source ref="id14"/>
+			<target ref="id12"/>
+			<label kind="guard" x="-544" y="-292">j==data.numOfTasks</label>
+			<nail x="-366" y="-220"/>
+		</transition>
+		<transition>
+			<source ref="id11"/>
+			<target ref="id11"/>
+			<label kind="select" x="-248" y="128">i:int[0,MAX_TASKS_NUM-1],
+d:int[0,MAX_DEADLINE]</label>
+			<label kind="guard" x="-248" y="159">i&lt;data.numOfTasks</label>
+			<label kind="assignment" x="-249" y="173">abs_deadline[i]=d</label>
+			<nail x="-280" y="85"/>
+			<nail x="-255" y="136"/>
+			<nail x="-255" y="195"/>
+			<nail x="-289" y="93"/>
+		</transition>
+		<transition>
+			<source ref="id12"/>
+			<target ref="id12"/>
+			<label kind="select" x="-255" y="-110">i:int[0,MAX_TASKS_NUM-1],
+d:int[0,MAX_DEADLINE]</label>
+			<label kind="guard" x="-255" y="-76">i&lt;data.numOfTasks</label>
+			<label kind="assignment" x="-255" y="-59">abs_deadline[i]=d</label>
+			<nail x="-255" y="-51"/>
+			<nail x="-255" y="-102"/>
+		</transition>
+		<transition>
+			<source ref="id11"/>
+			<target ref="id11"/>
+			<label kind="synchronisation" x="-491" y="-10">finished!</label>
+			<nail x="-428" y="-18"/>
+			<nail x="-428" y="16"/>
+		</transition>
+		<transition>
+			<source ref="id11"/>
+			<target ref="id11"/>
+			<label kind="guard" x="-552" y="59">has_ready_job()</label>
+			<label kind="synchronisation" x="-493" y="76">ready!</label>
+			<nail x="-450" y="93"/>
+			<nail x="-450" y="76"/>
+		</transition>
+		<transition>
+			<source ref="id11"/>
+			<target ref="id11"/>
+			<label kind="select" x="-476" y="101">i:int[0,MAX_TASKS_NUM-1]</label>
+			<label kind="guard" x="-459" y="118">i&lt;data.numOfTasks</label>
+			<label kind="synchronisation" x="-425" y="135">preempt[i]?</label>
+			<nail x="-314" y="101"/>
+			<nail x="-450" y="101"/>
+		</transition>
+		<transition>
+			<source ref="id11"/>
+			<target ref="id11"/>
+			<label kind="select" x="-238" y="-26">i:int[0,MAX_TASKS_NUM-1],
+f:int[0,1]</label>
+			<label kind="guard" x="-238" y="8">i&lt;data.numOfTasks</label>
+			<label kind="assignment" x="-238" y="25">is_ready[i]=f</label>
+			<nail x="-246" y="0"/>
+			<nail x="-246" y="42"/>
+		</transition>
+		<transition>
+			<source ref="id11"/>
+			<target ref="id11"/>
+			<label kind="select" x="-246" y="68">i:int[0,MAX_TASKS_NUM-1]</label>
+			<label kind="guard" x="-246" y="85">i&lt;data.numOfTasks</label>
+			<label kind="synchronisation" x="-246" y="102">exec[i]?</label>
+			<nail x="-272" y="76"/>
+			<nail x="-255" y="119"/>
+			<nail x="-255" y="68"/>
+		</transition>
+		<transition>
+			<source ref="id12"/>
+			<target ref="id12"/>
+			<label kind="select" x="-595" y="-102">i:int[0,MAX_TASKS_NUM-1]</label>
+			<label kind="guard" x="-595" y="-85">i&lt;data.numOfTasks</label>
+			<label kind="synchronisation" x="-595" y="-68">preempt[i]?</label>
+			<nail x="-595" y="-102"/>
+			<nail x="-595" y="-136"/>
+		</transition>
+		<transition>
+			<source ref="id12"/>
+			<target ref="id12"/>
+			<label kind="select" x="-309" y="-158">i:int[0,MAX_TASKS_NUM-1]</label>
+			<label kind="guard" x="-310" y="-143">i&lt;data.numOfTasks</label>
+			<label kind="synchronisation" x="-311" y="-129">exec[i]?</label>
+			<nail x="-314" y="-151"/>
+			<nail x="-314" y="-126"/>
+		</transition>
+		<transition>
+			<source ref="id12"/>
+			<target ref="id12"/>
+			<label kind="synchronisation" x="-237" y="-211">finished!</label>
+			<nail x="-242" y="-199"/>
+			<nail x="-234" y="-193"/>
+		</transition>
+		<transition>
+			<source ref="id12"/>
+			<target ref="id12"/>
+			<label kind="guard" x="-361" y="-226">has_ready_job()</label>
+			<label kind="synchronisation" x="-361" y="-211">ready!</label>
+			<nail x="-357" y="-195"/>
+			<nail x="-357" y="-178"/>
+		</transition>
+		<transition>
+			<source ref="id12"/>
+			<target ref="id12"/>
+			<label kind="select" x="-765" y="-194">i:int[0,MAX_TASKS_NUM-1],
+f:int[0,1]</label>
+			<label kind="guard" x="-768" y="-160">i&lt;data.numOfTasks</label>
+			<label kind="assignment" x="-766" y="-144">is_ready[i]=f</label>
+			<nail x="-577" y="-171"/>
+			<nail x="-625" y="-172"/>
+			<nail x="-630" y="-141"/>
+			<nail x="-613" y="-141"/>
+		</transition>
+		<transition>
+			<source ref="id11"/>
+			<target ref="id10"/>
+			<label kind="guard" x="-102" y="34">c&gt;0</label>
+		</transition>
+		<transition>
+			<source ref="id11"/>
+			<target ref="id12"/>
+			<label kind="synchronisation" x="-450" y="-59">sleep!</label>
+			<nail x="-408" y="-34"/>
+		</transition>
+		<transition>
+			<source ref="id11"/>
+			<target ref="id12"/>
+			<label kind="synchronisation" x="-340" y="-68">wakeup!</label>
+			<nail x="-340" y="-59"/>
+		</transition>
+		<transition>
+			<source ref="id12"/>
+			<target ref="id11"/>
+			<label kind="assignment" x="-382" y="-76">c=0</label>
+		</transition>
+		<transition>
+			<source ref="id13"/>
+			<target ref="id14"/>
+			<label kind="assignment" x="-339" y="-292">j=j+1</label>
+		</transition>
+		<transition>
+			<source ref="id15"/>
+			<target ref="id13"/>
+			<label kind="select" x="-205" y="-269">_id: int [0, MAX_TASKS_NUM]</label>
+			<label kind="guard" x="-200" y="-254">check_id(_id)</label>
+			<label kind="assignment" x="-198" y="-236">id[j]=_id</label>
+			<nail x="35" y="-271"/>
+		</transition>
+		<transition>
+			<source ref="id16"/>
+			<target ref="id15"/>
+			<label kind="select" x="-208" y="-340">_prio: int [0, MAX_TASKS_NUM]</label>
+			<label kind="guard" x="-182" y="-323">check_prio(_prio)</label>
+			<label kind="assignment" x="-191" y="-306">prio[j] = _prio</label>
+		</transition>
+		<transition>
+			<source ref="id14"/>
+			<target ref="id16"/>
+			<label kind="guard" x="-386" y="-340">j &lt; data.numOfTasks</label>
+		</transition>
+		<transition>
+			<source ref="id17"/>
+			<target ref="id14"/>
+			<label kind="select" x="-616" y="-340">n : int [1, MAX_TASKS_NUM]</label>
+			<label kind="assignment" x="-607" y="-323">data.numOfTasks = n</label>
+		</transition>
+	</template>
+	<template>
+		<name>R_4_2</name>
+		<parameter>LocalSchedulerData &amp;data, int &amp;abs_deadline[MAX_TASKS_NUM],  int &amp;is_ready[MAX_TASKS_NUM], int &amp;prio[MAX_TASKS_NUM], int &amp;id[MAX_TASKS_NUM], chan &amp;wakeup,  chan&amp;sleep, chan&amp;ready,  chan&amp;finished,  chan&amp;exec[MAX_TASKS_NUM],  chan&amp;preempt[MAX_TASKS_NUM]</parameter>
+		<declaration>// Если открывается окно раздела и очередь готовых работ раздела не пуста, то на выполнение мгновенно должна быть поставлена некоторая новая работа.
+clock c;
+int j;
+
+bool check_prio(int p)
+{
+    for (j: int[0,MAX_TASKS_NUM-1]) {
+        if (j == data.numOfTasks) {
+            return true;
+        }
+        if (prio[j]==p) {
+            return false;
+        }
+    }
+    return true;
+}
+
+bool check_id(int i)
+{
+    for (j: int[0,MAX_TASKS_NUM-1]) {
+        if (j == data.numOfTasks) {
+            return true;
+        }
+        if (id[j]==i) {
+            return false;
+        }
+    }
+    return true;
+}
+
+
+bool has_ready_job()
+{
+    for (j: int[0,MAX_TASKS_NUM-1]) {
+        if (j == data.numOfTasks) {
+            return false;
+        }
+        if (is_ready[j]==1) {
+            return true;
+        }
+    }
+    return false;
+}
+</declaration>
+		<location id="id18" x="150" y="111">
+			<name x="124" y="77">ERROR</name>
+			<urgent/>
+		</location>
+		<location id="id19" x="-323" y="195">
+			<name x="-283" y="181">MustExec</name>
+		</location>
+		<location id="id20" x="-323" y="42">
+			<name x="-378" y="44">Work</name>
+		</location>
+		<location id="id21" x="-120" y="-222">
+			<committed/>
+		</location>
+		<location id="id22" x="-300" y="-272">
+			<name x="-310" y="-306">Init1</name>
+			<committed/>
+		</location>
+		<location id="id23" x="138" y="-269">
+			<name x="128" y="-303">Init3</name>
+			<committed/>
+		</location>
+		<location id="id24" x="-122" y="-272">
+			<name x="-132" y="-306">Init2</name>
+			<committed/>
+		</location>
+		<location id="id25" x="-530" y="-272">
+			<name x="-540" y="-306">Init0</name>
+			<committed/>
+		</location>
+		<init ref="id25"/>
+		<transition>
+			<source ref="id19"/>
+			<target ref="id19"/>
+			<label kind="select" x="-124" y="220">i:int[0,MAX_TASKS_NUM-1],
+_prio: int [0, MAX_TASKS_NUM]</label>
+			<label kind="guard" x="-122" y="254">i&lt;data.numOfTasks
+&amp;&amp;check_prio(_prio)</label>
+			<label kind="assignment" x="-128" y="291">prio[i] = _prio</label>
+			<nail x="-271" y="230"/>
+			<nail x="-130" y="223"/>
+			<nail x="-133" y="285"/>
+			<nail x="-292" y="233"/>
+		</transition>
+		<transition>
+			<source ref="id19"/>
+			<target ref="id19"/>
+			<label kind="select" x="-597" y="224">i:int[0,MAX_TASKS_NUM-1],
+_id: int [0, MAX_TASKS_NUM]</label>
+			<label kind="guard" x="-538" y="257">i&lt;data.numOfTasks
+&amp;&amp;check_id(_id)</label>
+			<label kind="assignment" x="-470" y="293">id[i]=_id</label>
+			<nail x="-397" y="233"/>
+			<nail x="-397" y="292"/>
+		</transition>
+		<transition>
+			<source ref="id20"/>
+			<target ref="id20"/>
+			<label kind="select" x="-6" y="-25">i:int[0,MAX_TASKS_NUM-1],
+_id: int [0, MAX_TASKS_NUM]</label>
+			<label kind="guard" x="-4" y="10">i&lt;data.numOfTasks
+&amp;&amp;check_id(_id)</label>
+			<label kind="assignment" x="-3" y="43">id[i]=_id</label>
+			<nail x="-51" y="5"/>
+			<nail x="-10" y="-22"/>
+			<nail x="-10" y="49"/>
+			<nail x="-51" y="18"/>
+		</transition>
+		<transition>
+			<source ref="id20"/>
+			<target ref="id20"/>
+			<label kind="select" x="12" y="-188">i:int[0,MAX_TASKS_NUM-1],
+_prio: int [0, MAX_TASKS_NUM]</label>
+			<label kind="guard" x="15" y="-153">i&lt;data.numOfTasks
+&amp;&amp;check_prio(_prio)</label>
+			<label kind="assignment" x="17" y="-120">prio[i] = _prio</label>
+			<nail x="-251" y="-49"/>
+			<nail x="-14" y="-160"/>
+			<nail x="0" y="-183"/>
+			<nail x="-2" y="-132"/>
+			<nail x="-244" y="-45"/>
+		</transition>
+		<transition>
+			<source ref="id22"/>
+			<target ref="id20"/>
+			<label kind="guard" x="-470" y="-230">j==data.numOfTasks</label>
+			<nail x="-334" y="-126"/>
+		</transition>
+		<transition>
+			<source ref="id19"/>
+			<target ref="id19"/>
+			<label kind="select" x="-110" y="127">i:int[0,MAX_TASKS_NUM-1],
+d:int[0,MAX_DEADLINE]</label>
+			<label kind="guard" x="-110" y="161">i&lt;data.numOfTasks</label>
+			<label kind="assignment" x="-110" y="178">abs_deadline[i]=d</label>
+			<nail x="-119" y="136"/>
+			<nail x="-121" y="203"/>
+		</transition>
+		<transition>
+			<source ref="id20"/>
+			<target ref="id20"/>
+			<label kind="select" x="-90" y="-96">i:int[0,MAX_TASKS_NUM-1],
+d:int[0,MAX_DEADLINE]</label>
+			<label kind="guard" x="-86" y="-62">i&lt;data.numOfTasks</label>
+			<label kind="assignment" x="-88" y="-46">abs_deadline[i]=d</label>
+			<nail x="-246" y="-33"/>
+			<nail x="-90" y="-66"/>
+			<nail x="-94" y="-33"/>
+			<nail x="-242" y="-24"/>
+		</transition>
+		<transition>
+			<source ref="id19"/>
+			<target ref="id19"/>
+			<label kind="synchronisation" x="-263" y="204">finished!</label>
+			<nail x="-272" y="221"/>
+			<nail x="-263" y="204"/>
+		</transition>
+		<transition>
+			<source ref="id19"/>
+			<target ref="id19"/>
+			<label kind="synchronisation" x="-442" y="195">wakeup!</label>
+			<nail x="-382" y="204"/>
+			<nail x="-382" y="221"/>
+		</transition>
+		<transition>
+			<source ref="id19"/>
+			<target ref="id19"/>
+			<label kind="select" x="-612" y="136">i:int[0,MAX_TASKS_NUM-1]</label>
+			<label kind="guard" x="-569" y="153">i&lt;data.numOfTasks</label>
+			<label kind="synchronisation" x="-510" y="170">preempt[i]?</label>
+			<nail x="-374" y="144"/>
+			<nail x="-425" y="144"/>
+			<nail x="-425" y="187"/>
+		</transition>
+		<transition>
+			<source ref="id19"/>
+			<target ref="id19"/>
+			<label kind="synchronisation" x="-416" y="161">ready!</label>
+			<nail x="-365" y="161"/>
+			<nail x="-365" y="178"/>
+		</transition>
+		<transition>
+			<source ref="id19"/>
+			<target ref="id20"/>
+			<label kind="synchronisation" x="-268" y="135">sleep!</label>
+			<nail x="-253" y="116"/>
+			<nail x="-192" y="97"/>
+		</transition>
+		<transition>
+			<source ref="id19"/>
+			<target ref="id20"/>
+			<label kind="select" x="-535" y="68">i:int[0,MAX_TASKS_NUM-1]</label>
+			<label kind="guard" x="-501" y="85">i&lt;data.numOfTasks</label>
+			<label kind="synchronisation" x="-425" y="102">exec[i]?</label>
+			<nail x="-374" y="127"/>
+		</transition>
+		<transition>
+			<source ref="id19"/>
+			<target ref="id18"/>
+			<label kind="guard" x="84" y="92">c&gt;0</label>
+			<nail x="-119" y="116"/>
+		</transition>
+		<transition>
+			<source ref="id20"/>
+			<target ref="id19"/>
+			<label kind="guard" x="-323" y="90">has_ready_job()</label>
+			<label kind="synchronisation" x="-323" y="109">wakeup!</label>
+			<label kind="assignment" x="-319" y="126">c=0</label>
+		</transition>
+		<transition>
+			<source ref="id20"/>
+			<target ref="id20"/>
+			<label kind="guard" x="-232" y="-21">!has_ready_job()</label>
+			<label kind="synchronisation" x="-227" y="-5">wakeup!</label>
+			<nail x="-234" y="12"/>
+			<nail x="-232" y="-13"/>
+		</transition>
+		<transition>
+			<source ref="id20"/>
+			<target ref="id20"/>
+			<label kind="select" x="-237" y="35">i:int[0, MAX_TASKS_NUM-1]</label>
+			<label kind="guard" x="-238" y="50">i&lt;data.numOfTasks</label>
+			<label kind="synchronisation" x="-236" y="64">exec[i]?</label>
+			<nail x="-242" y="70"/>
+			<nail x="-242" y="50"/>
+		</transition>
+		<transition>
+			<source ref="id20"/>
+			<target ref="id20"/>
+			<label kind="guard" x="-552" y="8">has_ready_job()</label>
+			<label kind="synchronisation" x="-476" y="25">ready!</label>
+			<nail x="-382" y="-51"/>
+			<nail x="-501" y="-51"/>
+			<nail x="-408" y="42"/>
+		</transition>
+		<transition>
+			<source ref="id20"/>
+			<target ref="id20"/>
+			<label kind="synchronisation" x="-450" y="-42">finished!</label>
+			<nail x="-382" y="-42"/>
+			<nail x="-467" y="-42"/>
+			<nail x="-399" y="25"/>
+		</transition>
+		<transition>
+			<source ref="id20"/>
+			<target ref="id20"/>
+			<label kind="select" x="-323" y="-119">i:int[0,MAX_TASKS_NUM-1]</label>
+			<label kind="guard" x="-323" y="-102">i&lt;data.numOfTasks</label>
+			<label kind="synchronisation" x="-323" y="-85">preempt[i]?</label>
+			<nail x="-314" y="-68"/>
+			<nail x="-280" y="-68"/>
+		</transition>
+		<transition>
+			<source ref="id20"/>
+			<target ref="id20"/>
+			<label kind="synchronisation" x="-416" y="-8">sleep!</label>
+			<nail x="-374" y="-18"/>
+			<nail x="-374" y="16"/>
+		</transition>
+		<transition>
+			<source ref="id20"/>
+			<target ref="id20"/>
+			<label kind="select" x="-544" y="-128">i:int[0,MAX_TASKS_NUM-1],
+f:int[0,1]</label>
+			<label kind="guard" x="-544" y="-94">i&lt;data.numOfTasks</label>
+			<label kind="assignment" x="-484" y="-77">is_ready[i]=f</label>
+			<nail x="-348" y="-103"/>
+			<nail x="-399" y="-103"/>
+		</transition>
+		<transition>
+			<source ref="id21"/>
+			<target ref="id22"/>
+			<label kind="assignment" x="-236" y="-241">j=j+1</label>
+		</transition>
+		<transition>
+			<source ref="id23"/>
+			<target ref="id21"/>
+			<label kind="select" x="-102" y="-218">_id: int [0, MAX_TASKS_NUM]</label>
+			<label kind="guard" x="-97" y="-203">check_id(_id)</label>
+			<label kind="assignment" x="-95" y="-185">id[j]=_id</label>
+			<nail x="138" y="-220"/>
+		</transition>
+		<transition>
+			<source ref="id24"/>
+			<target ref="id23"/>
+			<label kind="select" x="-105" y="-289">_prio: int [0, MAX_TASKS_NUM]</label>
+			<label kind="guard" x="-79" y="-272">check_prio(_prio)</label>
+			<label kind="assignment" x="-88" y="-255">prio[j] = _prio</label>
+		</transition>
+		<transition>
+			<source ref="id22"/>
+			<target ref="id24"/>
+			<label kind="guard" x="-283" y="-289">j &lt; data.numOfTasks</label>
+		</transition>
+		<transition>
+			<source ref="id25"/>
+			<target ref="id22"/>
+			<label kind="select" x="-513" y="-289">n : int [1, MAX_TASKS_NUM]</label>
+			<label kind="assignment" x="-504" y="-272">data.numOfTasks = n</label>
+		</transition>
+	</template>
+	<template>
+		<name>R_4_3</name>
+		<parameter>LocalSchedulerData &amp;data, int &amp;abs_deadline[MAX_TASKS_NUM],  int &amp;is_ready[MAX_TASKS_NUM], int &amp;prio[MAX_TASKS_NUM], int &amp;id[MAX_TASKS_NUM], chan &amp;wakeup,  chan&amp;sleep, chan&amp;ready,  chan&amp;finished,  chan&amp;exec[MAX_TASKS_NUM],  chan&amp;preempt[MAX_TASKS_NUM]</parameter>
+		<declaration>// Если завершилась некоторая работа раздела, очередь готовых работ раздела не пуста и в данный момент не происходит закрытие окна раздела,
+// то на выполнение мгновенно должна быть поставлена некоторая новая работа.
+clock c;
+int j;
+int is_active;
+
+bool check_prio(int p)
+{
+    for (j: int[0,MAX_TASKS_NUM-1]) {
+        if (j == data.numOfTasks) {
+            return true;
+        }
+        if (prio[j]==p) {
+            return false;
+        }
+    }
+    return true;
+}
+
+bool check_id(int i)
+{
+    for (j: int[0,MAX_TASKS_NUM-1]) {
+        if (j == data.numOfTasks) {
+            return true;
+        }
+        if (id[j]==i) {
+            return false;
+        }
+    }
+    return true;
+}
+
+
+bool has_ready_job()
+{
+    for (j: int[0,MAX_TASKS_NUM-1]) {
+        if (j == data.numOfTasks) {
+            return false;
+        }
+        if (is_ready[j]==1) {
+            return true;
+        }
+    }
+    return false;
+}</declaration>
+		<location id="id26" x="153" y="59">
+			<name x="127" y="25">ERROR</name>
+			<urgent/>
+		</location>
+		<location id="id27" x="-323" y="195">
+			<name x="-314" y="214">MustExec</name>
+		</location>
+		<location id="id28" x="-323" y="42">
+			<name x="-375" y="45">Work</name>
+		</location>
+		<location id="id29" x="-137" y="-220">
+			<committed/>
+		</location>
+		<location id="id30" x="-317" y="-270">
+			<name x="-327" y="-304">Init1</name>
+			<committed/>
+		</location>
+		<location id="id31" x="121" y="-267">
+			<name x="111" y="-301">Init3</name>
+			<committed/>
+		</location>
+		<location id="id32" x="-139" y="-270">
+			<name x="-149" y="-304">Init2</name>
+			<committed/>
+		</location>
+		<location id="id33" x="-547" y="-270">
+			<name x="-557" y="-304">Init0</name>
+			<committed/>
+		</location>
+		<init ref="id33"/>
+		<transition>
+			<source ref="id27"/>
+			<target ref="id27"/>
+			<label kind="select" x="-613" y="242">i:int[0,MAX_TASKS_NUM-1],
+_id: int [0, MAX_TASKS_NUM]</label>
+			<label kind="guard" x="-556" y="275">i&lt;data.numOfTasks
+&amp;&amp;check_id(_id)</label>
+			<label kind="assignment" x="-480" y="311">id[i]=_id</label>
+			<nail x="-411" y="246"/>
+			<nail x="-411" y="292"/>
+		</transition>
+		<transition>
+			<source ref="id27"/>
+			<target ref="id27"/>
+			<label kind="select" x="-204" y="230">i:int[0,MAX_TASKS_NUM-1],
+_prio: int [0, MAX_TASKS_NUM]</label>
+			<label kind="guard" x="-204" y="264">i&lt;data.numOfTasks
+&amp;&amp;check_prio(_prio)</label>
+			<label kind="assignment" x="-207" y="297">prio[i] = _prio</label>
+			<nail x="-308" y="261"/>
+			<nail x="-209" y="280"/>
+			<nail x="-212" y="228"/>
+		</transition>
+		<transition>
+			<source ref="id28"/>
+			<target ref="id28"/>
+			<label kind="select" x="-348" y="-195">i:int[0,MAX_TASKS_NUM-1],
+_id: int [0, MAX_TASKS_NUM]</label>
+			<label kind="guard" x="-289" y="-161">i&lt;data.numOfTasks
+&amp;&amp;check_id(_id)</label>
+			<label kind="assignment" x="-212" y="-127">id[i]=_id</label>
+			<nail x="-102" y="-102"/>
+			<nail x="-149" y="-209"/>
+			<nail x="-152" y="-126"/>
+			<nail x="-134" y="-90"/>
+		</transition>
+		<transition>
+			<source ref="id28"/>
+			<target ref="id28"/>
+			<label kind="select" x="3" y="-194">i:int[0,MAX_TASKS_NUM-1],
+_prio: int [0, MAX_TASKS_NUM]</label>
+			<label kind="guard" x="9" y="-158">i&lt;data.numOfTasks
+&amp;&amp;check_prio(_prio)</label>
+			<label kind="assignment" x="6" y="-125">prio[i] = _prio</label>
+			<nail x="0" y="-131"/>
+			<nail x="0" y="-171"/>
+			<nail x="-39" y="-127"/>
+		</transition>
+		<transition>
+			<source ref="id30"/>
+			<target ref="id28"/>
+			<label kind="guard" x="-540" y="-209">j==data.numOfTasks</label>
+			<nail x="-385" y="-197"/>
+		</transition>
+		<transition>
+			<source ref="id27"/>
+			<target ref="id27"/>
+			<label kind="select" x="-68" y="136">i:int[0,MAX_TASKS_NUM-1],
+d:int[0,MAX_DEADLINE]</label>
+			<label kind="guard" x="-68" y="170">i&lt;data.numOfTasks</label>
+			<label kind="assignment" x="-68" y="187">abs_deadline[i]=d</label>
+			<nail x="-76" y="144"/>
+			<nail x="-76" y="195"/>
+		</transition>
+		<transition>
+			<source ref="id28"/>
+			<target ref="id28"/>
+			<label kind="select" x="2" y="-84">i:int[0,MAX_TASKS_NUM-1],
+d:int[0,MAX_DEADLINE]</label>
+			<label kind="guard" x="3" y="-51">i&lt;data.numOfTasks</label>
+			<label kind="assignment" x="3" y="-34">abs_deadline[i]=d</label>
+			<nail x="-4" y="-68"/>
+			<nail x="-4" y="-21"/>
+			<nail x="-181" y="-3"/>
+		</transition>
+		<transition>
+			<source ref="id27"/>
+			<target ref="id27"/>
+			<label kind="synchronisation" x="-186" y="205">finished!</label>
+			<nail x="-203" y="222"/>
+			<nail x="-186" y="205"/>
+		</transition>
+		<transition>
+			<source ref="id27"/>
+			<target ref="id27"/>
+			<label kind="synchronisation" x="-442" y="195">wakeup!</label>
+			<label kind="assignment" x="-467" y="212">is_active=1</label>
+			<nail x="-382" y="204"/>
+			<nail x="-382" y="221"/>
+		</transition>
+		<transition>
+			<source ref="id27"/>
+			<target ref="id27"/>
+			<label kind="select" x="-612" y="136">i:int[0,MAX_TASKS_NUM-1]</label>
+			<label kind="guard" x="-569" y="153">i&lt;data.numOfTasks</label>
+			<label kind="synchronisation" x="-510" y="170">preempt[i]?</label>
+			<nail x="-374" y="144"/>
+			<nail x="-425" y="144"/>
+			<nail x="-425" y="187"/>
+		</transition>
+		<transition>
+			<source ref="id27"/>
+			<target ref="id27"/>
+			<label kind="synchronisation" x="-416" y="161">ready!</label>
+			<nail x="-365" y="161"/>
+			<nail x="-365" y="178"/>
+		</transition>
+		<transition>
+			<source ref="id27"/>
+			<target ref="id28"/>
+			<label kind="synchronisation" x="-212" y="102">sleep!</label>
+			<label kind="assignment" x="-212" y="119">is_active=0</label>
+			<nail x="-238" y="144"/>
+			<nail x="-195" y="85"/>
+		</transition>
+		<transition>
+			<source ref="id27"/>
+			<target ref="id28"/>
+			<label kind="select" x="-535" y="68">i:int[0,MAX_TASKS_NUM-1]</label>
+			<label kind="guard" x="-501" y="85">i&lt;data.numOfTasks</label>
+			<label kind="synchronisation" x="-425" y="102">exec[i]?</label>
+			<nail x="-374" y="127"/>
+		</transition>
+		<transition>
+			<source ref="id27"/>
+			<target ref="id26"/>
+			<label kind="guard" x="8" y="102">c&gt;0</label>
+		</transition>
+		<transition>
+			<source ref="id28"/>
+			<target ref="id27"/>
+			<label kind="guard" x="-323" y="85">has_ready_job()
+&amp;&amp;is_active</label>
+			<label kind="synchronisation" x="-323" y="119">finished!</label>
+			<label kind="assignment" x="-323" y="136">c=0</label>
+		</transition>
+		<transition>
+			<source ref="id28"/>
+			<target ref="id28"/>
+			<label kind="guard" x="-161" y="56">!has_ready_job()
+|| !is_active</label>
+			<label kind="synchronisation" x="-161" y="92">finished!</label>
+			<nail x="-164" y="89"/>
+			<nail x="-164" y="63"/>
+		</transition>
+		<transition>
+			<source ref="id28"/>
+			<target ref="id28"/>
+			<label kind="select" x="-190" y="3">i:int[0, MAX_TASKS_NUM-1]</label>
+			<label kind="guard" x="-191" y="20">i&lt;data.numOfTasks</label>
+			<label kind="synchronisation" x="-188" y="33">exec[i]?</label>
+			<nail x="-206" y="36"/>
+			<nail x="-204" y="13"/>
+		</transition>
+		<transition>
+			<source ref="id28"/>
+			<target ref="id28"/>
+			<label kind="guard" x="-655" y="-42">has_ready_job()</label>
+			<label kind="synchronisation" x="-586" y="-25">ready!</label>
+			<nail x="-400" y="-67"/>
+			<nail x="-561" y="-68"/>
+			<nail x="-510" y="34"/>
+		</transition>
+		<transition>
+			<source ref="id28"/>
+			<target ref="id28"/>
+			<label kind="synchronisation" x="-493" y="-8">wakeup!</label>
+			<label kind="assignment" x="-484" y="8">is_active=1</label>
+			<nail x="-442" y="-17"/>
+			<nail x="-501" y="-17"/>
+			<nail x="-493" y="25"/>
+		</transition>
+		<transition>
+			<source ref="id28"/>
+			<target ref="id28"/>
+			<label kind="select" x="-328" y="-98">i:int[0,MAX_TASKS_NUM-1]</label>
+			<label kind="guard" x="-328" y="-81">i&lt;data.numOfTasks</label>
+			<label kind="synchronisation" x="-328" y="-64">preempt[i]?</label>
+			<nail x="-319" y="-47"/>
+			<nail x="-294" y="-47"/>
+		</transition>
+		<transition>
+			<source ref="id28"/>
+			<target ref="id28"/>
+			<label kind="synchronisation" x="-476" y="-59">sleep!</label>
+			<label kind="assignment" x="-510" y="-42">is_active=0</label>
+			<nail x="-425" y="-59"/>
+			<nail x="-425" y="-34"/>
+		</transition>
+		<transition>
+			<source ref="id28"/>
+			<target ref="id28"/>
+			<label kind="select" x="-561" y="-144">i:int[0,MAX_TASKS_NUM-1],
+f:int[0,1]</label>
+			<label kind="guard" x="-561" y="-110">i&lt;data.numOfTasks</label>
+			<label kind="assignment" x="-501" y="-93">is_ready[i]=f</label>
+			<nail x="-382" y="-116"/>
+			<nail x="-416" y="-119"/>
+		</transition>
+		<transition>
+			<source ref="id29"/>
+			<target ref="id30"/>
+			<label kind="assignment" x="-253" y="-239">j=j+1</label>
+		</transition>
+		<transition>
+			<source ref="id31"/>
+			<target ref="id29"/>
+			<label kind="select" x="-119" y="-216">_id: int [0, MAX_TASKS_NUM]</label>
+			<label kind="guard" x="-114" y="-201">check_id(_id)</label>
+			<label kind="assignment" x="-112" y="-183">id[j]=_id</label>
+			<nail x="121" y="-218"/>
+		</transition>
+		<transition>
+			<source ref="id32"/>
+			<target ref="id31"/>
+			<label kind="select" x="-122" y="-287">_prio: int [0, MAX_TASKS_NUM]</label>
+			<label kind="guard" x="-96" y="-270">check_prio(_prio)</label>
+			<label kind="assignment" x="-105" y="-253">prio[j] = _prio</label>
+		</transition>
+		<transition>
+			<source ref="id30"/>
+			<target ref="id32"/>
+			<label kind="guard" x="-300" y="-287">j &lt; data.numOfTasks</label>
+		</transition>
+		<transition>
+			<source ref="id33"/>
+			<target ref="id30"/>
+			<label kind="select" x="-530" y="-287">n : int [1, MAX_TASKS_NUM]</label>
+			<label kind="assignment" x="-521" y="-270">data.numOfTasks = n</label>
+		</transition>
+	</template>
+	<template>
+		<name>R_4_4</name>
+		<parameter>LocalSchedulerData &amp;data, int &amp;abs_deadline[MAX_TASKS_NUM],  int &amp;is_ready[MAX_TASKS_NUM], int &amp;prio[MAX_TASKS_NUM], int &amp;id[MAX_TASKS_NUM], chan &amp;wakeup,  chan&amp;sleep, chan&amp;ready,  chan&amp;finished,  chan&amp;exec[MAX_TASKS_NUM],  chan&amp;preempt[MAX_TASKS_NUM]</parameter>
+		<declaration>// Если в некоторый момент времени данный раздел активен и появляется новая готовая работа, то выбор,
+// должна ли какая-либо работа быть поставлена на выполнение в этот момент, осуществляется однозначно.
+clock c;
+int j;
+
+bool check_prio(int p)
+{
+    for (j: int[0,MAX_TASKS_NUM-1]) {
+        if (j == data.numOfTasks) {
+            return true;
+        }
+        if (prio[j]==p) {
+            return false;
+        }
+    }
+    return true;
+}
+
+bool check_id(int i)
+{
+    for (j: int[0,MAX_TASKS_NUM-1]) {
+        if (j == data.numOfTasks) {
+            return true;
+        }
+        if (id[j]==i) {
+            return false;
+        }
+    }
+    return true;
+}
+
+
+bool has_ready_job()
+{
+    for (j: int[0,MAX_TASKS_NUM-1]) {
+        if (j == data.numOfTasks) {
+            return false;
+        }
+        if (is_ready[j]==1) {
+            return true;
+        }
+    }
+    return false;
+}</declaration>
+		<location id="id34" x="-42" y="144">
+			<name x="-68" y="153">L2</name>
+			<urgent/>
+		</location>
+		<location id="id35" x="-170" y="246">
+			<name x="-187" y="212">L5</name>
+		</location>
+		<location id="id36" x="51" y="144">
+			<name x="25" y="153">L3</name>
+		</location>
+		<location id="id37" x="-161" y="144">
+			<name x="-187" y="153">L1</name>
+			<urgent/>
+		</location>
+		<location id="id38" x="-323" y="246">
+			<name x="-357" y="238">L4</name>
+			<urgent/>
+		</location>
+		<location id="id39" x="-323" y="144">
+			<name x="-314" y="161">L0</name>
+			<label kind="invariant" x="-357" y="153">c&lt;1</label>
+		</location>
+		<location id="id40" x="51" y="246">
+			<name x="68" y="237">ERROR</name>
+			<urgent/>
+		</location>
+		<location id="id41" x="-323" y="42">
+			<name x="-314" y="51">Work</name>
+		</location>
+		<location id="id42" x="-132" y="-214">
+			<committed/>
+		</location>
+		<location id="id43" x="-312" y="-264">
+			<name x="-322" y="-298">Init1</name>
+			<committed/>
+		</location>
+		<location id="id44" x="126" y="-261">
+			<name x="116" y="-295">Init3</name>
+			<committed/>
+		</location>
+		<location id="id45" x="-134" y="-264">
+			<name x="-144" y="-298">Init2</name>
+			<committed/>
+		</location>
+		<location id="id46" x="-542" y="-264">
+			<name x="-552" y="-298">Init0</name>
+			<committed/>
+		</location>
+		<init ref="id46"/>
+		<transition>
+			<source ref="id41"/>
+			<target ref="id41"/>
+			<label kind="select" x="16" y="-182">i:int[0,MAX_TASKS_NUM-1],
+_prio: int [0, MAX_TASKS_NUM]</label>
+			<label kind="guard" x="16" y="-147">i&lt;data.numOfTasks
+&amp;&amp;check_prio(_prio)</label>
+			<label kind="assignment" x="16" y="-115">prio[i] = _prio</label>
+			<nail x="-162" y="-88"/>
+			<nail x="-82" y="-108"/>
+			<nail x="11" y="-178"/>
+			<nail x="9" y="-109"/>
+			<nail x="-80" y="-107"/>
+			<nail x="-150" y="-83"/>
+		</transition>
+		<transition>
+			<source ref="id41"/>
+			<target ref="id41"/>
+			<label kind="select" x="-588" y="-228">i:int[0,MAX_TASKS_NUM-1],
+_id: int [0, MAX_TASKS_NUM]</label>
+			<label kind="guard" x="-520" y="-196">i&lt;data.numOfTasks
+&amp;&amp;check_id(_id)</label>
+			<label kind="assignment" x="-432" y="-156">id[i]=_id</label>
+			<nail x="-358" y="-229"/>
+			<nail x="-390" y="-230"/>
+		</transition>
+		<transition>
+			<source ref="id43"/>
+			<target ref="id41"/>
+			<label kind="guard" x="-322" y="-169">j==data.numOfTasks</label>
+			<nail x="-335" y="-166"/>
+		</transition>
+		<transition>
+			<source ref="id41"/>
+			<target ref="id41"/>
+			<label kind="select" x="-115" y="-92">i:int[0,MAX_TASKS_NUM-1],
+d:int[0,MAX_DEADLINE]</label>
+			<label kind="guard" x="-115" y="-56">i&lt;data.numOfTasks</label>
+			<label kind="assignment" x="-115" y="-41">abs_deadline[i]=d</label>
+			<nail x="-159" y="-70"/>
+			<nail x="-119" y="-85"/>
+			<nail x="-119" y="-25"/>
+			<nail x="-212" y="-25"/>
+		</transition>
+		<transition>
+			<source ref="id36"/>
+			<target ref="id36"/>
+			<label kind="select" x="94" y="119">i:int[0,MAX_TASKS_NUM-1]</label>
+			<label kind="guard" x="94" y="136">i&lt;data.numOfTasks</label>
+			<label kind="synchronisation" x="94" y="153">preempt[i]?</label>
+			<nail x="94" y="170"/>
+			<nail x="94" y="119"/>
+		</transition>
+		<transition>
+			<source ref="id37"/>
+			<target ref="id34"/>
+			<label kind="synchronisation" x="-136" y="127">finished!</label>
+		</transition>
+		<transition>
+			<source ref="id35"/>
+			<target ref="id35"/>
+			<label kind="select" x="-289" y="272">i:int[0,MAX_TASKS_NUM-1]</label>
+			<label kind="guard" x="-263" y="289">i&lt;data.numOfTasks</label>
+			<label kind="synchronisation" x="-229" y="306">preempt[i]?</label>
+			<nail x="-195" y="273"/>
+			<nail x="-153" y="272"/>
+		</transition>
+		<transition>
+			<source ref="id39"/>
+			<target ref="id39"/>
+			<label kind="select" x="-306" y="76">i:int[0, MAX_TASKS_NUM-1]</label>
+			<label kind="guard" x="-527" y="127">i&lt;data.numOfTasks</label>
+			<label kind="synchronisation" x="-467" y="144">preempt[i]?</label>
+			<nail x="-382" y="119"/>
+			<nail x="-382" y="161"/>
+		</transition>
+		<transition>
+			<source ref="id34"/>
+			<target ref="id36"/>
+			<label kind="synchronisation" x="-25" y="127">ready!</label>
+		</transition>
+		<transition>
+			<source ref="id35"/>
+			<target ref="id41"/>
+			<label kind="guard" x="-612" y="170">c&gt;0</label>
+			<nail x="-272" y="263"/>
+			<nail x="-578" y="263"/>
+			<nail x="-578" y="68"/>
+		</transition>
+		<transition>
+			<source ref="id35"/>
+			<target ref="id40"/>
+			<label kind="select" x="-153" y="212">i:int[0,MAX_TASKS_NUM-1]</label>
+			<label kind="guard" x="-153" y="229">i&lt;data.numOfTasks</label>
+			<label kind="synchronisation" x="-153" y="246">exec[i]?</label>
+		</transition>
+		<transition>
+			<source ref="id38"/>
+			<target ref="id35"/>
+			<label kind="synchronisation" x="-272" y="212">ready!</label>
+			<label kind="assignment" x="-272" y="229">c=0</label>
+		</transition>
+		<transition>
+			<source ref="id36"/>
+			<target ref="id40"/>
+			<label kind="guard" x="93" y="187">c&gt;0</label>
+		</transition>
+		<transition>
+			<source ref="id36"/>
+			<target ref="id41"/>
+			<label kind="select" x="-25" y="68">i:int[0,MAX_TASKS_NUM-1]</label>
+			<label kind="guard" x="0" y="85">i&lt;data.numOfTasks &amp;&amp; c == 0</label>
+			<label kind="synchronisation" x="17" y="102">exec[i]?</label>
+			<nail x="-42" y="68"/>
+		</transition>
+		<transition>
+			<source ref="id39"/>
+			<target ref="id37"/>
+			<label kind="select" x="-569" y="110">i:int[0,MAX_TASKS_NUM-1]</label>
+			<label kind="guard" x="-306" y="93">i&lt;data.numOfTasks
+&amp;&amp; c==0</label>
+			<label kind="synchronisation" x="-306" y="127">exec[i]?</label>
+		</transition>
+		<transition>
+			<source ref="id39"/>
+			<target ref="id38"/>
+			<label kind="guard" x="-416" y="204">c&gt;0 &amp;&amp; c&lt;1</label>
+		</transition>
+		<transition>
+			<source ref="id41"/>
+			<target ref="id39"/>
+			<label kind="guard" x="-442" y="59">has_ready_job()</label>
+			<label kind="synchronisation" x="-374" y="76">ready!</label>
+			<label kind="assignment" x="-357" y="93">c=0</label>
+		</transition>
+		<transition>
+			<source ref="id41"/>
+			<target ref="id41"/>
+			<label kind="guard" x="0" y="17">!has_ready_job()</label>
+			<label kind="synchronisation" x="-17" y="34">ready!</label>
+			<nail x="-42" y="59"/>
+			<nail x="42" y="-17"/>
+			<nail x="-212" y="-8"/>
+		</transition>
+		<transition>
+			<source ref="id41"/>
+			<target ref="id41"/>
+			<label kind="select" x="-195" y="0">i:int[0, MAX_TASKS_NUM-1]</label>
+			<label kind="guard" x="-195" y="17">i&lt;data.numOfTasks</label>
+			<label kind="synchronisation" x="-195" y="34">exec[i]?</label>
+			<nail x="-204" y="42"/>
+			<nail x="-204" y="0"/>
+		</transition>
+		<transition>
+			<source ref="id41"/>
+			<target ref="id41"/>
+			<label kind="synchronisation" x="-476" y="25">finished!</label>
+			<nail x="-382" y="-51"/>
+			<nail x="-501" y="-51"/>
+			<nail x="-408" y="42"/>
+		</transition>
+		<transition>
+			<source ref="id41"/>
+			<target ref="id41"/>
+			<label kind="synchronisation" x="-450" y="-42">wakeup!</label>
+			<nail x="-382" y="-42"/>
+			<nail x="-467" y="-42"/>
+			<nail x="-399" y="25"/>
+		</transition>
+		<transition>
+			<source ref="id41"/>
+			<target ref="id41"/>
+			<label kind="select" x="-314" y="-110">i:int[0,MAX_TASKS_NUM-1]</label>
+			<label kind="guard" x="-314" y="-93">i&lt;data.numOfTasks</label>
+			<label kind="synchronisation" x="-314" y="-76">preempt[i]?</label>
+			<nail x="-314" y="-59"/>
+			<nail x="-280" y="-59"/>
+		</transition>
+		<transition>
+			<source ref="id41"/>
+			<target ref="id41"/>
+			<label kind="synchronisation" x="-416" y="-8">sleep!</label>
+			<nail x="-374" y="-18"/>
+			<nail x="-374" y="16"/>
+		</transition>
+		<transition>
+			<source ref="id41"/>
+			<target ref="id41"/>
+			<label kind="select" x="-553" y="-128">i:int[0,MAX_TASKS_NUM-1],
+f:int[0,1]</label>
+			<label kind="guard" x="-544" y="-94">i&lt;data.numOfTasks</label>
+			<label kind="assignment" x="-484" y="-77">is_ready[i]=f</label>
+			<nail x="-369" y="-103"/>
+			<nail x="-407" y="-103"/>
+		</transition>
+		<transition>
+			<source ref="id42"/>
+			<target ref="id43"/>
+			<label kind="assignment" x="-248" y="-233">j=j+1</label>
+		</transition>
+		<transition>
+			<source ref="id44"/>
+			<target ref="id42"/>
+			<label kind="select" x="-114" y="-210">_id: int [0, MAX_TASKS_NUM]</label>
+			<label kind="guard" x="-109" y="-195">check_id(_id)</label>
+			<label kind="assignment" x="-107" y="-177">id[j]=_id</label>
+			<nail x="126" y="-212"/>
+		</transition>
+		<transition>
+			<source ref="id45"/>
+			<target ref="id44"/>
+			<label kind="select" x="-117" y="-281">_prio: int [0, MAX_TASKS_NUM]</label>
+			<label kind="guard" x="-91" y="-264">check_prio(_prio)</label>
+			<label kind="assignment" x="-100" y="-247">prio[j] = _prio</label>
+		</transition>
+		<transition>
+			<source ref="id43"/>
+			<target ref="id45"/>
+			<label kind="guard" x="-295" y="-281">j &lt; data.numOfTasks</label>
+		</transition>
+		<transition>
+			<source ref="id46"/>
+			<target ref="id43"/>
+			<label kind="select" x="-525" y="-281">n : int [1, MAX_TASKS_NUM]</label>
+			<label kind="assignment" x="-516" y="-264">data.numOfTasks = n</label>
+		</transition>
+	</template>
+	<template>
+		<name>R_1_1</name>
+		<parameter>LocalSchedulerData &amp;data, int &amp;abs_deadline[MAX_TASKS_NUM],  int &amp;is_ready[MAX_TASKS_NUM], int &amp;prio[MAX_TASKS_NUM], int &amp;id[MAX_TASKS_NUM], chan &amp;wakeup,  chan&amp;sleep, chan&amp;ready,  chan&amp;finished,  chan&amp;exec[MAX_TASKS_NUM],  chan&amp;preempt[MAX_TASKS_NUM]</parameter>
+		<declaration>clock c;
+int j;
+
+
+bool check_prio(int p)
+{
+    for (j: int[0,MAX_TASKS_NUM-1]) {
+        if (j == data.numOfTasks) {
+            return true;
+        }
+        if (prio[j]==p) {
+            return false;
+        }
+    }
+    return true;
+}
+
+bool check_id(int i)
+{
+    for (j: int[0,MAX_TASKS_NUM-1]) {
+        if (j == data.numOfTasks) {
+            return true;
+        }
+        if (id[j]==i) {
+            return false;
+        }
+    }
+    return true;
+}
+
+bool has_ready_job()
+{
+    for (j: int[0,MAX_TASKS_NUM-1]) {
+        if (j == data.numOfTasks) {
+            return false;
+        }
+        if (is_ready[j]==1) {
+            return true;
+        }
+    }
+    return false;
+}
+</declaration>
+		<location id="id47" x="675" y="370">
+			<name x="684" y="345">ERROR</name>
+			<urgent/>
+		</location>
+		<location id="id48" x="267" y="370">
+			<name x="280" y="340">Busy</name>
+		</location>
+		<location id="id49" x="267" y="200">
+			<name x="235" y="229">Idle</name>
+		</location>
+		<location id="id50" x="478" y="-82">
+			<committed/>
+		</location>
+		<location id="id51" x="298" y="-132">
+			<name x="288" y="-166">Init1</name>
+			<committed/>
+		</location>
+		<location id="id52" x="736" y="-129">
+			<name x="726" y="-163">Init3</name>
+			<committed/>
+		</location>
+		<location id="id53" x="476" y="-132">
+			<name x="466" y="-166">Init2</name>
+			<committed/>
+		</location>
+		<location id="id54" x="68" y="-132">
+			<name x="58" y="-166">Init0</name>
+			<committed/>
+		</location>
+		<init ref="id54"/>
+		<transition>
+			<source ref="id48"/>
+			<target ref="id48"/>
+			<label kind="select" x="5" y="431">i:int[0,MAX_TASKS_NUM-1],
+_prio: int [0, MAX_TASKS_NUM]</label>
+			<label kind="guard" x="71" y="465">i&lt;data.numOfTasks
+&amp;&amp;check_prio(_prio)</label>
+			<label kind="assignment" x="115" y="501">prio[i] = _prio</label>
+			<nail x="220" y="434"/>
+			<nail x="217" y="524"/>
+			<nail x="236" y="433"/>
+		</transition>
+		<transition>
+			<source ref="id48"/>
+			<target ref="id48"/>
+			<label kind="select" x="397" y="369">i:int[0,MAX_TASKS_NUM-1],
+_id: int [0, MAX_TASKS_NUM]</label>
+			<label kind="guard" x="399" y="404">i&lt;data.numOfTasks
+&amp;&amp;check_id(_id)</label>
+			<label kind="assignment" x="398" y="439">id[i]=_id</label>
+			<nail x="395" y="368"/>
+			<nail x="391" y="442"/>
+		</transition>
+		<transition>
+			<source ref="id49"/>
+			<target ref="id49"/>
+			<label kind="select" x="-16" y="-51">i:int[0,MAX_TASKS_NUM-1],
+_prio: int [0, MAX_TASKS_NUM]</label>
+			<label kind="guard" x="50" y="-15">i&lt;data.numOfTasks
+&amp;&amp;check_prio(_prio)</label>
+			<label kind="assignment" x="93" y="17">prio[i] = _prio</label>
+			<nail x="233" y="48"/>
+			<nail x="200" y="-50"/>
+			<nail x="198" y="49"/>
+		</transition>
+		<transition>
+			<source ref="id49"/>
+			<target ref="id49"/>
+			<label kind="select" x="295" y="-55">i:int[0,MAX_TASKS_NUM-1],
+_id: int [0, MAX_TASKS_NUM]</label>
+			<label kind="guard" x="295" y="-20">i&lt;data.numOfTasks
+&amp;&amp;check_id(_id)</label>
+			<label kind="assignment" x="294" y="15">id[i]=_id</label>
+			<nail x="252" y="41"/>
+			<nail x="291" y="-55"/>
+			<nail x="289" y="24"/>
+			<nail x="262" y="43"/>
+		</transition>
+		<transition>
+			<source ref="id51"/>
+			<target ref="id49"/>
+			<label kind="guard" x="127" y="-84">j==data.numOfTasks</label>
+			<nail x="240" y="52"/>
+		</transition>
+		<transition>
+			<source ref="id49"/>
+			<target ref="id47"/>
+			<label kind="select" x="513" y="221">i: int[0, MAX_TASKS_NUM-1]</label>
+			<label kind="guard" x="563" y="239">i&lt;data.numOfTasks</label>
+			<label kind="synchronisation" x="615" y="255">preempt[i]?</label>
+			<nail x="490" y="229"/>
+			<nail x="555" y="249"/>
+			<nail x="603" y="265"/>
+		</transition>
+		<transition>
+			<source ref="id48"/>
+			<target ref="id48"/>
+			<label kind="select" x="413" y="313">i: int[0, MAX_TASKS_NUM-1]</label>
+			<label kind="guard" x="413" y="330">i&lt;data.numOfTasks</label>
+			<label kind="synchronisation" x="405" y="347">exec[i]?</label>
+			<nail x="405" y="313"/>
+			<nail x="405" y="346"/>
+		</transition>
+		<transition>
+			<source ref="id48"/>
+			<target ref="id48"/>
+			<label kind="select" x="314" y="467">i:int[0,MAX_TASKS_NUM-1],
+d:int[0,MAX_DEADLINE]</label>
+			<label kind="guard" x="314" y="501">i&lt;data.numOfTasks</label>
+			<label kind="assignment" x="314" y="518">abs_deadline[i]=d</label>
+			<nail x="382" y="467"/>
+			<nail x="323" y="467"/>
+		</transition>
+		<transition>
+			<source ref="id49"/>
+			<target ref="id49"/>
+			<label kind="select" x="501" y="136">i:int[0,MAX_TASKS_NUM-1],
+d:int[0,MAX_DEADLINE]</label>
+			<label kind="guard" x="501" y="170">i&lt;data.numOfTasks</label>
+			<label kind="assignment" x="501" y="187">abs_deadline[i]=d</label>
+			<nail x="501" y="144"/>
+			<nail x="501" y="204"/>
+		</transition>
+		<transition>
+			<source ref="id48"/>
+			<target ref="id49"/>
+			<label kind="synchronisation" x="292" y="315">finished!</label>
+			<nail x="292" y="311"/>
+		</transition>
+		<transition>
+			<source ref="id48"/>
+			<target ref="id48"/>
+			<label kind="guard" x="77" y="390">has_ready_job()</label>
+			<label kind="synchronisation" x="142" y="405">ready!</label>
+			<nail x="189" y="396"/>
+			<nail x="189" y="413"/>
+		</transition>
+		<transition>
+			<source ref="id49"/>
+			<target ref="id49"/>
+			<label kind="guard" x="114" y="132">has_ready_job()</label>
+			<label kind="synchronisation" x="182" y="149">ready!</label>
+			<nail x="233" y="166"/>
+			<nail x="114" y="166"/>
+			<nail x="216" y="234"/>
+		</transition>
+		<transition>
+			<source ref="id48"/>
+			<target ref="id48"/>
+			<label kind="select" x="39" y="306">i: int[0,MAX_TASKS_NUM-1],
+f: int[0,1]</label>
+			<label kind="guard" x="38" y="337">i&lt;data.numOfTasks</label>
+			<label kind="assignment" x="41" y="351">is_ready[i]=f</label>
+			<nail x="233" y="374"/>
+			<nail x="61" y="371"/>
+			<nail x="203" y="384"/>
+		</transition>
+		<transition>
+			<source ref="id49"/>
+			<target ref="id49"/>
+			<label kind="select" x="282" y="51">i: int[0,MAX_TASKS_NUM-1],
+f: int[0,1]</label>
+			<label kind="guard" x="282" y="85">i&lt;data.numOfTasks</label>
+			<label kind="assignment" x="282" y="102">is_ready[i]=f</label>
+			<nail x="282" y="119"/>
+			<nail x="384" y="119"/>
+			<nail x="299" y="136"/>
+		</transition>
+		<transition>
+			<source ref="id49"/>
+			<target ref="id49"/>
+			<label kind="synchronisation" x="375" y="125">finished!</label>
+			<nail x="365" y="127"/>
+			<nail x="374" y="136"/>
+		</transition>
+		<transition>
+			<source ref="id48"/>
+			<target ref="id48"/>
+			<label kind="synchronisation" x="241" y="447">wakeup!</label>
+			<nail x="272" y="442"/>
+			<nail x="293" y="447"/>
+		</transition>
+		<transition>
+			<source ref="id48"/>
+			<target ref="id48"/>
+			<label kind="synchronisation" x="211" y="333">sleep!</label>
+			<nail x="228" y="355"/>
+			<nail x="250" y="350"/>
+		</transition>
+		<transition>
+			<source ref="id49"/>
+			<target ref="id49"/>
+			<label kind="synchronisation" x="365" y="144">wakeup!</label>
+			<nail x="365" y="153"/>
+			<nail x="365" y="170"/>
+		</transition>
+		<transition>
+			<source ref="id49"/>
+			<target ref="id49"/>
+			<label kind="synchronisation" x="199" y="183">sleep!</label>
+			<nail x="199" y="200"/>
+			<nail x="216" y="217"/>
+			<nail x="233" y="217"/>
+		</transition>
+		<transition>
+			<source ref="id48"/>
+			<target ref="id49"/>
+			<label kind="select" x="366" y="254">i: int[0, MAX_TASKS_NUM-1]</label>
+			<label kind="guard" x="370" y="271">i&lt;data.numOfTasks</label>
+			<label kind="synchronisation" x="369" y="289">preempt[i]?</label>
+			<nail x="364" y="324"/>
+			<nail x="365" y="271"/>
+		</transition>
+		<transition>
+			<source ref="id49"/>
+			<target ref="id48"/>
+			<label kind="select" x="73" y="249">i: int[0, MAX_TASKS_NUM-1]</label>
+			<label kind="guard" x="128" y="265">i&lt;data.numOfTasks</label>
+			<label kind="synchronisation" x="213" y="282">exec[i]?</label>
+		</transition>
+		<transition>
+			<source ref="id50"/>
+			<target ref="id51"/>
+			<label kind="assignment" x="362" y="-101">j=j+1</label>
+		</transition>
+		<transition>
+			<source ref="id52"/>
+			<target ref="id50"/>
+			<label kind="select" x="496" y="-78">_id: int [0, MAX_TASKS_NUM]</label>
+			<label kind="guard" x="501" y="-63">check_id(_id)</label>
+			<label kind="assignment" x="503" y="-45">id[j]=_id</label>
+			<nail x="736" y="-80"/>
+		</transition>
+		<transition>
+			<source ref="id53"/>
+			<target ref="id52"/>
+			<label kind="select" x="493" y="-149">_prio: int [0, MAX_TASKS_NUM]</label>
+			<label kind="guard" x="519" y="-132">check_prio(_prio)</label>
+			<label kind="assignment" x="510" y="-115">prio[j] = _prio</label>
+		</transition>
+		<transition>
+			<source ref="id51"/>
+			<target ref="id53"/>
+			<label kind="guard" x="315" y="-149">j &lt; data.numOfTasks</label>
+		</transition>
+		<transition>
+			<source ref="id54"/>
+			<target ref="id51"/>
+			<label kind="select" x="85" y="-149">n : int [1, MAX_TASKS_NUM]</label>
+			<label kind="assignment" x="94" y="-132">data.numOfTasks = n</label>
+		</transition>
+	</template>
+	<template>
+		<name>R_4_1</name>
+		<parameter>LocalSchedulerData &amp;data, int &amp;abs_deadline[MAX_TASKS_NUM],  int &amp;is_ready[MAX_TASKS_NUM], int &amp;prio[MAX_TASKS_NUM], int &amp;id[MAX_TASKS_NUM], chan &amp;wakeup,  chan&amp;sleep, chan&amp;ready,  chan&amp;finished,  chan&amp;exec[MAX_TASKS_NUM],  chan&amp;preempt[MAX_TASKS_NUM]</parameter>
+		<declaration>// Работа может быть поставлена на выполнение только вследствие следующих событий: открытие окна раздела, появление новой готовой работы, завершение некоторой работы. При этом постановка работы на выполнение происходит мгновенно.
+
+clock c;
+int j;
+
+bool check_prio(int p)
+{
+    for (j: int[0,MAX_TASKS_NUM-1]) {
+        if (j == data.numOfTasks) {
+            return true;
+        }
+        if (prio[j]==p) {
+            return false;
+        }
+    }
+    return true;
+}
+
+bool check_id(int i)
+{
+    for (j: int[0,MAX_TASKS_NUM-1]) {
+        if (j == data.numOfTasks) {
+            return true;
+        }
+        if (id[j]==i) {
+            return false;
+        }
+    }
+    return true;
+}
+
+
+bool has_ready_job()
+{
+    for (j: int[0,MAX_TASKS_NUM-1]) {
+        if (j == data.numOfTasks) {
+            return false;
+        }
+        if (is_ready[j]==1) {
+            return true;
+        }
+    }
+    return false;
+}
+</declaration>
+		<location id="id55" x="603" y="289">
+			<name x="584" y="255">ERROR</name>
+			<committed/>
+		</location>
+		<location id="id56" x="263" y="433">
+			<name x="272" y="450">CanExec</name>
+		</location>
+		<location id="id57" x="263" y="289">
+			<name x="280" y="263">CanNotExec</name>
+		</location>
+		<location id="id58" x="445" y="18">
+			<committed/>
+		</location>
+		<location id="id59" x="265" y="-32">
+			<name x="255" y="-66">Init1</name>
+			<committed/>
+		</location>
+		<location id="id60" x="703" y="-29">
+			<name x="693" y="-63">Init3</name>
+			<committed/>
+		</location>
+		<location id="id61" x="443" y="-32">
+			<name x="433" y="-66">Init2</name>
+			<committed/>
+		</location>
+		<location id="id62" x="35" y="-32">
+			<name x="25" y="-66">Init0</name>
+			<committed/>
+		</location>
+		<init ref="id62"/>
+		<transition>
+			<source ref="id56"/>
+			<target ref="id56"/>
+			<label kind="select" x="256" y="500">i:int[0,MAX_TASKS_NUM-1],
+_id: int [0, MAX_TASKS_NUM]</label>
+			<label kind="guard" x="255" y="534">i&lt;data.numOfTasks
+&amp;&amp;check_id(_id)</label>
+			<label kind="assignment" x="253" y="569">id[i]=_id</label>
+			<nail x="203" y="574"/>
+			<nail x="245" y="570"/>
+		</transition>
+		<transition>
+			<source ref="id56"/>
+			<target ref="id56"/>
+			<label kind="select" x="-38" y="502">i:int[0,MAX_TASKS_NUM-1],
+_prio: int [0, MAX_TASKS_NUM]</label>
+			<label kind="guard" x="31" y="537">i&lt;data.numOfTasks
+&amp;&amp;check_prio(_prio)</label>
+			<label kind="assignment" x="71" y="571">prio[i] = _prio</label>
+			<nail x="179" y="507"/>
+			<nail x="177" y="589"/>
+		</transition>
+		<transition>
+			<source ref="id57"/>
+			<target ref="id57"/>
+			<label kind="select" x="16" y="38">i:int[0,MAX_TASKS_NUM-1],
+_prio: int [0, MAX_TASKS_NUM]</label>
+			<label kind="guard" x="89" y="74">i&lt;data.numOfTasks
+&amp;&amp;check_prio(_prio)</label>
+			<label kind="assignment" x="132" y="110">prio[i] = _prio</label>
+			<nail x="256" y="134"/>
+			<nail x="233" y="36"/>
+			<nail x="235" y="145"/>
+			<nail x="252" y="148"/>
+		</transition>
+		<transition>
+			<source ref="id57"/>
+			<target ref="id57"/>
+			<label kind="select" x="304" y="45">i:int[0,MAX_TASKS_NUM-1],
+_id: int [0, MAX_TASKS_NUM]</label>
+			<label kind="guard" x="305" y="80">i&lt;data.numOfTasks
+&amp;&amp;check_id(_id)</label>
+			<label kind="assignment" x="306" y="114">id[i]=_id</label>
+			<nail x="272" y="129"/>
+			<nail x="299" y="33"/>
+			<nail x="299" y="130"/>
+			<nail x="276" y="139"/>
+		</transition>
+		<transition>
+			<source ref="id59"/>
+			<target ref="id57"/>
+			<label kind="guard" x="113" y="0">j==data.numOfTasks</label>
+		</transition>
+		<transition>
+			<source ref="id56"/>
+			<target ref="id56"/>
+			<label kind="select" x="391" y="425">i:int[0,MAX_TASKS_NUM-1],
+d:int[0,MAX_DEADLINE]</label>
+			<label kind="guard" x="391" y="459">i&lt;data.numOfTasks</label>
+			<label kind="assignment" x="391" y="476">abs_deadline[i]=d</label>
+			<nail x="382" y="433"/>
+			<nail x="382" y="459"/>
+		</transition>
+		<transition>
+			<source ref="id57"/>
+			<target ref="id57"/>
+			<label kind="select" x="518" y="127">i:int[0,MAX_TASKS_NUM-1],
+d:int[0,MAX_DEADLINE]</label>
+			<label kind="guard" x="518" y="161">i&lt;data.numOfTasks</label>
+			<label kind="assignment" x="518" y="178">abs_deadline[i]=d</label>
+			<nail x="323" y="218"/>
+			<nail x="510" y="144"/>
+			<nail x="510" y="204"/>
+			<nail x="323" y="229"/>
+		</transition>
+		<transition>
+			<source ref="id56"/>
+			<target ref="id57"/>
+			<label kind="select" x="467" y="212">i:int[0, MAX_TASKS_NUM-1]</label>
+			<label kind="guard" x="459" y="229">i&lt;data.numOfTasks &amp;&amp; c==0</label>
+			<label kind="synchronisation" x="459" y="246">exec[i]?</label>
+			<nail x="425" y="408"/>
+			<nail x="680" y="408"/>
+			<nail x="680" y="246"/>
+			<nail x="450" y="246"/>
+			<nail x="365" y="280"/>
+		</transition>
+		<transition>
+			<source ref="id56"/>
+			<target ref="id57"/>
+			<label kind="guard" x="170" y="306">c&gt;0</label>
+			<nail x="153" y="348"/>
+		</transition>
+		<transition>
+			<source ref="id56"/>
+			<target ref="id56"/>
+			<label kind="synchronisation" x="140" y="475">sleep!</label>
+			<nail x="217" y="455"/>
+			<nail x="170" y="474"/>
+			<nail x="191" y="477"/>
+		</transition>
+		<transition>
+			<source ref="id56"/>
+			<target ref="id56"/>
+			<label kind="synchronisation" x="51" y="459">finished!</label>
+			<label kind="assignment" x="76" y="476">c=0</label>
+			<nail x="110" y="459"/>
+			<nail x="110" y="484"/>
+		</transition>
+		<transition>
+			<source ref="id56"/>
+			<target ref="id56"/>
+			<label kind="synchronisation" x="102" y="399">wakeup!</label>
+			<label kind="assignment" x="59" y="399">c=0</label>
+			<nail x="93" y="374"/>
+			<nail x="93" y="450"/>
+		</transition>
+		<transition>
+			<source ref="id56"/>
+			<target ref="id56"/>
+			<label kind="guard" x="-25" y="365">has_ready_job()</label>
+			<label kind="synchronisation" x="42" y="382">ready!</label>
+			<label kind="assignment" x="119" y="416">c=0</label>
+			<nail x="161" y="408"/>
+			<nail x="161" y="433"/>
+		</transition>
+		<transition>
+			<source ref="id56"/>
+			<target ref="id56"/>
+			<label kind="select" x="425" y="348">i:int[0,MAX_TASKS_NUM-1]</label>
+			<label kind="guard" x="425" y="365">i&lt;data.numOfTasks</label>
+			<label kind="synchronisation" x="425" y="382">preempt[i]?</label>
+			<nail x="425" y="357"/>
+			<nail x="425" y="391"/>
+		</transition>
+		<transition>
+			<source ref="id56"/>
+			<target ref="id56"/>
+			<label kind="select" x="17" y="263">i:int[0,MAX_TASKS_NUM-1],
+f:int[0,1]</label>
+			<label kind="guard" x="17" y="297">i&lt;data.numOfTasks</label>
+			<label kind="assignment" x="17" y="314">is_ready[i]=f</label>
+			<nail x="85" y="331"/>
+			<nail x="85" y="356"/>
+		</transition>
+		<transition>
+			<source ref="id57"/>
+			<target ref="id56"/>
+			<label kind="synchronisation" x="263" y="348">wakeup!</label>
+			<label kind="assignment" x="263" y="365">c=0</label>
+			<nail x="331" y="365"/>
+		</transition>
+		<transition>
+			<source ref="id57"/>
+			<target ref="id56"/>
+			<label kind="guard" x="314" y="331">has_ready_job()</label>
+			<label kind="synchronisation" x="331" y="348">ready!</label>
+			<label kind="assignment" x="323" y="365">c=0</label>
+		</transition>
+		<transition>
+			<source ref="id57"/>
+			<target ref="id56"/>
+			<label kind="synchronisation" x="178" y="348">finished!</label>
+			<label kind="assignment" x="204" y="365">c=0</label>
+			<nail x="238" y="365"/>
+		</transition>
+		<transition>
+			<source ref="id57"/>
+			<target ref="id57"/>
+			<label kind="select" x="279" y="142">i:int[0,MAX_TASKS_NUM-1]</label>
+			<label kind="guard" x="280" y="161">i&lt;data.numOfTasks</label>
+			<label kind="synchronisation" x="280" y="178">preempt[i]?</label>
+			<nail x="287" y="195"/>
+			<nail x="327" y="195"/>
+		</transition>
+		<transition>
+			<source ref="id57"/>
+			<target ref="id57"/>
+			<label kind="synchronisation" x="165" y="240">sleep!</label>
+			<nail x="212" y="243"/>
+			<nail x="212" y="263"/>
+		</transition>
+		<transition>
+			<source ref="id57"/>
+			<target ref="id57"/>
+			<label kind="select" x="32" y="165">i:int[0,MAX_TASKS_NUM-1],
+f:int[0,1]</label>
+			<label kind="guard" x="71" y="200">i&lt;data.numOfTasks</label>
+			<label kind="assignment" x="121" y="216">is_ready[i]=f</label>
+			<nail x="212" y="185"/>
+			<nail x="212" y="220"/>
+		</transition>
+		<transition>
+			<source ref="id57"/>
+			<target ref="id55"/>
+			<label kind="select" x="374" y="289">i:int[0,MAX_TASKS_NUM-1]</label>
+			<label kind="guard" x="433" y="306">i&lt;data.numOfTasks</label>
+			<label kind="synchronisation" x="476" y="323">exec[i]?</label>
+		</transition>
+		<transition>
+			<source ref="id58"/>
+			<target ref="id59"/>
+			<label kind="assignment" x="329" y="-1">j=j+1</label>
+		</transition>
+		<transition>
+			<source ref="id60"/>
+			<target ref="id58"/>
+			<label kind="select" x="509" y="22">_id: int [0, MAX_TASKS_NUM]</label>
+			<label kind="guard" x="614" y="38">check_id(_id)</label>
+			<label kind="assignment" x="645" y="54">id[j]=_id</label>
+			<nail x="703" y="20"/>
+		</transition>
+		<transition>
+			<source ref="id61"/>
+			<target ref="id60"/>
+			<label kind="select" x="460" y="-49">_prio: int [0, MAX_TASKS_NUM]</label>
+			<label kind="guard" x="486" y="-32">check_prio(_prio)</label>
+			<label kind="assignment" x="477" y="-15">prio[j] = _prio</label>
+		</transition>
+		<transition>
+			<source ref="id59"/>
+			<target ref="id61"/>
+			<label kind="guard" x="282" y="-49">j &lt; data.numOfTasks</label>
+		</transition>
+		<transition>
+			<source ref="id62"/>
+			<target ref="id59"/>
+			<label kind="select" x="52" y="-49">n : int [1, MAX_TASKS_NUM]</label>
+			<label kind="assignment" x="61" y="-32">data.numOfTasks = n</label>
+		</transition>
+	</template>
+	<template>
+		<name>R_5</name>
+		<parameter>LocalSchedulerData &amp;data, int &amp;abs_deadline[MAX_TASKS_NUM],  int &amp;is_ready[MAX_TASKS_NUM], int &amp;prio[MAX_TASKS_NUM], int &amp;id[MAX_TASKS_NUM], chan &amp;wakeup,  chan&amp;sleep, chan&amp;ready,  chan&amp;finished,  chan&amp;exec[MAX_TASKS_NUM],  chan&amp;preempt[MAX_TASKS_NUM]</parameter>
+		<declaration>//Для любого раздела верно, что любая выполняющаяся работа этого раздела может быть вытеснена только в двух случаях: либо при закрытии окна данного раздела, либо при появлении новой готовой работы. При этом вытеснение происходит мгновенно
+clock c;
+int j;
+
+bool check_prio(int p)
+{
+    for (j: int[0,MAX_TASKS_NUM-1]) {
+        if (j == data.numOfTasks) {
+            return true;
+        }
+        if (prio[j]==p) {
+            return false;
+        }
+    }
+    return true;
+}
+
+bool check_id(int i)
+{
+    for (j: int[0,MAX_TASKS_NUM-1]) {
+        if (j == data.numOfTasks) {
+            return true;
+        }
+        if (id[j]==i) {
+            return false;
+        }
+    }
+    return true;
+}
+
+
+bool has_ready_job()
+{
+    for (j: int[0,MAX_TASKS_NUM-1]) {
+        if (j == data.numOfTasks) {
+            return false;
+        }
+        if (is_ready[j]==1) {
+            return true;
+        }
+    }
+    return false;
+}</declaration>
+		<location id="id63" x="603" y="289">
+			<name x="584" y="255">ERROR</name>
+			<committed/>
+		</location>
+		<location id="id64" x="255" y="518">
+			<name x="272" y="484">CanPreempt</name>
+		</location>
+		<location id="id65" x="263" y="289">
+			<name x="280" y="272">CanNotPreempt</name>
+		</location>
+		<location id="id66" x="462" y="68">
+			<committed/>
+		</location>
+		<location id="id67" x="282" y="18">
+			<name x="272" y="-16">Init1</name>
+			<committed/>
+		</location>
+		<location id="id68" x="720" y="21">
+			<name x="710" y="-13">Init3</name>
+			<committed/>
+		</location>
+		<location id="id69" x="460" y="18">
+			<name x="450" y="-16">Init2</name>
+			<committed/>
+		</location>
+		<location id="id70" x="52" y="18">
+			<name x="42" y="-16">Init0</name>
+			<committed/>
+		</location>
+		<init ref="id70"/>
+		<transition>
+			<source ref="id64"/>
+			<target ref="id64"/>
+			<label kind="select" x="-17" y="297">i:int[0,MAX_TASKS_NUM-1],
+_id: int [0, MAX_TASKS_NUM]</label>
+			<label kind="guard" x="42" y="331">i&lt;data.numOfTasks
+&amp;&amp;check_id(_id)</label>
+			<label kind="assignment" x="119" y="365">id[i]=_id</label>
+			<nail x="187" y="391"/>
+			<nail x="187" y="306"/>
+		</transition>
+		<transition>
+			<source ref="id65"/>
+			<target ref="id65"/>
+			<label kind="select" x="510" y="161">i:int[0,MAX_TASKS_NUM-1],
+_id: int [0, MAX_TASKS_NUM]</label>
+			<label kind="guard" x="510" y="195">i&lt;data.numOfTasks
+&amp;&amp;check_id(_id)</label>
+			<label kind="assignment" x="510" y="229">id[i]=_id</label>
+			<nail x="314" y="229"/>
+			<nail x="442" y="229"/>
+			<nail x="501" y="178"/>
+			<nail x="501" y="246"/>
+			<nail x="314" y="246"/>
+		</transition>
+		<transition>
+			<source ref="id65"/>
+			<target ref="id65"/>
+			<label kind="select" x="450" y="331">i:int[0,MAX_TASKS_NUM-1],
+_prio: int [0, MAX_TASKS_NUM]</label>
+			<label kind="guard" x="450" y="365">i&lt;data.numOfTasks
+&amp;&amp;check_prio(_prio)</label>
+			<label kind="assignment" x="450" y="399">prio[i] = _prio</label>
+			<nail x="442" y="340"/>
+			<nail x="442" y="399"/>
+			<nail x="391" y="340"/>
+		</transition>
+		<transition>
+			<source ref="id64"/>
+			<target ref="id64"/>
+			<label kind="select" x="484" y="467">i:int[0,MAX_TASKS_NUM-1],
+_prio: int [0, MAX_TASKS_NUM]</label>
+			<label kind="guard" x="484" y="501">i&lt;data.numOfTasks
+&amp;&amp;check_prio(_prio)</label>
+			<label kind="assignment" x="484" y="535">prio[i] = _prio</label>
+			<nail x="459" y="518"/>
+			<nail x="476" y="552"/>
+			<nail x="476" y="484"/>
+		</transition>
+		<transition>
+			<source ref="id67"/>
+			<target ref="id65"/>
+			<label kind="guard" x="118" y="54">j==data.numOfTasks</label>
+			<nail x="246" y="127"/>
+		</transition>
+		<transition>
+			<source ref="id64"/>
+			<target ref="id64"/>
+			<label kind="select" x="272" y="526">i:int[0,MAX_TASKS_NUM-1],
+d:int[0,MAX_DEADLINE]</label>
+			<label kind="guard" x="272" y="560">i&lt;data.numOfTasks</label>
+			<label kind="assignment" x="272" y="577">abs_deadline[i]=d</label>
+			<nail x="272" y="586"/>
+			<nail x="272" y="535"/>
+		</transition>
+		<transition>
+			<source ref="id65"/>
+			<target ref="id65"/>
+			<label kind="select" x="297" y="161">i:int[0,MAX_TASKS_NUM-1],
+d:int[0,MAX_DEADLINE]</label>
+			<label kind="guard" x="297" y="195">i&lt;data.numOfTasks</label>
+			<label kind="assignment" x="297" y="212">abs_deadline[i]=d</label>
+			<nail x="289" y="161"/>
+			<nail x="289" y="229"/>
+		</transition>
+		<transition>
+			<source ref="id64"/>
+			<target ref="id65"/>
+			<label kind="select" x="314" y="433">i: int[0,MAX_TASKS_NUM-1]</label>
+			<label kind="guard" x="306" y="450">i&lt;data.numOfTasks</label>
+			<label kind="synchronisation" x="289" y="467">preempt[i]?</label>
+			<nail x="323" y="416"/>
+			<nail x="408" y="399"/>
+			<nail x="408" y="374"/>
+		</transition>
+		<transition>
+			<source ref="id64"/>
+			<target ref="id65"/>
+			<label kind="guard" x="323" y="348">c&gt;0</label>
+			<nail x="314" y="408"/>
+			<nail x="391" y="399"/>
+			<nail x="391" y="374"/>
+		</transition>
+		<transition>
+			<source ref="id64"/>
+			<target ref="id64"/>
+			<label kind="select" x="213" y="603">i:int[0,MAX_TASKS_NUM-1]</label>
+			<label kind="guard" x="213" y="620">i&lt;data.numOfTasks</label>
+			<label kind="synchronisation" x="213" y="637">exec[i]?</label>
+			<nail x="213" y="603"/>
+			<nail x="238" y="603"/>
+		</transition>
+		<transition>
+			<source ref="id64"/>
+			<target ref="id64"/>
+			<label kind="synchronisation" x="128" y="646">wakeup!</label>
+			<nail x="153" y="646"/>
+			<nail x="170" y="646"/>
+		</transition>
+		<transition>
+			<source ref="id65"/>
+			<target ref="id64"/>
+			<label kind="guard" x="272" y="374">has_ready_job()</label>
+			<label kind="synchronisation" x="272" y="391">ready!</label>
+			<label kind="assignment" x="272" y="408">c=0</label>
+			<nail x="272" y="433"/>
+		</transition>
+		<transition>
+			<source ref="id65"/>
+			<target ref="id64"/>
+			<label kind="synchronisation" x="212" y="339">sleep!</label>
+			<label kind="assignment" x="221" y="356">c=0</label>
+			<nail x="255" y="365"/>
+		</transition>
+		<transition>
+			<source ref="id65"/>
+			<target ref="id65"/>
+			<label kind="synchronisation" x="136" y="246">finished!</label>
+			<nail x="195" y="263"/>
+			<nail x="195" y="238"/>
+		</transition>
+		<transition>
+			<source ref="id64"/>
+			<target ref="id64"/>
+			<label kind="synchronisation" x="110" y="612">finished!</label>
+			<nail x="136" y="603"/>
+			<nail x="153" y="611"/>
+		</transition>
+		<transition>
+			<source ref="id64"/>
+			<target ref="id64"/>
+			<label kind="synchronisation" x="85" y="560">sleep!</label>
+			<label kind="assignment" x="102" y="577">c=0</label>
+			<nail x="136" y="561"/>
+			<nail x="136" y="586"/>
+		</transition>
+		<transition>
+			<source ref="id64"/>
+			<target ref="id64"/>
+			<label kind="guard" x="51" y="501">has_ready_job()</label>
+			<label kind="synchronisation" x="110" y="518">ready!</label>
+			<label kind="assignment" x="127" y="535">c=0</label>
+			<nail x="161" y="518"/>
+			<nail x="161" y="535"/>
+		</transition>
+		<transition>
+			<source ref="id64"/>
+			<target ref="id64"/>
+			<label kind="select" x="-25" y="425">i:int[0,MAX_TASKS_NUM-1],
+f:int[0,1]</label>
+			<label kind="guard" x="17" y="459">i&lt;data.numOfTasks</label>
+			<label kind="assignment" x="68" y="476">is_ready[i]=f</label>
+			<nail x="161" y="425"/>
+			<nail x="161" y="493"/>
+		</transition>
+		<transition>
+			<source ref="id65"/>
+			<target ref="id65"/>
+			<label kind="select" x="263" y="102">i:int[0,MAX_TASKS_NUM-1]</label>
+			<label kind="guard" x="263" y="119">i&lt;data.numOfTasks</label>
+			<label kind="synchronisation" x="263" y="136">exec[i]?</label>
+			<nail x="263" y="153"/>
+			<nail x="280" y="153"/>
+		</transition>
+		<transition>
+			<source ref="id65"/>
+			<target ref="id65"/>
+			<label kind="synchronisation" x="135" y="204">wakeup!</label>
+			<nail x="195" y="196"/>
+			<nail x="195" y="221"/>
+		</transition>
+		<transition>
+			<source ref="id65"/>
+			<target ref="id65"/>
+			<label kind="select" x="42" y="119">i:int[0,MAX_TASKS_NUM-1],
+f:int[0,1]</label>
+			<label kind="guard" x="42" y="153">i&lt;data.numOfTasks</label>
+			<label kind="assignment" x="102" y="170">is_ready[i]=f</label>
+			<nail x="238" y="144"/>
+			<nail x="187" y="144"/>
+		</transition>
+		<transition>
+			<source ref="id65"/>
+			<target ref="id63"/>
+			<label kind="select" x="399" y="272">i:int[0,MAX_TASKS_NUM-1]</label>
+			<label kind="guard" x="442" y="289">i&lt;data.numOfTasks</label>
+			<label kind="synchronisation" x="501" y="306">preempt[i]?</label>
+		</transition>
+		<transition>
+			<source ref="id66"/>
+			<target ref="id67"/>
+			<label kind="assignment" x="346" y="49">j=j+1</label>
+		</transition>
+		<transition>
+			<source ref="id68"/>
+			<target ref="id66"/>
+			<label kind="select" x="480" y="72">_id: int [0, MAX_TASKS_NUM]</label>
+			<label kind="guard" x="485" y="87">check_id(_id)</label>
+			<label kind="assignment" x="487" y="105">id[j]=_id</label>
+			<nail x="720" y="70"/>
+		</transition>
+		<transition>
+			<source ref="id69"/>
+			<target ref="id68"/>
+			<label kind="select" x="477" y="1">_prio: int [0, MAX_TASKS_NUM]</label>
+			<label kind="guard" x="503" y="18">check_prio(_prio)</label>
+			<label kind="assignment" x="494" y="35">prio[j] = _prio</label>
+		</transition>
+		<transition>
+			<source ref="id67"/>
+			<target ref="id69"/>
+			<label kind="guard" x="299" y="1">j &lt; data.numOfTasks</label>
+		</transition>
+		<transition>
+			<source ref="id70"/>
+			<target ref="id67"/>
+			<label kind="select" x="69" y="1">n : int [1, MAX_TASKS_NUM]</label>
+			<label kind="assignment" x="78" y="18">data.numOfTasks = n</label>
+		</transition>
+	</template>
+	<template>
+		<name>R_2_1</name>
+		<parameter>LocalSchedulerData &amp;data, int &amp;abs_deadline[MAX_TASKS_NUM],  int &amp;is_ready[MAX_TASKS_NUM], int &amp;prio[MAX_TASKS_NUM], int &amp;id[MAX_TASKS_NUM], chan &amp;wakeup,  chan&amp;sleep, chan&amp;ready,  chan&amp;finished,  chan&amp;exec[MAX_TASKS_NUM],  chan&amp;preempt[MAX_TASKS_NUM]</parameter>
+		<declaration>// Планировщик раздела может поставить работу на выполнение только в рамках окна этого раздела.
+int j;
+
+bool check_prio(int p)
+{
+    for (j: int[0,MAX_TASKS_NUM-1]) {
+        if (j == data.numOfTasks) {
+            return true;
+        }
+        if (prio[j]==p) {
+            return false;
+        }
+    }
+    return true;
+}
+
+bool check_id(int i)
+{
+    for (j: int[0,MAX_TASKS_NUM-1]) {
+        if (j == data.numOfTasks) {
+            return true;
+        }
+        if (id[j]==i) {
+            return false;
+        }
+    }
+    return true;
+}
+
+
+bool has_ready_job()
+{
+    for (j: int[0,MAX_TASKS_NUM-1]) {
+        if (j == data.numOfTasks) {
+            return false;
+        }
+        if (is_ready[j]==1) {
+            return true;
+        }
+    }
+    return false;
+}
+
+</declaration>
+		<location id="id71" x="263" y="161">
+			<name x="280" y="178">Inactive</name>
+		</location>
+		<location id="id72" x="314" y="331">
+			<name x="246" y="322">Active</name>
+		</location>
+		<location id="id73" x="790" y="204">
+			<name x="799" y="179">ERROR</name>
+			<committed/>
+		</location>
+		<location id="id74" x="478" y="-89">
+			<committed/>
+		</location>
+		<location id="id75" x="298" y="-139">
+			<name x="288" y="-173">Init1</name>
+			<committed/>
+		</location>
+		<location id="id76" x="736" y="-136">
+			<name x="726" y="-170">Init3</name>
+			<committed/>
+		</location>
+		<location id="id77" x="476" y="-139">
+			<name x="466" y="-173">Init2</name>
+			<committed/>
+		</location>
+		<location id="id78" x="68" y="-139">
+			<name x="58" y="-173">Init0</name>
+			<committed/>
+		</location>
+		<init ref="id78"/>
+		<transition>
+			<source ref="id72"/>
+			<target ref="id72"/>
+			<label kind="select" x="76" y="391">i:int[0,MAX_TASKS_NUM-1],
+_id: int [0, MAX_TASKS_NUM]</label>
+			<label kind="guard" x="136" y="425">i&lt;data.numOfTasks
+&amp;&amp;check_id(_id)</label>
+			<label kind="assignment" x="204" y="459">id[i]=_id</label>
+			<nail x="280" y="391"/>
+			<nail x="280" y="459"/>
+		</transition>
+		<transition>
+			<source ref="id71"/>
+			<target ref="id71"/>
+			<label kind="select" x="348" y="0">i:int[0,MAX_TASKS_NUM-1],
+_id: int [0, MAX_TASKS_NUM]</label>
+			<label kind="guard" x="348" y="34">i&lt;data.numOfTasks
+&amp;&amp;check_id(_id)</label>
+			<label kind="assignment" x="348" y="68">id[i]=_id</label>
+			<nail x="340" y="0"/>
+			<nail x="340" y="68"/>
+		</transition>
+		<transition>
+			<source ref="id75"/>
+			<target ref="id71"/>
+			<label kind="guard" x="114" y="-106">j==data.numOfTasks</label>
+			<nail x="249" y="-49"/>
+		</transition>
+		<transition>
+			<source ref="id72"/>
+			<target ref="id72"/>
+			<label kind="select" x="460" y="424">i:int[0,MAX_TASKS_NUM-1],
+p:int[1,MAX_TASKS_NUM]</label>
+			<label kind="guard" x="459" y="455">i&lt;data.numOfTasks &amp;&amp; check_prio(p)</label>
+			<label kind="assignment" x="458" y="472">prio[i] = p</label>
+			<nail x="454" y="480"/>
+			<nail x="454" y="425"/>
+		</transition>
+		<transition>
+			<source ref="id71"/>
+			<target ref="id71"/>
+			<label kind="select" x="442" y="93">i:int[0,MAX_TASKS_NUM-1],
+p:int[1,MAX_TASKS_NUM]</label>
+			<label kind="guard" x="442" y="127">i&lt;data.numOfTasks &amp;&amp; check_prio(p)</label>
+			<label kind="assignment" x="442" y="144">prio[i] = p</label>
+			<nail x="373" y="144"/>
+			<nail x="433" y="102"/>
+			<nail x="433" y="161"/>
+		</transition>
+		<transition>
+			<source ref="id72"/>
+			<target ref="id72"/>
+			<label kind="select" x="595" y="289">i:int[0,MAX_TASKS_NUM-1],
+d:int[0,MAX_DEADLINE]</label>
+			<label kind="guard" x="595" y="323">i&lt;data.numOfTasks</label>
+			<label kind="assignment" x="595" y="340">abs_deadline[i]=d</label>
+			<nail x="595" y="357"/>
+			<nail x="595" y="306"/>
+		</transition>
+		<transition>
+			<source ref="id71"/>
+			<target ref="id71"/>
+			<label kind="select" x="8" y="127">i:int[0,MAX_TASKS_NUM-1],
+d:int[0,MAX_DEADLINE]</label>
+			<label kind="guard" x="50" y="161">i&lt;data.numOfTasks</label>
+			<label kind="assignment" x="59" y="178">abs_deadline[i]=d</label>
+			<nail x="204" y="136"/>
+			<nail x="204" y="187"/>
+		</transition>
+		<transition>
+			<source ref="id71"/>
+			<target ref="id71"/>
+			<label kind="synchronisation" x="127" y="94">finished!</label>
+			<nail x="195" y="94"/>
+			<nail x="195" y="119"/>
+		</transition>
+		<transition>
+			<source ref="id71"/>
+			<target ref="id71"/>
+			<label kind="guard" x="102" y="51">has_ready_job()</label>
+			<label kind="synchronisation" x="161" y="68">ready!</label>
+			<nail x="212" y="51"/>
+			<nail x="212" y="85"/>
+		</transition>
+		<transition>
+			<source ref="id72"/>
+			<target ref="id72"/>
+			<label kind="guard" x="153" y="340">has_ready_job()</label>
+			<label kind="synchronisation" x="212" y="357">ready!</label>
+			<nail x="263" y="348"/>
+			<nail x="263" y="365"/>
+		</transition>
+		<transition>
+			<source ref="id72"/>
+			<target ref="id72"/>
+			<label kind="select" x="434" y="229">i: int[0,MAX_TASKS_NUM-1],
+f: int[0,1]</label>
+			<label kind="guard" x="434" y="280">i&lt;data.numOfTasks</label>
+			<label kind="assignment" x="434" y="263">is_ready[i]=f</label>
+			<nail x="425" y="246"/>
+			<nail x="425" y="289"/>
+		</transition>
+		<transition>
+			<source ref="id72"/>
+			<target ref="id72"/>
+			<label kind="select" x="69" y="262">i: int[0, MAX_TASKS_NUM-1]</label>
+			<label kind="guard" x="69" y="279">i &lt; data.numOfTasks</label>
+			<label kind="synchronisation" x="128" y="296">preempt[i]?</label>
+			<nail x="221" y="280"/>
+			<nail x="221" y="305"/>
+		</transition>
+		<transition>
+			<source ref="id71"/>
+			<target ref="id71"/>
+			<label kind="select" x="280" y="-68">i: int[0, MAX_TASKS_NUM-1]</label>
+			<label kind="guard" x="280" y="-51">i&lt;data.numOfTasks</label>
+			<label kind="synchronisation" x="280" y="-34">preempt[i]?</label>
+			<nail x="263" y="17"/>
+			<nail x="280" y="-76"/>
+			<nail x="280" y="17"/>
+		</transition>
+		<transition>
+			<source ref="id71"/>
+			<target ref="id71"/>
+			<label kind="select" x="42" y="-68">i: int[0, MAX_TASKS_NUM-1],
+f: int[0,1]</label>
+			<label kind="guard" x="85" y="-34">i&lt;data.numOfTasks</label>
+			<label kind="assignment" x="136" y="-17">is_ready[i]=f</label>
+			<nail x="229" y="17"/>
+			<nail x="229" y="-42"/>
+		</transition>
+		<transition>
+			<source ref="id72"/>
+			<target ref="id72"/>
+			<label kind="synchronisation" x="357" y="195">finished!</label>
+			<nail x="365" y="229"/>
+			<nail x="357" y="204"/>
+		</transition>
+		<transition>
+			<source ref="id72"/>
+			<target ref="id72"/>
+			<label kind="select" x="476" y="365">i: int[0, MAX_TASKS_NUM-1]</label>
+			<label kind="guard" x="476" y="382">i&lt;data.numOfTasks</label>
+			<label kind="synchronisation" x="476" y="399">exec[i]?</label>
+			<nail x="467" y="408"/>
+			<nail x="467" y="365"/>
+		</transition>
+		<transition>
+			<source ref="id71"/>
+			<target ref="id73"/>
+			<label kind="select" x="561" y="170">i: int[0, MAX_TASKS_NUM-1]</label>
+			<label kind="guard" x="578" y="195">i&lt;data.numOfTasks</label>
+			<label kind="synchronisation" x="629" y="212">exec[i]?</label>
+		</transition>
+		<transition>
+			<source ref="id72"/>
+			<target ref="id72"/>
+			<label kind="synchronisation" x="399" y="212">wakeup!</label>
+			<nail x="399" y="221"/>
+			<nail x="399" y="238"/>
+		</transition>
+		<transition>
+			<source ref="id71"/>
+			<target ref="id71"/>
+			<label kind="synchronisation" x="170" y="17">sleep!</label>
+			<nail x="221" y="8"/>
+			<nail x="221" y="42"/>
+		</transition>
+		<transition>
+			<source ref="id72"/>
+			<target ref="id71"/>
+			<label kind="synchronisation" x="289" y="238">sleep!</label>
+		</transition>
+		<transition>
+			<source ref="id71"/>
+			<target ref="id72"/>
+			<label kind="synchronisation" x="204" y="221">wakeup!</label>
+			<nail x="263" y="238"/>
+		</transition>
+		<transition>
+			<source ref="id74"/>
+			<target ref="id75"/>
+			<label kind="assignment" x="362" y="-108">j=j+1</label>
+		</transition>
+		<transition>
+			<source ref="id76"/>
+			<target ref="id74"/>
+			<label kind="select" x="496" y="-85">_id: int [0, MAX_TASKS_NUM]</label>
+			<label kind="guard" x="501" y="-70">check_id(_id)</label>
+			<label kind="assignment" x="503" y="-52">id[j]=_id</label>
+			<nail x="736" y="-87"/>
+		</transition>
+		<transition>
+			<source ref="id77"/>
+			<target ref="id76"/>
+			<label kind="select" x="493" y="-156">_prio: int [0, MAX_TASKS_NUM]</label>
+			<label kind="guard" x="519" y="-139">check_prio(_prio)</label>
+			<label kind="assignment" x="510" y="-122">prio[j] = _prio</label>
+		</transition>
+		<transition>
+			<source ref="id75"/>
+			<target ref="id77"/>
+			<label kind="guard" x="315" y="-156">j &lt; data.numOfTasks</label>
+		</transition>
+		<transition>
+			<source ref="id78"/>
+			<target ref="id75"/>
+			<label kind="select" x="85" y="-156">n : int [1, MAX_TASKS_NUM]</label>
+			<label kind="assignment" x="94" y="-139">data.numOfTasks = n</label>
+		</transition>
+	</template>
+	<template>
+		<name>R_2_2</name>
+		<parameter>LocalSchedulerData &amp;data, int &amp;abs_deadline[MAX_TASKS_NUM],  int &amp;is_ready[MAX_TASKS_NUM], int &amp;prio[MAX_TASKS_NUM], int &amp;id[MAX_TASKS_NUM], chan &amp;wakeup,  chan&amp;sleep, chan&amp;ready,  chan&amp;finished,  chan&amp;exec[MAX_TASKS_NUM],  chan&amp;preempt[MAX_TASKS_NUM]</parameter>
+		<declaration>// 2.1 Для любого раздела верно, что если в некоторый момент времени на вычислителе выполняется 
+// работа этого раздела и происходит закрытие текущего окна этого раздела, 
+// то некоторая работа должна быть мгновенно вытеснена, либо завершена
+clock c;
+bool flag = false;
+int j;
+
+bool check_prio(int p)
+{
+    for (j: int[0,MAX_TASKS_NUM-1]) {
+        if (j == data.numOfTasks) {
+            return true;
+        }
+        if (prio[j]==p) {
+            return false;
+        }
+    }
+    return true;
+}
+
+bool check_id(int i)
+{
+    for (j: int[0,MAX_TASKS_NUM-1]) {
+        if (j == data.numOfTasks) {
+            return true;
+        }
+        if (id[j]==i) {
+            return false;
+        }
+    }
+    return true;
+}
+
+
+bool has_ready_job()
+{
+    for (j: int[0,MAX_TASKS_NUM-1]) {
+        if (j == data.numOfTasks) {
+            return false;
+        }
+        if (is_ready[j]==1) {
+            return true;
+        }
+    }
+    return false;
+}</declaration>
+		<location id="id79" x="-1215" y="-391">
+			<name x="-1198" y="-382">Idle</name>
+		</location>
+		<location id="id80" x="-841" y="-238">
+			<name x="-824" y="-247">ERROR</name>
+			<committed/>
+		</location>
+		<location id="id81" x="-1224" y="-212">
+			<name x="-1216" y="-237">Busy</name>
+		</location>
+		<location id="id82" x="-1005" y="-569">
+			<committed/>
+		</location>
+		<location id="id83" x="-1185" y="-619">
+			<name x="-1195" y="-653">Init1</name>
+			<committed/>
+		</location>
+		<location id="id84" x="-747" y="-616">
+			<name x="-757" y="-650">Init3</name>
+			<committed/>
+		</location>
+		<location id="id85" x="-1007" y="-619">
+			<name x="-1017" y="-653">Init2</name>
+			<committed/>
+		</location>
+		<location id="id86" x="-1415" y="-619">
+			<name x="-1425" y="-653">Init0</name>
+			<committed/>
+		</location>
+		<init ref="id86"/>
+		<transition>
+			<source ref="id81"/>
+			<target ref="id81"/>
+			<label kind="select" x="-1147" y="-144">i:int[0,MAX_TASKS_NUM-1],
+_prio: int [0, MAX_TASKS_NUM]</label>
+			<label kind="guard" x="-1147" y="-110">i&lt;data.numOfTasks
+&amp;&amp;check_prio(_prio)</label>
+			<label kind="assignment" x="-1147" y="-76">prio[i] = _prio</label>
+			<nail x="-1156" y="-153"/>
+			<nail x="-1156" y="-85"/>
+		</transition>
+		<transition>
+			<source ref="id79"/>
+			<target ref="id79"/>
+			<label kind="select" x="-1453" y="-578">i:int[0,MAX_TASKS_NUM-1],
+_id: int [0, MAX_TASKS_NUM]</label>
+			<label kind="guard" x="-1394" y="-544">i&lt;data.numOfTasks
+&amp;&amp;check_id(_id)</label>
+			<label kind="assignment" x="-1309" y="-510">id[i]=_id</label>
+			<nail x="-1249" y="-484"/>
+			<nail x="-1249" y="-569"/>
+		</transition>
+		<transition>
+			<source ref="id81"/>
+			<target ref="id81"/>
+			<label kind="select" x="-1453" y="-119">i:int[0,MAX_TASKS_NUM-1],
+_id: int [0, MAX_TASKS_NUM]</label>
+			<label kind="guard" x="-1394" y="-85">i&lt;data.numOfTasks
+&amp;&amp;check_id(_id)</label>
+			<label kind="assignment" x="-1326" y="-51">id[i]=_id</label>
+			<nail x="-1249" y="-136"/>
+			<nail x="-1249" y="-76"/>
+		</transition>
+		<transition>
+			<source ref="id79"/>
+			<target ref="id79"/>
+			<label kind="select" x="-1096" y="-484">i:int[0,MAX_TASKS_NUM-1],
+_prio: int [0, MAX_TASKS_NUM]</label>
+			<label kind="guard" x="-1096" y="-450">i&lt;data.numOfTasks
+&amp;&amp;check_prio(_prio)</label>
+			<label kind="assignment" x="-1096" y="-416">prio[i] = _prio</label>
+			<nail x="-1105" y="-476"/>
+			<nail x="-1105" y="-416"/>
+		</transition>
+		<transition>
+			<source ref="id83"/>
+			<target ref="id79"/>
+			<label kind="guard" x="-1164" y="-552">j==data.numOfTasks</label>
+			<nail x="-1173" y="-459"/>
+		</transition>
+		<transition>
+			<source ref="id81"/>
+			<target ref="id81"/>
+			<label kind="select" x="-808" y="-221">i:int[0,MAX_TASKS_NUM-1],
+d:int[0,MAX_DEADLINE]</label>
+			<label kind="guard" x="-808" y="-187">i&lt;data.numOfTasks</label>
+			<label kind="assignment" x="-808" y="-170">abs_deadline[i]=d</label>
+			<nail x="-816" y="-170"/>
+			<nail x="-816" y="-221"/>
+			<nail x="-824" y="-187"/>
+		</transition>
+		<transition>
+			<source ref="id79"/>
+			<target ref="id79"/>
+			<label kind="select" x="-774" y="-450">i:int[0,MAX_TASKS_NUM-1],
+d:int[0,MAX_DEADLINE]</label>
+			<label kind="guard" x="-774" y="-416">i&lt;data.numOfTasks</label>
+			<label kind="assignment" x="-774" y="-399">abs_deadline[i]=d</label>
+			<nail x="-799" y="-391"/>
+			<nail x="-782" y="-442"/>
+			<nail x="-782" y="-382"/>
+		</transition>
+		<transition>
+			<source ref="id79"/>
+			<target ref="id79"/>
+			<label kind="synchronisation" x="-1207" y="-331">finished!</label>
+			<nail x="-1198" y="-331"/>
+			<nail x="-1181" y="-331"/>
+		</transition>
+		<transition>
+			<source ref="id81"/>
+			<target ref="id81"/>
+			<label kind="select" x="-1470" y="-246">i: int[0,MAX_TASKS_NUM-1],
+f: int[0,1]</label>
+			<label kind="guard" x="-1419" y="-212">i&lt;data.numOfTasks</label>
+			<label kind="assignment" x="-1368" y="-195">is_ready[i]=f</label>
+			<nail x="-1275" y="-195"/>
+			<nail x="-1275" y="-246"/>
+		</transition>
+		<transition>
+			<source ref="id81"/>
+			<target ref="id81"/>
+			<label kind="guard" x="-1343" y="-280">has_ready_job()</label>
+			<label kind="synchronisation" x="-1283" y="-297">ready!</label>
+			<nail x="-1241" y="-289"/>
+			<nail x="-1232" y="-289"/>
+		</transition>
+		<transition>
+			<source ref="id79"/>
+			<target ref="id79"/>
+			<label kind="guard" x="-1156" y="-510">has_ready_job()</label>
+			<label kind="synchronisation" x="-1156" y="-493">ready!</label>
+			<nail x="-1156" y="-476"/>
+			<nail x="-1139" y="-476"/>
+		</transition>
+		<transition>
+			<source ref="id79"/>
+			<target ref="id79"/>
+			<label kind="select" x="-1479" y="-391">i: int[0, MAX_TASKS_NUM-1]</label>
+			<label kind="guard" x="-1419" y="-374">i&lt;data.numOfTasks</label>
+			<label kind="synchronisation" x="-1368" y="-357">preempt[i]?</label>
+			<nail x="-1283" y="-391"/>
+			<nail x="-1283" y="-348"/>
+		</transition>
+		<transition>
+			<source ref="id79"/>
+			<target ref="id79"/>
+			<label kind="select" x="-1479" y="-476">i: int[0, MAX_TASKS_NUM-1],
+f: int[0,1]</label>
+			<label kind="guard" x="-1437" y="-442">i&lt;data.numOfTasks</label>
+			<label kind="assignment" x="-1386" y="-425">is_ready[i]=f</label>
+			<nail x="-1292" y="-408"/>
+			<nail x="-1292" y="-442"/>
+		</transition>
+		<transition>
+			<source ref="id81"/>
+			<target ref="id81"/>
+			<label kind="synchronisation" x="-1122" y="-170">wakeup!</label>
+			<nail x="-1130" y="-161"/>
+			<nail x="-1113" y="-178"/>
+		</transition>
+		<transition>
+			<source ref="id81"/>
+			<target ref="id81"/>
+			<label kind="synchronisation" x="-1326" y="-170">sleep!</label>
+			<label kind="assignment" x="-1385" y="-153">c=0, flag=true</label>
+			<nail x="-1283" y="-161"/>
+			<nail x="-1275" y="-144"/>
+		</transition>
+		<transition>
+			<source ref="id79"/>
+			<target ref="id79"/>
+			<label kind="synchronisation" x="-1368" y="-331">wakeup!</label>
+			<nail x="-1300" y="-323"/>
+			<nail x="-1300" y="-306"/>
+		</transition>
+		<transition>
+			<source ref="id79"/>
+			<target ref="id79"/>
+			<label kind="synchronisation" x="-1266" y="-331">sleep!</label>
+			<nail x="-1249" y="-331"/>
+			<nail x="-1232" y="-331"/>
+		</transition>
+		<transition>
+			<source ref="id81"/>
+			<target ref="id80"/>
+			<label kind="guard" x="-960" y="-229">c&gt;0 &amp;&amp; flag</label>
+		</transition>
+		<transition>
+			<source ref="id81"/>
+			<target ref="id79"/>
+			<label kind="synchronisation" x="-714" y="-348">finished!</label>
+			<label kind="assignment" x="-714" y="-331">flag=false, c=0</label>
+			<nail x="-722" y="-289"/>
+			<nail x="-722" y="-374"/>
+		</transition>
+		<transition>
+			<source ref="id81"/>
+			<target ref="id79"/>
+			<label kind="select" x="-935" y="-365">i: int[0, MAX_TASKS_NUM-1]</label>
+			<label kind="guard" x="-935" y="-331">i&lt;data.numOfTasks</label>
+			<label kind="synchronisation" x="-935" y="-348">preempt[i]?</label>
+			<label kind="assignment" x="-935" y="-314">flag=false, c=0</label>
+			<nail x="-943" y="-289"/>
+			<nail x="-942" y="-366"/>
+		</transition>
+		<transition>
+			<source ref="id79"/>
+			<target ref="id81"/>
+			<label kind="select" x="-1215" y="-306">i: int[0, MAX_TASKS_NUM-1]</label>
+			<label kind="guard" x="-1215" y="-289">i&lt;data.numOfTasks</label>
+			<label kind="synchronisation" x="-1215" y="-272">exec[i]?</label>
+		</transition>
+		<transition>
+			<source ref="id82"/>
+			<target ref="id83"/>
+			<label kind="assignment" x="-1121" y="-588">j=j+1</label>
+		</transition>
+		<transition>
+			<source ref="id84"/>
+			<target ref="id82"/>
+			<label kind="select" x="-987" y="-565">_id: int [0, MAX_TASKS_NUM]</label>
+			<label kind="guard" x="-982" y="-550">check_id(_id)</label>
+			<label kind="assignment" x="-980" y="-532">id[j]=_id</label>
+			<nail x="-747" y="-567"/>
+		</transition>
+		<transition>
+			<source ref="id85"/>
+			<target ref="id84"/>
+			<label kind="select" x="-990" y="-636">_prio: int [0, MAX_TASKS_NUM]</label>
+			<label kind="guard" x="-964" y="-619">check_prio(_prio)</label>
+			<label kind="assignment" x="-973" y="-602">prio[j] = _prio</label>
+		</transition>
+		<transition>
+			<source ref="id83"/>
+			<target ref="id85"/>
+			<label kind="guard" x="-1168" y="-636">j &lt; data.numOfTasks</label>
+		</transition>
+		<transition>
+			<source ref="id86"/>
+			<target ref="id83"/>
+			<label kind="select" x="-1398" y="-636">n : int [1, MAX_TASKS_NUM]</label>
+			<label kind="assignment" x="-1389" y="-619">data.numOfTasks = n</label>
+		</transition>
+	</template>
+	<template>
+		<name>LocalScheduler</name>
+		<parameter>LocalSchedulerData &amp;data, int &amp;abs_deadline[MAX_TASKS_NUM],  int &amp;is_ready[MAX_TASKS_NUM], int &amp;prio[MAX_TASKS_NUM], int &amp;id[MAX_TASKS_NUM], chan &amp;wakeup,  chan&amp;sleep, chan&amp;ready,  chan&amp;finished,  chan&amp;exec[MAX_TASKS_NUM],  chan&amp;preempt[MAX_TASKS_NUM]</parameter>
+		<declaration>//bool needRescheduling;
+int current;
+
+int get_job()
+{
+	meta int res = -1;
+	for (i : int[0,MAX_TASKS_NUM]) {
+        if (is_ready[i]) {
+            if (res == -1 || (abs_deadline[i]&lt;abs_deadline[res]))
+                res = i;
+        }
+        if (i == data.numOfTasks-1)
+            return res;
+    }
+
+    if (res == -1)
+        return res;
+
+    for (i : int[0,MAX_TASKS_NUM]) {
+        if (is_ready[i]) {
+            if ((abs_deadline[i]==abs_deadline[res]) &amp;&amp; (id[i]&lt;id[res]))
+                res = i;
+        }
+        if (i == data.numOfTasks-1)
+            return res;
+    }    
+
+	return res;
+}</declaration>
+		<location id="id87" x="-85" y="-255">
+			<name x="-95" y="-289">NewJob</name>
+			<urgent/>
+		</location>
+		<location id="id88" x="-493" y="-144">
+			<name x="-569" y="-161">Sleeping</name>
+		</location>
+		<location id="id89" x="-357" y="-212">
+			<name x="-408" y="-246">SendPreempt</name>
+			<urgent/>
+		</location>
+		<location id="id90" x="25" y="-212">
+			<name x="15" y="-246">Preempting</name>
+			<urgent/>
+		</location>
+		<location id="id91" x="-204" y="-178">
+			<name x="-280" y="-212">Executing</name>
+		</location>
+		<location id="id92" x="25" y="-17">
+			<name x="42" y="-25">Scheduling</name>
+			<urgent/>
+		</location>
+		<location id="id93" x="-204" y="-17">
+			<name x="-229" y="-51">Waiting</name>
+		</location>
+		<init ref="id88"/>
+		<transition>
+			<source ref="id90"/>
+			<target ref="id92"/>
+			<label kind="synchronisation" x="-25" y="-110">finished?</label>
+			<nail x="42" y="-102"/>
+		</transition>
+		<transition>
+			<source ref="id89"/>
+			<target ref="id88"/>
+			<label kind="synchronisation" x="-441" y="-229">finished?</label>
+			<nail x="-459" y="-212"/>
+		</transition>
+		<transition>
+			<source ref="id93"/>
+			<target ref="id92"/>
+			<label kind="synchronisation" x="-127" y="-34">ready?</label>
+		</transition>
+		<transition>
+			<source ref="id88"/>
+			<target ref="id88"/>
+			<label kind="synchronisation" x="-552" y="-102">ready?</label>
+			<nail x="-510" y="-102"/>
+			<nail x="-561" y="-102"/>
+		</transition>
+		<transition>
+			<source ref="id93"/>
+			<target ref="id88"/>
+			<label kind="synchronisation" x="-382" y="-34">sleep?</label>
+			<nail x="-382" y="-8"/>
+		</transition>
+		<transition>
+			<source ref="id91"/>
+			<target ref="id92"/>
+			<label kind="synchronisation" x="-85" y="-153">finished?</label>
+			<label kind="testcode">1</label>
+			<nail x="-93" y="-144"/>
+		</transition>
+		<transition>
+			<source ref="id88"/>
+			<target ref="id92"/>
+			<label kind="synchronisation" x="-391" y="-102">wakeup?</label>
+		</transition>
+		<transition>
+			<source ref="id92"/>
+			<target ref="id88"/>
+			<label kind="synchronisation" x="-442" y="59">sleep?</label>
+			<nail x="-17" y="76"/>
+			<nail x="-493" y="76"/>
+		</transition>
+		<transition>
+			<source ref="id92"/>
+			<target ref="id92"/>
+			<label kind="synchronisation" x="51" y="42">ready?</label>
+			<nail x="34" y="68"/>
+			<nail x="136" y="68"/>
+		</transition>
+		<transition>
+			<source ref="id87"/>
+			<target ref="id91"/>
+			<label kind="guard" x="-246" y="-272">get_job()==current</label>
+			<nail x="-204" y="-255"/>
+		</transition>
+		<transition>
+			<source ref="id91"/>
+			<target ref="id87"/>
+			<label kind="synchronisation" x="-186" y="-233">ready?</label>
+		</transition>
+		<transition>
+			<source ref="id87"/>
+			<target ref="id90"/>
+			<label kind="guard" x="-59" y="-263">get_job()!=current</label>
+		</transition>
+		<transition>
+			<source ref="id89"/>
+			<target ref="id88"/>
+			<label kind="synchronisation" x="-442" y="-170">preempt[current]!</label>
+		</transition>
+		<transition>
+			<source ref="id91"/>
+			<target ref="id89"/>
+			<label kind="synchronisation" x="-297" y="-187">sleep?</label>
+		</transition>
+		<transition>
+			<source ref="id90"/>
+			<target ref="id92"/>
+			<label kind="synchronisation" x="42" y="-178">preempt[current]!</label>
+			<nail x="59" y="-110"/>
+		</transition>
+		<transition>
+			<source ref="id92"/>
+			<target ref="id91"/>
+			<label kind="guard" x="-186" y="-131">get_job()!=-1</label>
+			<label kind="synchronisation" x="-186" y="-114">exec[get_job()]!</label>
+			<label kind="assignment" x="-186" y="-97">current=get_job()</label>
+		</transition>
+		<transition>
+			<source ref="id92"/>
+			<target ref="id93"/>
+			<label kind="guard" x="-119" y="34">get_job()==-1</label>
+			<nail x="-93" y="34"/>
+		</transition>
+	</template>
+	<template>
+		<name>R_1</name>
+		<parameter>LocalSchedulerData &amp;data, int &amp;abs_deadline[MAX_TASKS_NUM],  int &amp;is_ready[MAX_TASKS_NUM], int &amp;prio[MAX_TASKS_NUM], int &amp;id[MAX_TASKS_NUM], chan &amp;wakeup,  chan&amp;sleep, chan&amp;ready,  chan&amp;finished,  chan&amp;exec[MAX_TASKS_NUM],  chan&amp;preempt[MAX_TASKS_NUM]</parameter>
+		<declaration>// 1. Для любого раздела верно, что в каждый момент времени на вычислителе может выполняться не более одной работы этого раздела
+int j;
+
+bool check_prio(int p)
+{
+    for (j: int[0,MAX_TASKS_NUM-1]) {
+        if (j == data.numOfTasks) {
+            return true;
+        }
+        if (prio[j]==p) {
+            return false;
+        }
+    }
+    return true;
+}
+
+bool check_id(int i)
+{
+    for (j: int[0,MAX_TASKS_NUM-1]) {
+        if (j == data.numOfTasks) {
+            return true;
+        }
+        if (id[j]==i) {
+            return false;
+        }
+    }
+    return true;
+}
+
+
+bool has_ready_job()
+{
+    for (j: int[0,MAX_TASKS_NUM-1]) {
+        if (j == data.numOfTasks) {
+            return false;
+        }
+        if (is_ready[j]==1) {
+            return true;
+        }
+    }
+    return false;
+}
+</declaration>
+		<location id="id94" x="675" y="370">
+			<name x="684" y="345">ERROR</name>
+			<committed/>
+		</location>
+		<location id="id95" x="267" y="370">
+			<name x="212" y="357">Busy</name>
+		</location>
+		<location id="id96" x="267" y="200">
+			<name x="238" y="221">Idle</name>
+		</location>
+		<location id="id97" x="515" y="-51">
+			<committed/>
+		</location>
+		<location id="id98" x="335" y="-101">
+			<name x="325" y="-135">Init1</name>
+			<committed/>
+		</location>
+		<location id="id99" x="773" y="-98">
+			<name x="763" y="-132">Init3</name>
+			<committed/>
+		</location>
+		<location id="id100" x="513" y="-101">
+			<name x="503" y="-135">Init2</name>
+			<committed/>
+		</location>
+		<location id="id101" x="105" y="-101">
+			<name x="95" y="-135">Init0</name>
+			<committed/>
+		</location>
+		<init ref="id101"/>
+		<transition>
+			<source ref="id95"/>
+			<target ref="id95"/>
+			<label kind="select" x="17" y="450">i:int[0,MAX_TASKS_NUM-1],
+_id:int[0, MAX_TASKS_NUM-1]</label>
+			<label kind="guard" x="85" y="484">i&lt;data.numOfTasks
+&amp;&amp; check_id(_id)</label>
+			<label kind="assignment" x="153" y="518">id[i] = _id</label>
+			<nail x="229" y="441"/>
+			<nail x="229" y="544"/>
+		</transition>
+		<transition>
+			<source ref="id95"/>
+			<target ref="id95"/>
+			<label kind="select" x="297" y="459">i:int[0,MAX_TASKS_NUM-1],
+_prio: int [0, MAX_TASKS_NUM]</label>
+			<label kind="guard" x="297" y="493">i&lt;data.numOfTasks
+&amp;&amp;check_prio(_prio)</label>
+			<label kind="assignment" x="297" y="527">prio[i] = _prio</label>
+			<nail x="289" y="450"/>
+			<nail x="289" y="535"/>
+		</transition>
+		<transition>
+			<source ref="id96"/>
+			<target ref="id96"/>
+			<label kind="select" x="552" y="25">i:int[0,MAX_TASKS_NUM-1],
+_prio: int [0, MAX_TASKS_NUM]</label>
+			<label kind="guard" x="552" y="59">i&lt;data.numOfTasks
+&amp;&amp;check_prio(_prio)</label>
+			<label kind="assignment" x="552" y="93">prio[i] = _prio</label>
+			<nail x="450" y="161"/>
+			<nail x="544" y="42"/>
+			<nail x="544" y="110"/>
+			<nail x="450" y="169"/>
+		</transition>
+		<transition>
+			<source ref="id96"/>
+			<target ref="id96"/>
+			<label kind="select" x="51" y="-8">i:int[0,MAX_TASKS_NUM-1],
+_id:int[0, MAX_TASKS_NUM-1]</label>
+			<label kind="guard" x="110" y="25">i&lt;data.numOfTasks
+&amp;&amp; check_id(_id)</label>
+			<label kind="assignment" x="178" y="59">id[i] = _id</label>
+			<nail x="289" y="0"/>
+			<nail x="255" y="0"/>
+			<nail x="255" y="76"/>
+		</transition>
+		<transition>
+			<source ref="id98"/>
+			<target ref="id96"/>
+			<label kind="guard" x="170" y="-59">j==data.numOfTasks</label>
+		</transition>
+		<transition>
+			<source ref="id96"/>
+			<target ref="id96"/>
+			<label kind="select" x="527" y="220">i: int[0, MAX_TASKS_NUM-1]</label>
+			<label kind="guard" x="527" y="237">i&lt;data.numOfTasks</label>
+			<label kind="synchronisation" x="527" y="254">preempt[i]?</label>
+			<nail x="518" y="220"/>
+			<nail x="518" y="263"/>
+		</transition>
+		<transition>
+			<source ref="id95"/>
+			<target ref="id95"/>
+			<label kind="select" x="535" y="425">i:int[0,MAX_TASKS_NUM-1],
+d:int[0,MAX_DEADLINE]</label>
+			<label kind="guard" x="535" y="459">i&lt;data.numOfTasks</label>
+			<label kind="assignment" x="535" y="476">abs_deadline[i]=d</label>
+			<nail x="425" y="442"/>
+			<nail x="527" y="425"/>
+			<nail x="527" y="484"/>
+			<nail x="510" y="450"/>
+			<nail x="425" y="450"/>
+		</transition>
+		<transition>
+			<source ref="id96"/>
+			<target ref="id96"/>
+			<label kind="select" x="536" y="135">i:int[0,MAX_TASKS_NUM-1],
+d:int[0,MAX_DEADLINE]</label>
+			<label kind="guard" x="536" y="169">i&lt;data.numOfTasks</label>
+			<label kind="assignment" x="536" y="186">abs_deadline[i]=d</label>
+			<nail x="502" y="178"/>
+			<nail x="527" y="144"/>
+			<nail x="527" y="195"/>
+		</transition>
+		<transition>
+			<source ref="id95"/>
+			<target ref="id96"/>
+			<label kind="synchronisation" x="289" y="263">finished!</label>
+			<nail x="289" y="280"/>
+		</transition>
+		<transition>
+			<source ref="id95"/>
+			<target ref="id94"/>
+			<label kind="select" x="425" y="374">i: int[0, MAX_TASKS_NUM-1]</label>
+			<label kind="guard" x="425" y="391">i&lt;data.numOfTasks</label>
+			<label kind="synchronisation" x="425" y="408">exec[i]?</label>
+			<nail x="382" y="391"/>
+			<nail x="637" y="391"/>
+		</transition>
+		<transition>
+			<source ref="id95"/>
+			<target ref="id95"/>
+			<label kind="guard" x="34" y="399">has_ready_job()</label>
+			<label kind="synchronisation" x="93" y="416">ready!</label>
+			<nail x="144" y="408"/>
+			<nail x="144" y="433"/>
+		</transition>
+		<transition>
+			<source ref="id96"/>
+			<target ref="id96"/>
+			<label kind="guard" x="114" y="132">has_ready_job()</label>
+			<label kind="synchronisation" x="182" y="149">ready!</label>
+			<nail x="233" y="166"/>
+			<nail x="114" y="166"/>
+			<nail x="216" y="234"/>
+		</transition>
+		<transition>
+			<source ref="id95"/>
+			<target ref="id95"/>
+			<label kind="select" x="-8" y="323">i: int[0,MAX_TASKS_NUM-1],
+f: int[0,1]</label>
+			<label kind="guard" x="42" y="357">i&lt;data.numOfTasks</label>
+			<label kind="assignment" x="93" y="374">is_ready[i]=f</label>
+			<nail x="187" y="331"/>
+			<nail x="187" y="382"/>
+		</transition>
+		<transition>
+			<source ref="id96"/>
+			<target ref="id96"/>
+			<label kind="select" x="331" y="25">i: int[0,MAX_TASKS_NUM-1],
+f: int[0,1]</label>
+			<label kind="guard" x="331" y="59">i&lt;data.numOfTasks</label>
+			<label kind="assignment" x="331" y="76">is_ready[i]=f</label>
+			<nail x="331" y="93"/>
+			<nail x="348" y="110"/>
+		</transition>
+		<transition>
+			<source ref="id96"/>
+			<target ref="id96"/>
+			<label kind="synchronisation" x="357" y="110">finished!</label>
+			<nail x="356" y="127"/>
+			<nail x="365" y="136"/>
+		</transition>
+		<transition>
+			<source ref="id95"/>
+			<target ref="id95"/>
+			<label kind="synchronisation" x="314" y="357">wakeup!</label>
+			<nail x="314" y="374"/>
+			<nail x="314" y="365"/>
+		</transition>
+		<transition>
+			<source ref="id95"/>
+			<target ref="id95"/>
+			<label kind="synchronisation" x="306" y="314">sleep!</label>
+			<nail x="306" y="331"/>
+			<nail x="306" y="314"/>
+		</transition>
+		<transition>
+			<source ref="id96"/>
+			<target ref="id96"/>
+			<label kind="synchronisation" x="365" y="144">wakeup!</label>
+			<nail x="365" y="153"/>
+			<nail x="365" y="170"/>
+		</transition>
+		<transition>
+			<source ref="id96"/>
+			<target ref="id96"/>
+			<label kind="synchronisation" x="199" y="183">sleep!</label>
+			<nail x="199" y="200"/>
+			<nail x="216" y="217"/>
+			<nail x="233" y="217"/>
+		</transition>
+		<transition>
+			<source ref="id95"/>
+			<target ref="id94"/>
+			<label kind="select" x="416" y="297">i: int[0,MAX_TASKS_NUM-1]</label>
+			<label kind="guard" x="416" y="314">i&lt;data.numOfTasks &amp;&amp; i != j</label>
+			<label kind="synchronisation" x="416" y="331">preempt[i]?</label>
+			<nail x="399" y="331"/>
+			<nail x="586" y="331"/>
+		</transition>
+		<transition>
+			<source ref="id95"/>
+			<target ref="id96"/>
+			<label kind="synchronisation" x="348" y="272">preempt[j]?</label>
+			<nail x="297" y="306"/>
+			<nail x="357" y="272"/>
+		</transition>
+		<transition>
+			<source ref="id96"/>
+			<target ref="id95"/>
+			<label kind="select" x="68" y="263">i: int[0, MAX_TASKS_NUM-1]</label>
+			<label kind="guard" x="119" y="280">i&lt;data.numOfTasks</label>
+			<label kind="synchronisation" x="204" y="297">exec[i]?</label>
+			<label kind="assignment" x="229" y="314">j = i</label>
+		</transition>
+		<transition>
+			<source ref="id97"/>
+			<target ref="id98"/>
+			<label kind="assignment" x="399" y="-70">j=j+1</label>
+		</transition>
+		<transition>
+			<source ref="id99"/>
+			<target ref="id97"/>
+			<label kind="select" x="533" y="-47">_id: int [0, MAX_TASKS_NUM]</label>
+			<label kind="guard" x="538" y="-32">check_id(_id)</label>
+			<label kind="assignment" x="540" y="-14">id[j]=_id</label>
+			<nail x="773" y="-49"/>
+		</transition>
+		<transition>
+			<source ref="id100"/>
+			<target ref="id99"/>
+			<label kind="select" x="530" y="-118">_prio: int [0, MAX_TASKS_NUM]</label>
+			<label kind="guard" x="556" y="-101">check_prio(_prio)</label>
+			<label kind="assignment" x="547" y="-84">prio[j] = _prio</label>
+		</transition>
+		<transition>
+			<source ref="id98"/>
+			<target ref="id100"/>
+			<label kind="guard" x="352" y="-118">j &lt; data.numOfTasks</label>
+		</transition>
+		<transition>
+			<source ref="id101"/>
+			<target ref="id98"/>
+			<label kind="select" x="122" y="-118">n : int [1, MAX_TASKS_NUM]</label>
+			<label kind="assignment" x="131" y="-101">data.numOfTasks = n</label>
+		</transition>
+	</template>
+	<template>
+		<name>R_3</name>
+		<parameter>LocalSchedulerData &amp;data, int &amp;abs_deadline[MAX_TASKS_NUM],  int &amp;is_ready[MAX_TASKS_NUM], int &amp;prio[MAX_TASKS_NUM], int &amp;id[MAX_TASKS_NUM], chan &amp;wakeup,  chan&amp;sleep, chan&amp;ready,  chan&amp;finished,  chan&amp;exec[MAX_TASKS_NUM],  chan&amp;preempt[MAX_TASKS_NUM]</parameter>
+		<declaration>// Для любого раздела верно, что планировщик этого раздела может поставить на выполнение только готовую работу этого раздела.
+int j;
+
+bool check_prio(int p)
+{
+    for (j: int[0,MAX_TASKS_NUM-1]) {
+        if (j == data.numOfTasks) {
+            return true;
+        }
+        if (prio[j]==p) {
+            return false;
+        }
+    }
+    return true;
+}
+
+bool check_id(int i)
+{
+    for (j: int[0,MAX_TASKS_NUM-1]) {
+        if (j == data.numOfTasks) {
+            return true;
+        }
+        if (id[j]==i) {
+            return false;
+        }
+    }
+    return true;
+}
+
+
+bool has_ready_job()
+{
+    for (j: int[0,MAX_TASKS_NUM-1]) {
+        if (j == data.numOfTasks) {
+            return false;
+        }
+        if (is_ready[j]==1) {
+            return true;
+        }
+    }
+    return false;
+}</declaration>
+		<location id="id102" x="34" y="212">
+			<name x="8" y="229">ERROR</name>
+			<committed/>
+		</location>
+		<location id="id103" x="263" y="357">
+			<name x="212" y="374">Work</name>
+		</location>
+		<location id="id104" x="418" y="87">
+			<committed/>
+		</location>
+		<location id="id105" x="238" y="37">
+			<name x="228" y="3">Init1</name>
+			<committed/>
+		</location>
+		<location id="id106" x="676" y="40">
+			<name x="666" y="6">Init3</name>
+			<committed/>
+		</location>
+		<location id="id107" x="416" y="37">
+			<name x="406" y="3">Init2</name>
+			<committed/>
+		</location>
+		<location id="id108" x="8" y="37">
+			<name x="-2" y="3">Init0</name>
+			<committed/>
+		</location>
+		<init ref="id108"/>
+		<transition>
+			<source ref="id103"/>
+			<target ref="id103"/>
+			<label kind="select" x="263" y="408">i:int[0,MAX_TASKS_NUM-1],
+_id:int[0, MAX_TASKS_NUM-1]</label>
+			<label kind="guard" x="263" y="442">i&lt;data.numOfTasks
+&amp;&amp; check_id(_id)</label>
+			<label kind="assignment" x="263" y="476">id[i] = _id</label>
+			<nail x="263" y="399"/>
+			<nail x="263" y="450"/>
+			<nail x="238" y="433"/>
+		</transition>
+		<transition>
+			<source ref="id103"/>
+			<target ref="id103"/>
+			<label kind="select" x="442" y="314">i:int[0,MAX_TASKS_NUM-1],
+_prio: int [0, MAX_TASKS_NUM]</label>
+			<label kind="guard" x="442" y="348">i&lt;data.numOfTasks
+&amp;&amp;check_prio(_prio)</label>
+			<label kind="assignment" x="442" y="382">prio[i] = _prio</label>
+			<nail x="433" y="323"/>
+			<nail x="433" y="391"/>
+			<nail x="357" y="357"/>
+		</transition>
+		<transition>
+			<source ref="id105"/>
+			<target ref="id103"/>
+			<label kind="guard" x="89" y="70">j==data.numOfTasks</label>
+		</transition>
+		<transition>
+			<source ref="id103"/>
+			<target ref="id103"/>
+			<label kind="select" x="-17" y="357">i:int[0,MAX_TASKS_NUM-1],
+d:int[0,MAX_DEADLINE]</label>
+			<label kind="guard" x="0" y="391">i&lt;data.numOfTasks</label>
+			<label kind="assignment" x="25" y="408">abs_deadline[i]=d</label>
+			<nail x="178" y="365"/>
+			<nail x="178" y="416"/>
+			<nail x="212" y="374"/>
+		</transition>
+		<transition>
+			<source ref="id103"/>
+			<target ref="id102"/>
+			<label kind="select" x="42" y="153">i: int[0, MAX_TASKS_NUM-1]</label>
+			<label kind="guard" x="51" y="170">i &lt; data.numOfTasks &amp;&amp;
+is_ready[i]!=1</label>
+			<label kind="synchronisation" x="76" y="204">exec[i]?</label>
+			<nail x="229" y="272"/>
+		</transition>
+		<transition>
+			<source ref="id103"/>
+			<target ref="id103"/>
+			<label kind="select" x="544" y="144">i: int[0, MAX_TASKS_NUM-1]</label>
+			<label kind="guard" x="544" y="161">i&lt;data.numOfTasks &amp;&amp;
+is_ready[i]==1</label>
+			<label kind="synchronisation" x="544" y="195">exec[i]?</label>
+			<nail x="484" y="170"/>
+			<nail x="535" y="144"/>
+			<nail x="535" y="221"/>
+			<nail x="484" y="195"/>
+		</transition>
+		<transition>
+			<source ref="id103"/>
+			<target ref="id103"/>
+			<label kind="select" x="289" y="144">i: int[0, MAX_TASKS_NUM-1]</label>
+			<label kind="guard" x="289" y="161">i&lt;data.numOfTasks</label>
+			<label kind="synchronisation" x="289" y="178">preempt[i]?</label>
+			<nail x="263" y="136"/>
+			<nail x="289" y="136"/>
+			<nail x="280" y="195"/>
+		</transition>
+		<transition>
+			<source ref="id103"/>
+			<target ref="id103"/>
+			<label kind="guard" x="77" y="314">has_ready_job()</label>
+			<label kind="synchronisation" x="136" y="331">ready!</label>
+			<nail x="187" y="314"/>
+			<nail x="187" y="339"/>
+		</transition>
+		<transition>
+			<source ref="id103"/>
+			<target ref="id103"/>
+			<label kind="select" x="484" y="229">i: int[0,MAX_TASKS_NUM-1],
+f: int[0,1]</label>
+			<label kind="guard" x="484" y="263">i&lt;data.numOfTasks</label>
+			<label kind="assignment" x="484" y="280">is_ready[i]=f</label>
+			<nail x="340" y="306"/>
+			<nail x="476" y="229"/>
+			<nail x="476" y="289"/>
+		</transition>
+		<transition>
+			<source ref="id103"/>
+			<target ref="id103"/>
+			<label kind="synchronisation" x="289" y="204">finished!</label>
+			<nail x="289" y="221"/>
+			<nail x="306" y="221"/>
+		</transition>
+		<transition>
+			<source ref="id103"/>
+			<target ref="id103"/>
+			<label kind="synchronisation" x="298" y="246">wakeup!</label>
+			<nail x="306" y="263"/>
+			<nail x="323" y="263"/>
+		</transition>
+		<transition>
+			<source ref="id103"/>
+			<target ref="id103"/>
+			<label kind="synchronisation" x="178" y="280">sleep!</label>
+			<nail x="195" y="297"/>
+			<nail x="221" y="297"/>
+		</transition>
+		<transition>
+			<source ref="id104"/>
+			<target ref="id105"/>
+			<label kind="assignment" x="302" y="68">j=j+1</label>
+		</transition>
+		<transition>
+			<source ref="id106"/>
+			<target ref="id104"/>
+			<label kind="select" x="436" y="91">_id: int [0, MAX_TASKS_NUM]</label>
+			<label kind="guard" x="441" y="106">check_id(_id)</label>
+			<label kind="assignment" x="443" y="124">id[j]=_id</label>
+			<nail x="676" y="89"/>
+		</transition>
+		<transition>
+			<source ref="id107"/>
+			<target ref="id106"/>
+			<label kind="select" x="433" y="20">_prio: int [0, MAX_TASKS_NUM]</label>
+			<label kind="guard" x="459" y="37">check_prio(_prio)</label>
+			<label kind="assignment" x="450" y="54">prio[j] = _prio</label>
+		</transition>
+		<transition>
+			<source ref="id105"/>
+			<target ref="id107"/>
+			<label kind="guard" x="255" y="20">j &lt; data.numOfTasks</label>
+		</transition>
+		<transition>
+			<source ref="id108"/>
+			<target ref="id105"/>
+			<label kind="select" x="25" y="20">n : int [1, MAX_TASKS_NUM]</label>
+			<label kind="assignment" x="34" y="37">data.numOfTasks = n</label>
+		</transition>
+	</template>
+	<template>
+		<name>EDF1</name>
+		<parameter>LocalSchedulerData &amp;data, int &amp;abs_deadline[MAX_TASKS_NUM],  int &amp;is_ready[MAX_TASKS_NUM], int &amp;prio[MAX_TASKS_NUM], int &amp;id[MAX_TASKS_NUM], chan &amp;wakeup,  chan&amp;sleep, chan&amp;ready,  chan&amp;finished,  chan&amp;exec[MAX_TASKS_NUM],  chan&amp;preempt[MAX_TASKS_NUM]</parameter>
+		<declaration>// Для любого раздела верно, что если выполнением работ этого раздела управляет планировщик с фиксированными приоритетами и вытеснением, то для постановки на выполнение всегда выбирается работа с максимальным среди всех готовых работ приоритетом
+int j;
+
+bool check_prio(int p)
+{
+    for (j: int[0,MAX_TASKS_NUM-1]) {
+        if (j == data.numOfTasks) {
+            return true;
+        }
+        if (prio[j]==p) {
+            return false;
+        }
+    }
+    return true;
+}
+
+bool check_id(int i)
+{
+    for (j: int[0,MAX_TASKS_NUM-1]) {
+        if (j == data.numOfTasks) {
+            return true;
+        }
+        if (id[j]==i) {
+            return false;
+        }
+    }
+    return true;
+}
+
+
+bool has_ready_job()
+{
+    for (j: int[0,MAX_TASKS_NUM-1]) {
+        if (j == data.numOfTasks) {
+            return false;
+        }
+        if (is_ready[j]==1) {
+            return true;
+        }
+    }
+    return false;
+}</declaration>
+		<location id="id109" x="25" y="272">
+			<name x="-1" y="289">ERROR</name>
+			<committed/>
+		</location>
+		<location id="id110" x="263" y="357">
+			<name x="204" y="357">Work</name>
+		</location>
+		<location id="id111" x="412" y="81">
+			<committed/>
+		</location>
+		<location id="id112" x="232" y="31">
+			<name x="222" y="-3">Init1</name>
+			<committed/>
+		</location>
+		<location id="id113" x="670" y="34">
+			<name x="660" y="0">Init3</name>
+			<committed/>
+		</location>
+		<location id="id114" x="410" y="31">
+			<name x="400" y="-3">Init2</name>
+			<committed/>
+		</location>
+		<location id="id115" x="2" y="31">
+			<name x="-8" y="-3">Init0</name>
+			<committed/>
+		</location>
+		<init ref="id115"/>
+		<transition>
+			<source ref="id110"/>
+			<target ref="id110"/>
+			<label kind="select" x="552" y="306">i:int[0,MAX_TASKS_NUM-1],
+_id:int[0, MAX_TASKS_NUM-1]</label>
+			<label kind="guard" x="552" y="340">i&lt;data.numOfTasks
+&amp;&amp; check_id(_id)</label>
+			<label kind="assignment" x="552" y="374">id[i] = _id</label>
+			<nail x="476" y="348"/>
+			<nail x="544" y="306"/>
+			<nail x="544" y="391"/>
+			<nail x="476" y="357"/>
+		</transition>
+		<transition>
+			<source ref="id110"/>
+			<target ref="id110"/>
+			<label kind="select" x="297" y="374">i:int[0,MAX_TASKS_NUM-1],
+_prio: int [0, MAX_TASKS_NUM]</label>
+			<label kind="guard" x="297" y="408">i&lt;data.numOfTasks
+&amp;&amp;check_prio(_prio)</label>
+			<label kind="assignment" x="297" y="442">prio[i] = _prio</label>
+			<nail x="289" y="391"/>
+			<nail x="289" y="433"/>
+		</transition>
+		<transition>
+			<source ref="id112"/>
+			<target ref="id110"/>
+			<label kind="guard" x="267" y="115">j==data.numOfTasks</label>
+			<nail x="289" y="210"/>
+		</transition>
+		<transition>
+			<source ref="id110"/>
+			<target ref="id110"/>
+			<label kind="select" x="25" y="382">i:int[0,MAX_TASKS_NUM-1],
+d:int[0,MAX_DEADLINE]</label>
+			<label kind="guard" x="68" y="416">i&lt;data.numOfTasks</label>
+			<label kind="assignment" x="68" y="433">abs_deadline[i]=d</label>
+			<nail x="212" y="391"/>
+			<nail x="212" y="442"/>
+		</transition>
+		<transition>
+			<source ref="id110"/>
+			<target ref="id109"/>
+			<label kind="select" x="42" y="136">i: int[0, MAX_TASKS_NUM-1],
+h: int[0, MAX_TASKS_NUM-1]</label>
+			<label kind="guard" x="42" y="170">i&lt;data.numOfTasks &amp;&amp;
+j&lt;data.numOfTasks &amp;&amp;
+i != h &amp;&amp;
+is_ready[h] == 1&amp;&amp;
+abs_deadline[i] &gt; abs_deadline[h]</label>
+			<label kind="synchronisation" x="85" y="255">exec[i]?</label>
+			<nail x="229" y="272"/>
+		</transition>
+		<transition>
+			<source ref="id110"/>
+			<target ref="id110"/>
+			<label kind="select" x="552" y="187">i: int[0, MAX_TASKS_NUM-1]</label>
+			<label kind="guard" x="552" y="204">i&lt;data.numOfTasks</label>
+			<label kind="synchronisation" x="552" y="221">exec[i]?</label>
+			<nail x="331" y="238"/>
+			<nail x="544" y="187"/>
+			<nail x="544" y="246"/>
+			<nail x="340" y="246"/>
+		</transition>
+		<transition>
+			<source ref="id110"/>
+			<target ref="id110"/>
+			<label kind="select" x="322" y="170">i: int[0, MAX_TASKS_NUM-1]</label>
+			<label kind="guard" x="322" y="187">i&lt;data.numOfTasks</label>
+			<label kind="synchronisation" x="322" y="204">preempt[i]?</label>
+			<nail x="314" y="161"/>
+			<nail x="314" y="229"/>
+		</transition>
+		<transition>
+			<source ref="id110"/>
+			<target ref="id110"/>
+			<label kind="guard" x="93" y="323">has_ready_job()</label>
+			<label kind="synchronisation" x="161" y="340">ready!</label>
+			<nail x="204" y="324"/>
+			<nail x="204" y="340"/>
+		</transition>
+		<transition>
+			<source ref="id110"/>
+			<target ref="id110"/>
+			<label kind="select" x="408" y="255">i: int[0,MAX_TASKS_NUM-1],
+f: int[0,1]</label>
+			<label kind="guard" x="408" y="289">i&lt;data.numOfTasks</label>
+			<label kind="assignment" x="408" y="306">is_ready[i]=f</label>
+			<nail x="348" y="255"/>
+			<nail x="399" y="255"/>
+			<nail x="399" y="314"/>
+			<nail x="382" y="272"/>
+			<nail x="348" y="272"/>
+		</transition>
+		<transition>
+			<source ref="id110"/>
+			<target ref="id110"/>
+			<label kind="synchronisation" x="348" y="331">finished!</label>
+			<nail x="340" y="331"/>
+			<nail x="340" y="348"/>
+		</transition>
+		<transition>
+			<source ref="id110"/>
+			<target ref="id110"/>
+			<label kind="synchronisation" x="323" y="297">wakeup!</label>
+			<nail x="323" y="314"/>
+			<nail x="348" y="314"/>
+		</transition>
+		<transition>
+			<source ref="id110"/>
+			<target ref="id110"/>
+			<label kind="synchronisation" x="179" y="297">sleep!</label>
+			<nail x="221" y="314"/>
+			<nail x="230" y="305"/>
+		</transition>
+		<transition>
+			<source ref="id111"/>
+			<target ref="id112"/>
+			<label kind="assignment" x="296" y="62">j=j+1</label>
+		</transition>
+		<transition>
+			<source ref="id113"/>
+			<target ref="id111"/>
+			<label kind="select" x="430" y="85">_id: int [1, MAX_TASKS_NUM]</label>
+			<label kind="guard" x="435" y="100">check_id(_id)</label>
+			<label kind="assignment" x="437" y="118">id[j]=_id</label>
+			<nail x="670" y="83"/>
+		</transition>
+		<transition>
+			<source ref="id114"/>
+			<target ref="id113"/>
+			<label kind="select" x="427" y="14">_prio: int [1, MAX_TASKS_NUM]</label>
+			<label kind="guard" x="453" y="31">check_prio(_prio)</label>
+			<label kind="assignment" x="444" y="48">prio[j] = _prio</label>
+		</transition>
+		<transition>
+			<source ref="id112"/>
+			<target ref="id114"/>
+			<label kind="guard" x="249" y="14">j &lt; data.numOfTasks</label>
+		</transition>
+		<transition>
+			<source ref="id115"/>
+			<target ref="id112"/>
+			<label kind="select" x="19" y="14">n : int [1, MAX_TASKS_NUM]</label>
+			<label kind="assignment" x="28" y="31">data.numOfTasks = n</label>
+		</transition>
+	</template>
+	<template>
+		<name>EDF1_1</name>
+		<parameter>LocalSchedulerData &amp;data, int &amp;abs_deadline[MAX_TASKS_NUM],  int &amp;is_ready[MAX_TASKS_NUM], int &amp;prio[MAX_TASKS_NUM], int &amp;id[MAX_TASKS_NUM], chan &amp;wakeup,  chan&amp;sleep, chan&amp;ready,  chan&amp;finished,  chan&amp;exec[MAX_TASKS_NUM],  chan&amp;preempt[MAX_TASKS_NUM]</parameter>
+		<declaration>int j;
+
+bool check_prio(int p)
+{
+    for (j: int[0,MAX_TASKS_NUM-1]) {
+        if (j == data.numOfTasks) {
+            return true;
+        }
+        if (prio[j]==p) {
+            return false;
+        }
+    }
+    return true;
+}
+
+bool check_id(int i)
+{
+    for (j: int[0,MAX_TASKS_NUM-1]) {
+        if (j == data.numOfTasks) {
+            return true;
+        }
+        if (id[j]==i) {
+            return false;
+        }
+    }
+    return true;
+}
+
+
+bool has_ready_job()
+{
+    for (j: int[0,MAX_TASKS_NUM-1]) {
+        if (j == data.numOfTasks) {
+            return false;
+        }
+        if (is_ready[j]==1) {
+            return true;
+        }
+    }
+    return false;
+}</declaration>
+		<location id="id116" x="25" y="272">
+			<name x="-1" y="289">ERROR</name>
+			<committed/>
+		</location>
+		<location id="id117" x="263" y="357">
+			<name x="204" y="357">Work</name>
+		</location>
+		<location id="id118" x="412" y="81">
+			<committed/>
+		</location>
+		<location id="id119" x="232" y="31">
+			<name x="222" y="-3">Init1</name>
+			<committed/>
+		</location>
+		<location id="id120" x="670" y="34">
+			<name x="660" y="0">Init3</name>
+			<committed/>
+		</location>
+		<location id="id121" x="410" y="31">
+			<name x="400" y="-3">Init2</name>
+			<committed/>
+		</location>
+		<location id="id122" x="2" y="31">
+			<name x="-8" y="-3">Init0</name>
+			<committed/>
+		</location>
+		<init ref="id122"/>
+		<transition>
+			<source ref="id117"/>
+			<target ref="id117"/>
+			<label kind="select" x="552" y="306">i:int[0,MAX_TASKS_NUM-1],
+_id:int[0, MAX_TASKS_NUM-1]</label>
+			<label kind="guard" x="552" y="340">i&lt;data.numOfTasks
+&amp;&amp; check_id(_id)</label>
+			<label kind="assignment" x="552" y="374">id[i] = _id</label>
+			<nail x="476" y="348"/>
+			<nail x="544" y="306"/>
+			<nail x="544" y="391"/>
+			<nail x="476" y="357"/>
+		</transition>
+		<transition>
+			<source ref="id117"/>
+			<target ref="id117"/>
+			<label kind="select" x="297" y="374">i:int[0,MAX_TASKS_NUM-1],
+_prio: int [0, MAX_TASKS_NUM]</label>
+			<label kind="guard" x="297" y="408">i&lt;data.numOfTasks
+&amp;&amp;check_prio(_prio)</label>
+			<label kind="assignment" x="297" y="442">prio[i] = _prio</label>
+			<nail x="289" y="391"/>
+			<nail x="289" y="433"/>
+		</transition>
+		<transition>
+			<source ref="id119"/>
+			<target ref="id117"/>
+			<label kind="guard" x="267" y="115">j==data.numOfTasks</label>
+			<nail x="289" y="210"/>
+		</transition>
+		<transition>
+			<source ref="id117"/>
+			<target ref="id117"/>
+			<label kind="select" x="25" y="382">i:int[0,MAX_TASKS_NUM-1],
+d:int[0,MAX_DEADLINE]</label>
+			<label kind="guard" x="68" y="416">i&lt;data.numOfTasks</label>
+			<label kind="assignment" x="68" y="433">abs_deadline[i]=d</label>
+			<nail x="212" y="391"/>
+			<nail x="212" y="442"/>
+		</transition>
+		<transition>
+			<source ref="id117"/>
+			<target ref="id116"/>
+			<label kind="select" x="34" y="119">i: int[0, MAX_TASKS_NUM-1],
+h: int[0, MAX_TASKS_NUM-1]</label>
+			<label kind="guard" x="34" y="153">i&lt;data.numOfTasks &amp;&amp;
+j&lt;data.numOfTasks &amp;&amp;
+i != h &amp;&amp;
+is_ready[h] == 1&amp;&amp;
+abs_deadline[i] == abs_deadline[h]
+&amp;&amp;id[i] &gt; id[h]</label>
+			<label kind="synchronisation" x="68" y="255">exec[i]?</label>
+			<nail x="229" y="272"/>
+		</transition>
+		<transition>
+			<source ref="id117"/>
+			<target ref="id117"/>
+			<label kind="select" x="552" y="187">i: int[0, MAX_TASKS_NUM-1]</label>
+			<label kind="guard" x="552" y="204">i&lt;data.numOfTasks</label>
+			<label kind="synchronisation" x="552" y="221">exec[i]?</label>
+			<nail x="331" y="238"/>
+			<nail x="544" y="187"/>
+			<nail x="544" y="246"/>
+			<nail x="340" y="246"/>
+		</transition>
+		<transition>
+			<source ref="id117"/>
+			<target ref="id117"/>
+			<label kind="select" x="322" y="170">i: int[0, MAX_TASKS_NUM-1]</label>
+			<label kind="guard" x="322" y="187">i&lt;data.numOfTasks</label>
+			<label kind="synchronisation" x="322" y="204">preempt[i]?</label>
+			<nail x="314" y="161"/>
+			<nail x="314" y="229"/>
+		</transition>
+		<transition>
+			<source ref="id117"/>
+			<target ref="id117"/>
+			<label kind="guard" x="93" y="323">has_ready_job()</label>
+			<label kind="synchronisation" x="161" y="340">ready!</label>
+			<nail x="204" y="324"/>
+			<nail x="204" y="340"/>
+		</transition>
+		<transition>
+			<source ref="id117"/>
+			<target ref="id117"/>
+			<label kind="select" x="408" y="255">i: int[0,MAX_TASKS_NUM-1],
+f: int[0,1]</label>
+			<label kind="guard" x="408" y="289">i&lt;data.numOfTasks</label>
+			<label kind="assignment" x="408" y="306">is_ready[i]=f</label>
+			<nail x="348" y="255"/>
+			<nail x="399" y="255"/>
+			<nail x="399" y="314"/>
+			<nail x="382" y="272"/>
+			<nail x="348" y="272"/>
+		</transition>
+		<transition>
+			<source ref="id117"/>
+			<target ref="id117"/>
+			<label kind="synchronisation" x="348" y="331">finished!</label>
+			<nail x="340" y="331"/>
+			<nail x="340" y="348"/>
+		</transition>
+		<transition>
+			<source ref="id117"/>
+			<target ref="id117"/>
+			<label kind="synchronisation" x="323" y="297">wakeup!</label>
+			<nail x="323" y="314"/>
+			<nail x="348" y="314"/>
+		</transition>
+		<transition>
+			<source ref="id117"/>
+			<target ref="id117"/>
+			<label kind="synchronisation" x="179" y="297">sleep!</label>
+			<nail x="221" y="314"/>
+			<nail x="230" y="305"/>
+		</transition>
+		<transition>
+			<source ref="id118"/>
+			<target ref="id119"/>
+			<label kind="assignment" x="296" y="62">j=j+1</label>
+		</transition>
+		<transition>
+			<source ref="id120"/>
+			<target ref="id118"/>
+			<label kind="select" x="430" y="85">_id: int [1, MAX_TASKS_NUM]</label>
+			<label kind="guard" x="435" y="100">check_id(_id)</label>
+			<label kind="assignment" x="437" y="118">id[j]=_id</label>
+			<nail x="670" y="83"/>
+		</transition>
+		<transition>
+			<source ref="id121"/>
+			<target ref="id120"/>
+			<label kind="select" x="427" y="14">_prio: int [1, MAX_TASKS_NUM]</label>
+			<label kind="guard" x="453" y="31">check_prio(_prio)</label>
+			<label kind="assignment" x="444" y="48">prio[j] = _prio</label>
+		</transition>
+		<transition>
+			<source ref="id119"/>
+			<target ref="id121"/>
+			<label kind="guard" x="249" y="14">j &lt; data.numOfTasks</label>
+		</transition>
+		<transition>
+			<source ref="id122"/>
+			<target ref="id119"/>
+			<label kind="select" x="19" y="14">n : int [1, MAX_TASKS_NUM]</label>
+			<label kind="assignment" x="28" y="31">data.numOfTasks = n</label>
+		</transition>
+	</template>
+	<template>
+		<name>EDF2</name>
+		<parameter>LocalSchedulerData &amp;data, int &amp;abs_deadline[MAX_TASKS_NUM],  int &amp;is_ready[MAX_TASKS_NUM], int &amp;prio[MAX_TASKS_NUM], int &amp;id[MAX_TASKS_NUM], chan &amp;wakeup,  chan&amp;sleep, chan&amp;ready,  chan&amp;finished,  chan&amp;exec[MAX_TASKS_NUM],  chan&amp;preempt[MAX_TASKS_NUM]</parameter>
+		<declaration>// Для любого раздела верно, что если выполнением работ этого раздела управляет планировщик с фиксированными приоритетами и вытеснением, 
+// то при появлении новой готовой работы с максимальным среди всех готовых работ приоритетом, эта работа мгновенно ставится на выполнение 
+// при условии того, что окно этого раздела открыто
+
+int part_active;
+clock c;
+int j;
+
+bool check_prio(int p)
+{
+    for (j: int[0,MAX_TASKS_NUM-1]) {
+        if (j == data.numOfTasks) {
+            return true;
+        }
+        if (prio[j]==p) {
+            return false;
+        }
+    }
+    return true;
+}
+
+bool check_id(int i)
+{
+    for (j: int[0,MAX_TASKS_NUM-1]) {
+        if (j == data.numOfTasks) {
+            return true;
+        }
+        if (id[j]==i) {
+            return false;
+        }
+    }
+    return true;
+}
+
+int get_job()
+{
+	meta int res = -1;
+	for (i : int[0,MAX_TASKS_NUM]) {
+        if (is_ready[i]) {
+            if (res == -1 || (abs_deadline[i]&lt;abs_deadline[res]))
+                res = i;
+        }
+        if (i == data.numOfTasks-1)
+            return res;
+    }
+
+    if (res == -1)
+        return res;
+
+    for (i : int[0,MAX_TASKS_NUM]) {
+        if (is_ready[i]) {
+            if ((abs_deadline[i]==abs_deadline[res]) &amp;&amp; (id[i]&lt;id[res]))
+                res = i;
+        }
+        if (i == data.numOfTasks-1)
+            return res;
+    }    
+
+	return res;
+}
+
+bool has_ready_job()
+{
+    for (j: int[0,MAX_TASKS_NUM-1]) {
+        if (j == data.numOfTasks) {
+            return false;
+        }
+        if (is_ready[j]==1) {
+            return true;
+        }
+    }
+    return false;
+}
+
+</declaration>
+		<location id="id123" x="263" y="637">
+			<name x="272" y="646">L1</name>
+		</location>
+		<location id="id124" x="263" y="578">
+			<name x="280" y="569">L0</name>
+			<committed/>
+		</location>
+		<location id="id125" x="544" y="637">
+			<name x="518" y="654">ERROR</name>
+			<committed/>
+		</location>
+		<location id="id126" x="263" y="357">
+			<name x="221" y="365">Work</name>
+		</location>
+		<location id="id127" x="458" y="77">
+			<committed/>
+		</location>
+		<location id="id128" x="278" y="27">
+			<name x="268" y="-7">Init1</name>
+			<committed/>
+		</location>
+		<location id="id129" x="716" y="30">
+			<name x="706" y="-4">Init3</name>
+			<committed/>
+		</location>
+		<location id="id130" x="456" y="27">
+			<name x="446" y="-7">Init2</name>
+			<committed/>
+		</location>
+		<location id="id131" x="48" y="27">
+			<name x="38" y="-7">Init0</name>
+			<committed/>
+		</location>
+		<init ref="id131"/>
+		<transition>
+			<source ref="id126"/>
+			<target ref="id126"/>
+			<label kind="select" x="25" y="76">i:int[0,MAX_TASKS_NUM-1],
+_id:int[0, MAX_TASKS_NUM-1]</label>
+			<label kind="guard" x="85" y="110">i&lt;data.numOfTasks
+&amp;&amp; check_id(_id)</label>
+			<label kind="assignment" x="153" y="144">id[i] = _id</label>
+			<nail x="229" y="170"/>
+			<nail x="229" y="76"/>
+		</transition>
+		<transition>
+			<source ref="id126"/>
+			<target ref="id126"/>
+			<label kind="select" x="561" y="119">i:int[0,MAX_TASKS_NUM-1],
+_prio: int [0, MAX_TASKS_NUM]</label>
+			<label kind="guard" x="561" y="153">i&lt;data.numOfTasks
+&amp;&amp;check_prio(_prio)</label>
+			<label kind="assignment" x="561" y="187">prio[i] = _prio</label>
+			<nail x="458" y="178"/>
+			<nail x="535" y="144"/>
+			<nail x="552" y="127"/>
+			<nail x="552" y="204"/>
+			<nail x="433" y="212"/>
+		</transition>
+		<transition>
+			<source ref="id128"/>
+			<target ref="id126"/>
+			<label kind="guard" x="281" y="94">j==data.numOfTasks</label>
+		</transition>
+		<transition>
+			<source ref="id126"/>
+			<target ref="id126"/>
+			<label kind="select" x="501" y="212">i:int[0,MAX_TASKS_NUM-1],
+d:int[0,MAX_DEADLINE]</label>
+			<label kind="guard" x="501" y="246">i&lt;data.numOfTasks</label>
+			<label kind="assignment" x="501" y="263">abs_deadline[i]=d</label>
+			<nail x="399" y="289"/>
+			<nail x="493" y="212"/>
+			<nail x="493" y="280"/>
+			<nail x="374" y="314"/>
+		</transition>
+		<transition>
+			<source ref="id123"/>
+			<target ref="id123"/>
+			<label kind="synchronisation" x="161" y="586">finished?</label>
+			<nail x="221" y="578"/>
+			<nail x="221" y="612"/>
+		</transition>
+		<transition>
+			<source ref="id123"/>
+			<target ref="id123"/>
+			<label kind="select" x="366" y="561">i: int[0, MAX_TASKS_NUM-1]</label>
+			<label kind="guard" x="366" y="578">i&lt;data.numOfTasks</label>
+			<label kind="synchronisation" x="366" y="595">preempt[i]?</label>
+			<label kind="assignment" x="366" y="612">j=-1</label>
+			<nail x="357" y="595"/>
+			<nail x="357" y="612"/>
+		</transition>
+		<transition>
+			<source ref="id123"/>
+			<target ref="id123"/>
+			<label kind="synchronisation" x="127" y="620">ready!</label>
+			<nail x="170" y="620"/>
+			<nail x="170" y="637"/>
+		</transition>
+		<transition>
+			<source ref="id123"/>
+			<target ref="id123"/>
+			<label kind="synchronisation" x="161" y="544">wakeup!</label>
+			<nail x="221" y="544"/>
+			<nail x="221" y="561"/>
+		</transition>
+		<transition>
+			<source ref="id123"/>
+			<target ref="id125"/>
+			<label kind="guard" x="408" y="637">c&gt;0</label>
+		</transition>
+		<transition>
+			<source ref="id123"/>
+			<target ref="id126"/>
+			<label kind="synchronisation" x="501" y="408">sleep!</label>
+			<label kind="assignment" x="493" y="425">part_active=0</label>
+			<nail x="314" y="612"/>
+			<nail x="501" y="416"/>
+			<nail x="280" y="382"/>
+		</transition>
+		<transition>
+			<source ref="id123"/>
+			<target ref="id126"/>
+			<label kind="select" x="59" y="416">i: int[0,MAX_TASKS_NUM-1]</label>
+			<label kind="guard" x="110" y="433">i&lt;data.numOfTasks</label>
+			<label kind="synchronisation" x="195" y="450">exec[i]?</label>
+			<label kind="assignment" x="212" y="467">j=i</label>
+			<nail x="246" y="578"/>
+		</transition>
+		<transition>
+			<source ref="id124"/>
+			<target ref="id123"/>
+			<label kind="synchronisation" x="263" y="595">ready!</label>
+		</transition>
+		<transition>
+			<source ref="id126"/>
+			<target ref="id124"/>
+			<label kind="select" x="272" y="425">i: int[0,MAX_TASKS_NUM-1]</label>
+			<label kind="guard" x="272" y="442">i&lt;data.numOfTasks &amp;&amp;
+part_active &amp;&amp;
+i!=j &amp;&amp;
+i==get_job()</label>
+			<label kind="assignment" x="272" y="510">is_ready[i]=1,
+j=i,
+c=0</label>
+		</transition>
+		<transition>
+			<source ref="id126"/>
+			<target ref="id126"/>
+			<label kind="select" x="25" y="187">i: int[0, MAX_TASKS_NUM-1]</label>
+			<label kind="guard" x="76" y="204">i&lt;data.numOfTasks</label>
+			<label kind="synchronisation" x="161" y="221">exec[i]?</label>
+			<label kind="assignment" x="187" y="238">j=i</label>
+			<nail x="221" y="246"/>
+			<nail x="221" y="195"/>
+		</transition>
+		<transition>
+			<source ref="id126"/>
+			<target ref="id126"/>
+			<label kind="select" x="297" y="145">i: int[0, MAX_TASKS_NUM-1]</label>
+			<label kind="guard" x="297" y="162">i&lt;data.numOfTasks</label>
+			<label kind="synchronisation" x="297" y="179">preempt[i]?</label>
+			<label kind="assignment" x="297" y="196">j=-1</label>
+			<nail x="289" y="153"/>
+			<nail x="289" y="221"/>
+		</transition>
+		<transition>
+			<source ref="id126"/>
+			<target ref="id126"/>
+			<label kind="guard" x="60" y="254">has_ready_job()</label>
+			<label kind="synchronisation" x="119" y="271">ready!</label>
+			<nail x="170" y="263"/>
+			<nail x="170" y="280"/>
+		</transition>
+		<transition>
+			<source ref="id126"/>
+			<target ref="id126"/>
+			<label kind="select" x="510" y="289">i: int[0,MAX_TASKS_NUM-1],
+f: int[0,1]</label>
+			<label kind="guard" x="510" y="323">i&lt;data.numOfTasks</label>
+			<label kind="assignment" x="510" y="340">is_ready[i]=f</label>
+			<nail x="476" y="306"/>
+			<nail x="501" y="289"/>
+			<nail x="501" y="357"/>
+			<nail x="484" y="323"/>
+		</transition>
+		<transition>
+			<source ref="id126"/>
+			<target ref="id126"/>
+			<label kind="synchronisation" x="110" y="340">finished!</label>
+			<label kind="assignment" x="136" y="357">j=-1</label>
+			<nail x="170" y="340"/>
+			<nail x="170" y="365"/>
+		</transition>
+		<transition>
+			<source ref="id126"/>
+			<target ref="id126"/>
+			<label kind="synchronisation" x="365" y="348">wakeup!</label>
+			<label kind="assignment" x="365" y="365">part_active = 1</label>
+			<nail x="365" y="357"/>
+			<nail x="365" y="374"/>
+		</transition>
+		<transition>
+			<source ref="id126"/>
+			<target ref="id126"/>
+			<label kind="synchronisation" x="119" y="297">sleep!</label>
+			<label kind="assignment" x="68" y="314">part_active=0</label>
+			<nail x="221" y="331"/>
+			<nail x="170" y="297"/>
+			<nail x="170" y="323"/>
+		</transition>
+		<transition>
+			<source ref="id127"/>
+			<target ref="id128"/>
+			<label kind="assignment" x="342" y="58">j=j+1</label>
+		</transition>
+		<transition>
+			<source ref="id129"/>
+			<target ref="id127"/>
+			<label kind="select" x="476" y="81">_id: int [1, MAX_TASKS_NUM]</label>
+			<label kind="guard" x="481" y="96">check_id(_id)</label>
+			<label kind="assignment" x="483" y="114">id[j]=_id</label>
+			<nail x="716" y="79"/>
+		</transition>
+		<transition>
+			<source ref="id130"/>
+			<target ref="id129"/>
+			<label kind="select" x="473" y="10">_prio: int [1, MAX_TASKS_NUM]</label>
+			<label kind="guard" x="499" y="27">check_prio(_prio)</label>
+			<label kind="assignment" x="490" y="44">prio[j] = _prio</label>
+		</transition>
+		<transition>
+			<source ref="id128"/>
+			<target ref="id130"/>
+			<label kind="guard" x="295" y="10">j &lt; data.numOfTasks</label>
+		</transition>
+		<transition>
+			<source ref="id131"/>
+			<target ref="id128"/>
+			<label kind="select" x="65" y="10">n : int [1, MAX_TASKS_NUM]</label>
+			<label kind="assignment" x="74" y="27">data.numOfTasks = n</label>
+		</transition>
+	</template>
+	<system>// Place template instantiations here.
+LS = LocalScheduler(data, abs_deadline, is_ready, prio, id, wakeup, sleep, ready, finished, exec, preempt);
+
+r_1 = R_1(data, abs_deadline, is_ready, prio, id, wakeup, sleep, ready, finished, exec, preempt);
+r_1_1 = R_1_1(data, abs_deadline, is_ready, prio, id, wakeup, sleep, ready, finished, exec, preempt);
+r_2_1 = R_2_1(data, abs_deadline, is_ready, prio, id, wakeup, sleep, ready, finished, exec, preempt);
+r_2_2 = R_2_2(data, abs_deadline, is_ready, prio, id, wakeup, sleep, ready, finished, exec, preempt);
+r_3 = R_3(data, abs_deadline, is_ready, prio, id, wakeup, sleep, ready, finished, exec, preempt);
+r_4_1 = R_4_1(data, abs_deadline, is_ready, prio, id, wakeup, sleep, ready, finished, exec, preempt);
+r_4_2 = R_4_2(data, abs_deadline, is_ready, prio, id, wakeup, sleep, ready, finished, exec, preempt);
+r_4_3 = R_4_3(data, abs_deadline, is_ready, prio, id, wakeup, sleep, ready, finished, exec, preempt);
+r_4_4 = R_4_4(data, abs_deadline, is_ready, prio, id, wakeup, sleep, ready, finished, exec, preempt);
+r_4_5 = R_4_5(data, abs_deadline, is_ready, prio, id, wakeup, sleep, ready, finished, exec, preempt);
+r_5 = R_5(data, abs_deadline, is_ready, prio, id, wakeup, sleep, ready, finished, exec, preempt);
+r_8 = R_8(data, abs_deadline, is_ready, prio, id, wakeup, sleep, ready, finished, exec, preempt);
+edf1 = EDF1(data, abs_deadline, is_ready, prio, id, wakeup, sleep, ready, finished, exec, preempt);
+edf1_1 = EDF1_1(data, abs_deadline, is_ready, prio, id, wakeup, sleep, ready, finished, exec, preempt);
+edf2 = EDF2(data, abs_deadline, is_ready, prio, id, wakeup, sleep, ready, finished, exec, preempt);
+
+//system LS, r_1;
+//system LS, r_1_1;
+//system LS, r_2_1;
+//system LS, r_2_2;
+//system LS, r_3;
+//system LS, r_4_1;
+//system LS, r_4_2;
+//system LS, r_4_3;
+//system LS, r_4_4;
+//system LS, r_4_5;
+//system LS, r_5;
+//system LS, r_8;
+//system LS, edf1;
+//system LS, edf2;
+system LS, edf1_1;</system>
+	<queries>
+		<query>
+			<formula>E&lt;&gt; r_1.ERROR
+			</formula>
+			<comment>
+			</comment>
+		</query>
+		<query>
+			<formula>E&lt;&gt; r_1_1.ERROR
+			</formula>
+			<comment>
+			</comment>
+		</query>
+		<query>
+			<formula>E&lt;&gt; r_2_1.ERROR
+			</formula>
+			<comment>
+			</comment>
+		</query>
+		<query>
+			<formula>E&lt;&gt; r_2_2.ERROR
+			</formula>
+			<comment>
+			</comment>
+		</query>
+		<query>
+			<formula>E&lt;&gt; r_3.ERROR
+			</formula>
+			<comment>
+			</comment>
+		</query>
+		<query>
+			<formula>E&lt;&gt; r_4_1.ERROR
+			</formula>
+			<comment>
+			</comment>
+		</query>
+		<query>
+			<formula>E&lt;&gt; r_4_2.ERROR
+			</formula>
+			<comment>
+			</comment>
+		</query>
+		<query>
+			<formula>E&lt;&gt; r_4_3.ERROR
+			</formula>
+			<comment>
+			</comment>
+		</query>
+		<query>
+			<formula>E&lt;&gt; r_4_4.ERROR
+			</formula>
+			<comment>
+			</comment>
+		</query>
+		<query>
+			<formula>E&lt;&gt; r_4_5.ERROR
+			</formula>
+			<comment>
+			</comment>
+		</query>
+		<query>
+			<formula>E&lt;&gt; r_5.ERROR
+			</formula>
+			<comment>
+			</comment>
+		</query>
+		<query>
+			<formula>E&lt;&gt; r_8.ERROR
+			</formula>
+			<comment>
+			</comment>
+		</query>
+		<query>
+			<formula>E&lt;&gt;LS.Preempting
+			</formula>
+			<comment>
+			</comment>
+		</query>
+		<query>
+			<formula>E&lt;&gt; deadlock
+			</formula>
+			<comment>
+			</comment>
+		</query>
+		<query>
+			<formula>E&lt;&gt; r_8.ERROR
+			</formula>
+			<comment>
+			</comment>
+		</query>
+		<query>
+			<formula>E&lt;&gt; edf2.ERROR
+			</formula>
+			<comment>
+			</comment>
+		</query>
+		<query>
+			<formula>E&lt;&gt; edf1_1.ERROR</formula>
+			<comment></comment>
+		</query>
+		<query>
+			<formula>E&lt;&gt; edf1.ERROR
+			</formula>
+			<comment>
+			</comment>
+		</query>
+		<query>
+			<formula>t.E0 --&gt; t.E1 || t.E2 || t.Work || t.E0
+			</formula>
+			<comment>
+			</comment>
+		</query>
+	</queries>
+</nta>

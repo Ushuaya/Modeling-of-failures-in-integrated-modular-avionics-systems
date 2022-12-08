@@ -1,0 +1,2 @@
+/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ar qc libcore.a CMakeFiles/core.dir/location.o CMakeFiles/core.dir/transition.o CMakeFiles/core.dir/timer.o CMakeFiles/core.dir/var.o CMakeFiles/core.dir/automaton.o CMakeFiles/core.dir/network.o CMakeFiles/core.dir/channel.o
+/Applications/Xcode.app/Contents/Developer/Toolchains/XcodeDefault.xctoolchain/usr/bin/ranlib libcore.a

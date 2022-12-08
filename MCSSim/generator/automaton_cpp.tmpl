@@ -1,0 +1,104 @@
+\#include "${automaton.name}.h"
+
+using namespace std;
+
+namespace ${automaton.name} {
+
+${automaton.name}::${automaton.name}(string _name, Network *n, int p, bool __t#slurp
+#for p in $automaton.typedParams:
+, ${p[1]}* _${p[0]}#slurp
+#end for
+#for p in $automaton.arrayTypedParams:
+, vector <${p[1]}*> & _${p[0]}#slurp
+#end for
+#for p in $automaton.vars:
+, Var* _$p#slurp
+#end for
+#for p in $automaton.arrayVars:
+, vector <Var*> &_$p#slurp
+#end for
+#for p in $automaton.arrayArrayVars:
+, vector < vector <Var*> > &_$p#slurp
+#end for
+
+#for p in $automaton.chans:
+, Channel* _$p#slurp
+#end for
+#for p in $automaton.arrayChans:
+, vector <Channel*> &_$p#slurp
+#end for
+#for p in $automaton.timers:
+, Timer* _$p#slurp
+#end for
+#for p in $automaton.arrayTimers:
+, vector <Timer*> &_$p#slurp
+#end for
+
+): Automaton(n, _name, p, __t)#slurp
+#for p in $automaton.typedParams:
+, ${p[0]}(_${p[0]})#slurp
+#end for
+#for p in $automaton.arrayTypedParams:
+, ${p[0]}(_${p[0]})#slurp
+#end for
+#for p in $automaton.vars:
+, ${p}(_${p})#slurp
+#end for
+#for p in $automaton.arrayVars:
+, ${p}(_${p})#slurp
+#end for
+#for p in $automaton.arrayArrayVars:
+, ${p}(_${p})#slurp
+#end for
+#for p in $automaton.chans:
+, ${p}(_${p})#slurp
+#end for
+#for p in $automaton.arrayChans:
+, ${p}(_${p})#slurp
+#end for
+#for p in $automaton.timers:
+, ${p}(_${p})#slurp
+#end for
+#for p in $automaton.arrayTimers:
+, ${p}(_${p})#slurp
+#end for
+#for p in $automaton.localVars:
+, ${p}(n, "${automaton.name}_${p}")#slurp
+#end for
+#for p in $automaton.localClocks:
+, ${p}(n, "${automaton.name}_${p}")#slurp
+#end for
+
+
+
+{
+#for s in $automaton.states.values():
+	$s.name* ${s.name.lower()} = new $s.name (n, "$s.name", #if $s.id == $automaton.init then "true" else "false"#, $s.committed, this);
+	addLocation(${s.name.lower()});
+#end for
+
+#set $tnum = 0
+#silent $automaton.transitions.sort(key=lambda x: x.channel_prio)
+#for t in $automaton.transitions:
+	${automaton.states[$t.src].name}_${automaton.states[$t.dst].name}_$tnum *${automaton.states[$t.src].name.lower()}_${automaton.states[$t.dst].name.lower()}_$tnum = new ${automaton.states[$t.src].name}_${automaton.states[$t.dst].name}_$tnum (n, ${automaton.states[$t.dst].name.lower()}, this);
+	${automaton.states[$t.src].name.lower()}->addTransition(${automaton.states[$t.src].name.lower()}_${automaton.states[$t.dst].name.lower()}_$tnum);
+#set $tnum = $tnum + 1
+#end for
+
+	automaton = this;
+#for p in $automaton.localClocks:
+	automaton->timers.push_back(&${p});
+#end for
+
+#for p in $automaton.localArrayClocks.keys():
+	for (unsigned i=0; i< ${automaton.localArrayClocks[p]} ; i++) {
+		Timer* _t=new Timer(n, "${automaton.name}_${p}");
+		${p}.push_back(_t);
+		automaton->timers.push_back(_t);
+	}
+#end for
+
+}
+
+}
+
