@@ -11,17 +11,17 @@ import pickle
 
 # DEFINING SOME VARAIBLES TO MAKE MODELLING SYSTEM ABLE TO RUN 
 # ----------------------------------------------------------------------
-TASK_CRASHED_ID = 6
-MF_PERIOD = 120
+TASK_CRASHED_ID = 9
+MF_PERIOD = 150
 FIXATOR_TIME = 1
 
-GRAPH_INITIAL_APP = ig.Graph(n=12, edges=[[11, 9], [8, 6]])
+GRAPH_INITIAL_APP = ig.Graph(n=22, edges=[[11, 9], [2, 0]])
 GRAPH_INITIAL_APP.vs["duration"] = [random.randint(1,7) for _ in range(len(GRAPH_INITIAL_APP.vs))]
 
 # Partition numbers sequence must start from 0 
-MAP_PARTITION_TASK = {0: (0, 1, 2), 1: (3, 4, 5), 2: (6, 7, 8), 3: (9, 10, 11)}
-MAP_PARTITION_WINDOW = {0: (0, 20), 1: (20, 40), 2: (40, 60), 3: (60, 80)}
-# hense we can create:
+MAP_PARTITION_TASK = {0: (0, 1, 2), 1: (3, 4, 5), 2: (6, 7, 8, 9, 10, 11), 3: (12, 13, 14), 4: (15, 16, 17, 18, 19, 20, 21)}
+MAP_PARTITION_WINDOW = {0: (0, 20), 1: (20, 40), 2: (40, 80), 3: (80, 100), 4: (100, 150), }
+# hense we can create: 
 # ---
 MAP_WINDOW_PARTITION = dict((v,k) for k,v in MAP_PARTITION_WINDOW.items())
 MAP_WINDOWSTARTTIME_PARTITION = dict((v[0] ,k) for k,v in MAP_PARTITION_WINDOW.items())
@@ -192,9 +192,6 @@ def write_nvp_xml(graph_main_crash, MF_PERIOD, windows_nvp, second_main_app_grap
         #Map_partition_id["Reserve"] = len(Map_partition_id)
 
 
-
-
-
         # Writing file 
         Task_id_cout = 0 # Varaible to create unique numeric ids of tasks
         tmp_count = 0
@@ -241,9 +238,20 @@ def write_nvp_xml(graph_main_crash, MF_PERIOD, windows_nvp, second_main_app_grap
             #Window_elem("Main", [cur_time, win[1] - win[0] + cur_time])
             file.write("\t\t<window partition=\"{}\" start=\"{}\" stop=\"{}\"/>\n".format(Map_partition_id[windows_nvp[i].application], windows_nvp[i].time[0], windows_nvp[i].time[1]))
         file.write("\t</module>\n")
+
         for e in GRAPH_INITIAL_APP.es:
             # _res indicates, that message must be sent to or from the other version of the task
             file.write("\t<link delay=\"0\" dst=\"{}\" src=\"{}\"/>\n".format(e.tuple[0], e.tuple[1] ))
+
+        for e in graph_reserve_window.es:
+            # _res indicates, that message must be sent to or from the other version of the task
+            file.write("\t<link delay=\"0\" dst=\"{}\" src=\"{}\"/>\n".format(e.tuple[0] + len(GRAPH_INITIAL_APP.vs), e.tuple[1] + len(GRAPH_INITIAL_APP.vs)))
+
+        # for e in second_main_app_graph.es:
+        #     # _res indicates, that message must be sent to or from the other version of the task
+        #     file.write("\t<link delay=\"0\" dst=\"{}\" src=\"{}\"/>\n".format(e.tuple[0], e.tuple[1] ))
+
+
         file.write("</system>\n")
 
 
@@ -291,14 +299,13 @@ parsing.print_intervals()
 
 visioner1 = vision.VISUALISER()
 """Here you can specify name of output file."""
-visioner1.visualise(inter, [i[0] for i in WINDOWS], PICTURE_FILENAME_INITIAL_APP, MF_PERIOD)
+visioner1.visualise(inter, [i[0] for i in WINDOWS] + [WINDOWS[-1][1] + 1], PICTURE_FILENAME_INITIAL_APP, MF_PERIOD)
 # --------------------------------------------------------------------------------------------------------------
 
 
 # FINDING A SET OF TASKS IN WINDOW WITH ERROR OCCURED
 # --------------------------------------------------------------------------------------------------------------
 window_crashed, window_crash_task_set = Find_carsh_window_crash_set("./result.txt", TASK_CRASHED_ID, WINDOWS, )
-
 # --------------------------------------------------------------------------------------------------------------
 
 
@@ -398,12 +405,12 @@ os.system("cp ./MCSSim/generator/model_builder/result.txt .")
 parsing = parser_.INTERVAL()
 """Here specify input file."""
 inter2 = parsing.create_int("result.txt")
-parsing.print_intervals()
+#parsing.print_intervals()
 
 
 visioner2 = vision.VISUALISER()
 """Here you can specify name of output file."""
-visioner2.visualise(inter2, [i.time[0] for i in windows_nvp], PICTURE_FILENAME_NVP, MF_PERIOD)
+visioner2.visualise(inter2, [i.time[0] for i in windows_nvp] + [windows_nvp[-1].time[1] + 1], PICTURE_FILENAME_NVP, MF_PERIOD)
 
 create_double_visualization(PICTURE_FILENAME_INITIAL_APP, PICTURE_FILENAME_NVP, TASK_CRASHED_ID)
 

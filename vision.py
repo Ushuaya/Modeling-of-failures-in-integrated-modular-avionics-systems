@@ -40,6 +40,7 @@ class VISUALISER:
         for i in windws:
             begins.append(i)
             ends.append(i+0.5)
+
             
         df = pd.DataFrame({"begin": begins, "end" : ends})
         ax.broken_barh(list(zip(df["begin"].values, 
