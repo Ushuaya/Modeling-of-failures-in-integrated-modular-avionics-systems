@@ -11,23 +11,28 @@ import pickle
 
 # DEFINING SOME VARAIBLES TO MAKE MODELLING SYSTEM ABLE TO RUN 
 # ----------------------------------------------------------------------
-TASK_CRASHED_ID = 9
-MF_PERIOD = 150
+TASK_CRASHED_ID = 0
+MF_PERIOD = 100
 FIXATOR_TIME = 1
 
 GRAPH_INITIAL_APP = ig.Graph(n=22, edges=[[11, 9], [2, 0]])
-GRAPH_INITIAL_APP.vs["duration"] = [random.randint(1,7) for _ in range(len(GRAPH_INITIAL_APP.vs))]
+GRAPH_INITIAL_APP.vs["duration"] = [8, 8, 8] + [random.randint(1,7) for _ in range(len(GRAPH_INITIAL_APP.vs) - 3)]
 
 # Partition numbers sequence must start from 0 
-MAP_PARTITION_TASK = {0: (0, 1, 2), 1: (3, 4, 5), 2: (6, 7, 8, 9, 10, 11), 3: (12, 13, 14), 4: (15, 16, 17, 18, 19, 20, 21)}
-MAP_PARTITION_WINDOW = {0: (0, 20), 1: (20, 40), 2: (40, 80), 3: (80, 100), 4: (100, 150), }
+MAP_PARTITION_TASK = {0: (0, 1, 2), 1: (3, 4, 5), 2: (6, 7, 8, 9, 10, 11), }
+MAP_WINDOW_PARTITION = {(0, 20): 0, (20, 40): 1, (40, 80): 2, (80, 100): 0}
+#MAP_WINDOW_PARTITION = dict((v,k) for k,v in MAP_PARTITION_WINDOW.items())
+#MAP_PARTITION_WINDOW = {0: (0, 20), 1: (20, 40), 2: (40, 80), 0: (80, 100)}
+
+
+
 # hense we can create: 
 # ---
-MAP_WINDOW_PARTITION = dict((v,k) for k,v in MAP_PARTITION_WINDOW.items())
-MAP_WINDOWSTARTTIME_PARTITION = dict((v[0] ,k) for k,v in MAP_PARTITION_WINDOW.items())
+MAP_WINDOWSTARTTIME_PARTITION = dict((k[0] ,v) for k,v in MAP_WINDOW_PARTITION.items())
+
 # ---
 
-WINDOWS = [MAP_PARTITION_WINDOW[i] for i in MAP_PARTITION_WINDOW]
+WINDOWS = [i for i in MAP_WINDOW_PARTITION]
 PICTURE_FILENAME_INITIAL_APP = "initial_app"
 PICTURE_FILENAME_NVP = "nvp_fault"
 # ----------------------------------------------------------------------
@@ -77,7 +82,7 @@ def create_double_visualization(filename1, filename2, task_crasshed_id):
     with open("num_test.pkl", "wb") as file:
         pickle.dump(next_test, file)
     
-def Write_xml_first_iter(filename, MF_PERIOD, GRAPH_INITIAL_APP, windows, MAP_TASK_PARTITION, PARTITION_WINDOW):
+def Write_xml_first_iter(filename, MF_PERIOD, GRAPH_INITIAL_APP, windows, MAP_TASK_PARTITION, WINDOW_PARTITION):
     with open(filename, "w") as file: 
         file.write("<?xml version=\"1.0\" ?>\n")
         file.write("<system>\n")
@@ -95,8 +100,10 @@ def Write_xml_first_iter(filename, MF_PERIOD, GRAPH_INITIAL_APP, windows, MAP_TA
         # file.write("\t\t</partition>\n")
 
 
-        for i in PARTITION_WINDOW:
-            file.write("\t\t<window partition=\"{}\" start=\"{}\" stop=\"{}\"/>\n".format(i, PARTITION_WINDOW[i][0], PARTITION_WINDOW[i][1]))
+        for i in WINDOW_PARTITION:
+            #file.write("\t\t<window partition=\"{}\" start=\"{}\" stop=\"{}\"/>\n".format(i, PARTITION_WINDOW[i][0], PARTITION_WINDOW[i][1]))
+            file.write("\t\t<window partition=\"{}\" start=\"{}\" stop=\"{}\"/>\n".format(WINDOW_PARTITION[i], i[0], i[1]))
+
 
 
         # for i in windows:
@@ -273,7 +280,7 @@ def write_nvp_xml(graph_main_crash, MF_PERIOD, windows_nvp, second_main_app_grap
 
 # CREATING XML FILE FOR FIRST ITERATION OF ALGORYTHM 
 # --------------------------------------------------------------------------------------------------------------
-Write_xml_first_iter("test.xml", MF_PERIOD, GRAPH_INITIAL_APP, WINDOWS, MAP_PARTITION_TASK, MAP_PARTITION_WINDOW)
+Write_xml_first_iter("test.xml", MF_PERIOD, GRAPH_INITIAL_APP, WINDOWS, MAP_PARTITION_TASK, MAP_WINDOW_PARTITION)
 # --------------------------------------------------------------------------------------------------------------
 
 
@@ -395,8 +402,8 @@ write_nvp_xml(graph_main_crash, MF_PERIOD, windows_nvp, second_main_app_graph, G
 # RUNNING MODELLING SYSTEM FOR 
 # --------------------------------------------------------------------------------------------------------------
 os.system("cp test_nvp.xml  MCSSim/generator/model_builder") 
-os.system("cd ./MCSSim/generator/model_builder; ./model_builder test_nvp.xml > result.txt; cd -")
-os.system("cp ./MCSSim/generator/model_builder/result.txt .") 
+os.system("cd ./MCSSim/generator/model_builder; ./model_builder test_nvp.xml > result_nvp.txt; cd -")
+os.system("cp ./MCSSim/generator/model_builder/result_nvp.txt .") 
 # --------------------------------------------------------------------------------------------------------------
 
 
@@ -404,7 +411,7 @@ os.system("cp ./MCSSim/generator/model_builder/result.txt .")
 # visualazing nvp
 parsing = parser_.INTERVAL()
 """Here specify input file."""
-inter2 = parsing.create_int("result.txt")
+inter2 = parsing.create_int("result_nvp.txt")
 #parsing.print_intervals()
 
 
