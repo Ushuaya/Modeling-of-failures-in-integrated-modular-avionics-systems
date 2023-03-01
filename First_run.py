@@ -56,8 +56,6 @@ class Window_elem():
         self.time = time
         self.partition_number = partition_number
 
-    
-
     def __str__(self) -> str:
         return "Window:\n" + "\tapp: " + str(self.application) + "\n" + "\tTime: " + str(self.time) + "\n" + "\tNumber: " + str(self.partition_number)
 
@@ -68,6 +66,7 @@ def rename_separate_tasks(DICT):
         if len(DICT[tsk]) == 4:
             DICT_NEW[tsk + "__p1"] = DICT_NEW[tsk][0:2]
             DICT_NEW[tsk + "__p2"] = DICT_NEW[tsk][2:4]
+            
             del DICT_NEW[tsk]
     return DICT_NEW
 
@@ -83,19 +82,28 @@ def create_map_window_to_task_name(DICT, TASK_INTERVALS, WINDOWS_SCHEDULE) -> No
             fst_found = False
             for num_win in range(len(WINDOWS_SCHEDULE)):
                 if not fst_found:
-                    if int(t_begin_1) > int(WINDOWS_SCHEDULE[num_win][0]):
-                        DICT[WINDOWS_SCHEDULE[num_win]] = tsk + "__p1"
+                    if int(t_begin_1) >= int(WINDOWS_SCHEDULE[num_win][0]) and int(t_begin_1) < int(WINDOWS_SCHEDULE[num_win][1]):
+                        if WINDOWS_SCHEDULE[num_win] not in DICT:
+                            DICT[WINDOWS_SCHEDULE[num_win]] = [tsk]
+                        else:
+                            DICT[WINDOWS_SCHEDULE[num_win]].append(tsk)
                         fst_found = True
                 else:
-                    if int(t_begin_2) > int(WINDOWS_SCHEDULE[num_win][0]):
-                        DICT[WINDOWS_SCHEDULE[num_win]] = tsk + "__p2"
+                    if int(t_begin_2) >= int(WINDOWS_SCHEDULE[num_win][0]) and int(t_begin_2) < int(WINDOWS_SCHEDULE[num_win][1]):
+                        if WINDOWS_SCHEDULE[num_win] not in DICT:
+                            DICT[WINDOWS_SCHEDULE[num_win]] = [tsk]
+                        else:
+                            DICT[WINDOWS_SCHEDULE[num_win]].append(tsk)
                         break
         else:
             t_begin = TASK_INTERVALS[tsk][0]
             t_end = TASK_INTERVALS[tsk][1]
             for num_win in range(len(WINDOWS_SCHEDULE)):
-                if int(t_begin) > int(WINDOWS_SCHEDULE[num_win][0]):
-                    DICT[WINDOWS_SCHEDULE[num_win]] = tsk
+                if int(t_begin) >= int(WINDOWS_SCHEDULE[num_win][0]) and int(t_begin) < int(WINDOWS_SCHEDULE[num_win][1]):
+                    if WINDOWS_SCHEDULE[num_win] not in DICT:
+                        DICT[WINDOWS_SCHEDULE[num_win]] = [tsk]
+                    else:
+                        DICT[WINDOWS_SCHEDULE[num_win]].append(tsk)
                     break
                     
 
@@ -179,7 +187,7 @@ def Find_carsh_window_crash_set(filename, TASK_CRASHED_ID, windows, ):
             window_crashed = {"window_time": window_crashed, "window_number": windows.index(window_crashed)}
         else: 
             raise "didn't find broken task number {} in xml".format(TASK_CRASHED_ID)
-        # in window_crashed there is time and number in sequense, of a window where erroe happend
+        # in window_crashed there is time and number in sequense, of a window where error happend
 
         # Searching for a set of tasks in window where error happend
         window_crash_task_set = []
@@ -335,7 +343,7 @@ os.system("cp ./MCSSim/generator/model_builder/result.txt  .")
 # --------------------------------------------------------------------------------------------------------------
 parsing = parser_.INTERVAL()
 """Here specify input file."""
-inter = parsing.create_int("result.txt")
+inter, inter_int = parsing.create_int("result.txt")
 parsing.print_intervals()
 
 
@@ -343,14 +351,18 @@ parsing.print_intervals()
 # CREATING MAP FROM WINDOW AS TIME INTERVAL TO THE NAME OF THE TASK (HERE LLEFT PARTS RENAME TO <tsk_name>__p1 and RIGHT to <tsk_name>__p2)
 # --------------------------------------------------------------------------------------------------------------
 
-MAP_WINDOW_TASK = {}
-create_map_window_to_task_name(DICT=MAP_WINDOW_TASK, TASK_INTERVALS=inter, WINDOWS_SCHEDULE=WINDOWS)
-
 # here we separate tasks with two parts to the new two tasks
-separate_tak_intervals = rename_separate_tasks(inter)
+# separate_tak_intervals = rename_separate_tasks(inter)
+separate_tak_intervals = inter_int
 print(separate_tak_intervals)
 
-inter = separate_tak_intervals
+
+MAP_WINDOW_TASK = {}
+create_map_window_to_task_name(DICT=MAP_WINDOW_TASK, TASK_INTERVALS=separate_tak_intervals, WINDOWS_SCHEDULE=WINDOWS)
+
+
+
+print(MAP_WINDOW_TASK)
 
 
 # 
@@ -373,6 +385,8 @@ window_crashed, window_crash_task_set = Find_carsh_window_crash_set("./result.tx
 
 
 # creating window sequence
+# we must remember, as it is discribed in the article, that length of reserve window equal to the summ of the all tasks time in prev
+# window, including separated -- we summ both parts of it
 # --------------------------------------------------------------------------------------------------------------
 windows_nvp = []
 cur_time = 0
@@ -382,15 +396,23 @@ for win in WINDOWS:
         cur_time += win[1] - win[0]
         windows_nvp += [Window_elem("Fixator", [cur_time, cur_time + FIXATOR_TIME])]
         cur_time += FIXATOR_TIME
-        windows_nvp += [Window_elem("Reserve", [cur_time, win[1] - win[0] + cur_time])]
-        cur_time += win[1] - win[0]
+        reserve_win_time = sum([GRAPH_INITIAL_APP.vs[i]['duration'] for i in MAP_WINDOW_TASK[win] ])
+        #windows_nvp += [Window_elem("Reserve", [cur_time, win[1] - win[0] + cur_time])]
+        #cur_time += win[1] - win[0]
+        windows_nvp += [Window_elem("Reserve", [cur_time, reserve_win_time + cur_time])]
+        cur_time += reserve_win_time
+
     else: # create window with crashed task and it's reserve
         windows_nvp += [Window_elem("Main_crash", [cur_time, win[1] - win[0] + cur_time], window_crashed["window_number"])]
         cur_time += win[1] - win[0]
         windows_nvp += [Window_elem("Fixator", [cur_time, cur_time + FIXATOR_TIME])]
         cur_time += FIXATOR_TIME
-        windows_nvp += [Window_elem("Reserve_crash", [cur_time, win[1] - win[0] + cur_time])]
-        cur_time += win[1] - win[0]
+        reserve_win_time = sum([GRAPH_INITIAL_APP.vs[i]['duration'] for i in MAP_WINDOW_TASK[win] ])
+        # windows_nvp += [Window_elem("Reserve_crash", [cur_time, win[1] - win[0] + cur_time])]
+        # cur_time += win[1] - win[0]
+        windows_nvp += [Window_elem("Reserve_crash", [cur_time, reserve_win_time + cur_time])]
+        cur_time += reserve_win_time
+
 for win in windows_nvp: 
     print(win)
 MF_PERIOD = windows_nvp[-1].time[1]
@@ -466,8 +488,8 @@ os.system("cp ./MCSSim/generator/model_builder/result_nvp.txt .")
 # visualazing nvp
 parsing = parser_.INTERVAL()
 """Here specify input file."""
-inter2 = parsing.create_int("result_nvp.txt")
-#parsing.print_intervals()
+inter2, inter2_int = parsing.create_int("result_nvp.txt")
+parsing.print_intervals()
 
 
 visioner2 = vision.VISUALISER()

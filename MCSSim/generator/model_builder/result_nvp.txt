@@ -3,8 +3,8 @@
 		<job id="1">
 			<event type="exec" time="16"/>
 			<event type="preempt" time="20"/>
-			<event type="exec" time="163"/>
-			<event type="finished" time="167"/>
+			<event type="exec" time="139"/>
+			<event type="finished" time="143"/>
 		</job>
 	</task>
 	<task id="1" name="task_Main_crash1">
@@ -21,62 +21,62 @@
 	</task>
 	<task id="3" name="task_Main_part_10">
 		<job id="1">
-			<event type="exec" time="41"/>
-			<event type="finished" time="44"/>
-		</job>
-	</task>
-	<task id="4" name="task_Main_part_11">
-		<job id="1">
-			<event type="exec" time="44"/>
-			<event type="finished" time="45"/>
-		</job>
-	</task>
-	<task id="5" name="task_Main_part_12">
-		<job id="1">
 			<event type="exec" time="45"/>
 			<event type="finished" time="50"/>
 		</job>
 	</task>
+	<task id="4" name="task_Main_part_11">
+		<job id="1">
+			<event type="exec" time="50"/>
+			<event type="finished" time="55"/>
+		</job>
+	</task>
+	<task id="5" name="task_Main_part_12">
+		<job id="1">
+			<event type="exec" time="55"/>
+			<event type="finished" time="59"/>
+		</job>
+	</task>
 	<task id="6" name="task_Main_part_23">
 		<job id="1">
-			<event type="exec" time="82"/>
-			<event type="finished" time="87"/>
+			<event type="exec" time="80"/>
+			<event type="finished" time="85"/>
 		</job>
 	</task>
 	<task id="7" name="task_Main_part_24">
 		<job id="1">
-			<event type="exec" time="87"/>
-			<event type="finished" time="91"/>
+			<event type="exec" time="85"/>
+			<event type="finished" time="86"/>
 		</job>
 	</task>
 	<task id="8" name="task_Main_part_25">
 		<job id="1">
-			<event type="exec" time="91"/>
-			<event type="finished" time="95"/>
+			<event type="exec" time="86"/>
+			<event type="finished" time="93"/>
 		</job>
 	</task>
 	<task id="9" name="task_Main_part_26">
 		<job id="1">
-			<event type="exec" time="100"/>
-			<event type="finished" time="106"/>
+			<event type="exec" time="97"/>
+			<event type="finished" time="98"/>
 		</job>
 	</task>
 	<task id="10" name="task_Main_part_27">
 		<job id="1">
-			<event type="exec" time="95"/>
-			<event type="finished" time="99"/>
+			<event type="exec" time="93"/>
+			<event type="finished" time="95"/>
 		</job>
 	</task>
 	<task id="11" name="task_Main_part_28">
 		<job id="1">
-			<event type="exec" time="99"/>
-			<event type="finished" time="100"/>
+			<event type="exec" time="95"/>
+			<event type="finished" time="97"/>
 		</job>
 	</task>
 	<task id="22" name="task_Reserve_crash0">
 		<job id="1">
 			<event type="exec" time="37"/>
-			<event type="preempt" time="41"/>
+			<event type="finished" time="45"/>
 		</job>
 	</task>
 	<task id="23" name="task_Reserve_crash1">
@@ -99,20 +99,20 @@
 	</task>
 	<task id="26" name="task_Fixator1">
 		<job id="1">
-			<event type="exec" time="61"/>
-			<event type="finished" time="62"/>
+			<event type="exec" time="65"/>
+			<event type="finished" time="66"/>
 		</job>
 	</task>
 	<task id="27" name="task_Fixator2">
 		<job id="1">
-			<event type="exec" time="122"/>
-			<event type="finished" time="123"/>
+			<event type="exec" time="120"/>
+			<event type="finished" time="121"/>
 		</job>
 	</task>
 	<task id="28" name="task_Fixator3">
 		<job id="1">
-			<event type="exec" time="183"/>
-			<event type="finished" time="184"/>
+			<event type="exec" time="159"/>
+			<event type="finished" time="160"/>
 		</job>
 	</task>
 </trace>
