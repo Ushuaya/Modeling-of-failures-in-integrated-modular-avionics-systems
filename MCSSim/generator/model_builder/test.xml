@@ -7,17 +7,17 @@
 			<task deadline="99" id="2" name="task2" offset="0" period="100" prio="1" wcet="8"/>
 		</partition>
 		<partition id="1" name="part1" scheduler="FPPS">
-			<task deadline="99" id="3" name="task3" offset="0" period="100" prio="1" wcet="1"/>
-			<task deadline="99" id="4" name="task4" offset="0" period="100" prio="1" wcet="2"/>
-			<task deadline="99" id="5" name="task5" offset="0" period="100" prio="1" wcet="6"/>
+			<task deadline="99" id="3" name="task3" offset="0" period="100" prio="1" wcet="3"/>
+			<task deadline="99" id="4" name="task4" offset="0" period="100" prio="1" wcet="1"/>
+			<task deadline="99" id="5" name="task5" offset="0" period="100" prio="1" wcet="5"/>
 		</partition>
 		<partition id="2" name="part2" scheduler="FPPS">
 			<task deadline="99" id="6" name="task6" offset="0" period="100" prio="1" wcet="5"/>
-			<task deadline="99" id="7" name="task7" offset="0" period="100" prio="1" wcet="2"/>
-			<task deadline="99" id="8" name="task8" offset="0" period="100" prio="1" wcet="7"/>
-			<task deadline="99" id="9" name="task9" offset="0" period="100" prio="1" wcet="3"/>
-			<task deadline="99" id="10" name="task10" offset="0" period="100" prio="1" wcet="6"/>
-			<task deadline="99" id="11" name="task11" offset="0" period="100" prio="1" wcet="2"/>
+			<task deadline="99" id="7" name="task7" offset="0" period="100" prio="1" wcet="4"/>
+			<task deadline="99" id="8" name="task8" offset="0" period="100" prio="1" wcet="4"/>
+			<task deadline="99" id="9" name="task9" offset="0" period="100" prio="1" wcet="6"/>
+			<task deadline="99" id="10" name="task10" offset="0" period="100" prio="1" wcet="4"/>
+			<task deadline="99" id="11" name="task11" offset="0" period="100" prio="1" wcet="1"/>
 		</partition>
 		<window partition="0" start="0" stop="20"/>
 		<window partition="1" start="20" stop="40"/>

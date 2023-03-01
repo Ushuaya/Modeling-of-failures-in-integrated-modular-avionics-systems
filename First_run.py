@@ -12,6 +12,8 @@ import pickle
 # DEFINING SOME VARAIBLES TO MAKE MODELLING SYSTEM ABLE TO RUN 
 # ----------------------------------------------------------------------
 TASK_CRASHED_ID = 0
+# use it only in a case when task is separated on two part in different partitions (0 or 1 means left or right)
+PART_OF_TASK = 0 
 MF_PERIOD = 100
 FIXATOR_TIME = 1
 
@@ -58,6 +60,44 @@ class Window_elem():
 
     def __str__(self) -> str:
         return "Window:\n" + "\tapp: " + str(self.application) + "\n" + "\tTime: " + str(self.time) + "\n" + "\tNumber: " + str(self.partition_number)
+
+
+def rename_separate_tasks(DICT):
+    DICT_NEW = DICT.copy()
+    for tsk in DICT:
+        if len(DICT[tsk]) == 4:
+            DICT_NEW[tsk + "__p1"] = DICT_NEW[tsk][0:2]
+            DICT_NEW[tsk + "__p2"] = DICT_NEW[tsk][2:4]
+            del DICT_NEW[tsk]
+    return DICT_NEW
+
+
+def create_map_window_to_task_name(DICT, TASK_INTERVALS, WINDOWS_SCHEDULE) -> None:
+    for tsk in TASK_INTERVALS:
+        SEPARATE_TASK = False
+        if len(TASK_INTERVALS[tsk]) > 2: 
+            SEPARATE_TASK = True
+        if SEPARATE_TASK:  
+            t_begin_1 = TASK_INTERVALS[tsk][0]
+            t_begin_2 = TASK_INTERVALS[tsk][2]
+            fst_found = False
+            for num_win in range(len(WINDOWS_SCHEDULE)):
+                if not fst_found:
+                    if int(t_begin_1) > int(WINDOWS_SCHEDULE[num_win][0]):
+                        DICT[WINDOWS_SCHEDULE[num_win]] = tsk + "__p1"
+                        fst_found = True
+                else:
+                    if int(t_begin_2) > int(WINDOWS_SCHEDULE[num_win][0]):
+                        DICT[WINDOWS_SCHEDULE[num_win]] = tsk + "__p2"
+                        break
+        else:
+            t_begin = TASK_INTERVALS[tsk][0]
+            t_end = TASK_INTERVALS[tsk][1]
+            for num_win in range(len(WINDOWS_SCHEDULE)):
+                if int(t_begin) > int(WINDOWS_SCHEDULE[num_win][0]):
+                    DICT[WINDOWS_SCHEDULE[num_win]] = tsk
+                    break
+                    
 
 def create_double_visualization(filename1, filename2, task_crasshed_id): 
     img = Image.new('RGB', (256*10, 256*4))
@@ -297,6 +337,21 @@ parsing = parser_.INTERVAL()
 """Here specify input file."""
 inter = parsing.create_int("result.txt")
 parsing.print_intervals()
+
+
+
+# CREATING MAP FROM WINDOW AS TIME INTERVAL TO THE NAME OF THE TASK (HERE LLEFT PARTS RENAME TO <tsk_name>__p1 and RIGHT to <tsk_name>__p2)
+# --------------------------------------------------------------------------------------------------------------
+
+MAP_WINDOW_TASK = {}
+create_map_window_to_task_name(DICT=MAP_WINDOW_TASK, TASK_INTERVALS=inter, WINDOWS_SCHEDULE=WINDOWS)
+
+# here we separate tasks with two parts to the new two tasks
+separate_tak_intervals = rename_separate_tasks(inter)
+print(separate_tak_intervals)
+
+inter = separate_tak_intervals
+
 
 # 
 # --------------------------------------------------------------------------------------------------------------

@@ -9,18 +9,18 @@
 		</partition>
 
 		<partition id="1" name="part_Main_part_1" scheduler="FPPS">
-			<task deadline="203" id="3" name="task_Main_part_10" offset="0" period="204" prio="1" wcet="1"/>
-			<task deadline="203" id="4" name="task_Main_part_11" offset="0" period="204" prio="1" wcet="2"/>
-			<task deadline="203" id="5" name="task_Main_part_12" offset="0" period="204" prio="1" wcet="6"/>
+			<task deadline="203" id="3" name="task_Main_part_10" offset="0" period="204" prio="1" wcet="3"/>
+			<task deadline="203" id="4" name="task_Main_part_11" offset="0" period="204" prio="1" wcet="1"/>
+			<task deadline="203" id="5" name="task_Main_part_12" offset="0" period="204" prio="1" wcet="5"/>
 		</partition>
 
 		<partition id="2" name="part_Main_part_2" scheduler="FPPS">
 			<task deadline="203" id="6" name="task_Main_part_23" offset="0" period="204" prio="1" wcet="5"/>
-			<task deadline="203" id="7" name="task_Main_part_24" offset="0" period="204" prio="1" wcet="2"/>
-			<task deadline="203" id="8" name="task_Main_part_25" offset="0" period="204" prio="1" wcet="7"/>
-			<task deadline="203" id="9" name="task_Main_part_26" offset="0" period="204" prio="1" wcet="3"/>
-			<task deadline="203" id="10" name="task_Main_part_27" offset="0" period="204" prio="1" wcet="6"/>
-			<task deadline="203" id="11" name="task_Main_part_28" offset="0" period="204" prio="1" wcet="2"/>
+			<task deadline="203" id="7" name="task_Main_part_24" offset="0" period="204" prio="1" wcet="4"/>
+			<task deadline="203" id="8" name="task_Main_part_25" offset="0" period="204" prio="1" wcet="4"/>
+			<task deadline="203" id="9" name="task_Main_part_26" offset="0" period="204" prio="1" wcet="6"/>
+			<task deadline="203" id="10" name="task_Main_part_27" offset="0" period="204" prio="1" wcet="4"/>
+			<task deadline="203" id="11" name="task_Main_part_28" offset="0" period="204" prio="1" wcet="1"/>
 		</partition>
 
 		<partition id="0" name="part_Main_part_0" scheduler="FPPS">
