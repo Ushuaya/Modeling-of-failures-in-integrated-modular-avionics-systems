@@ -72,10 +72,13 @@ def rename_separate_tasks(DICT):
 
 
 def create_map_window_to_task_name(DICT, TASK_INTERVALS, WINDOWS_SCHEDULE) -> None:
+    set_of_sep_tsk = set()
+
     for tsk in TASK_INTERVALS:
         SEPARATE_TASK = False
         if len(TASK_INTERVALS[tsk]) > 2: 
             SEPARATE_TASK = True
+            set_of_sep_tsk.add(tsk)
         if SEPARATE_TASK:  
             t_begin_1 = TASK_INTERVALS[tsk][0]
             t_begin_2 = TASK_INTERVALS[tsk][2]
@@ -105,6 +108,7 @@ def create_map_window_to_task_name(DICT, TASK_INTERVALS, WINDOWS_SCHEDULE) -> No
                     else:
                         DICT[WINDOWS_SCHEDULE[num_win]].append(tsk)
                     break
+    return set_of_sep_tsk
                     
 
 def create_double_visualization(filename1, filename2, task_crasshed_id): 
@@ -215,6 +219,16 @@ def write_nvp_xml(graph_main_crash, MF_PERIOD, windows_nvp, second_main_app_grap
         graph_fixator = ig.Graph(n=len(windows_nvp)//3)
         graph_fixator.vs["duration"] = [FIXATOR_TIME for _ in range(len(windows_nvp)//3)]
         graph_fixator.vs["name"] = [str(i) for i in graph_fixator.vs.indices]
+
+        # case with separated tasks -- we eliminate right part of task, bcs whole task will be in reserve
+        # --------------------------------------------------------------------------------------------------------------
+        for i in graph_main_crash.vs.indices:
+            if i in SET_OF_SEPARATED_TASKS:
+                tmp_lst = list(map(int ,inter_int[i][0:2]))
+                graph_main_crash.vs[i]["duration"] = tmp_lst[1] - tmp_lst[0]
+        # --------------------------------------------------------------------------------------------------------------
+
+
 
 
         # So now we have 4 graphs for:
@@ -358,7 +372,7 @@ print(separate_tak_intervals)
 
 
 MAP_WINDOW_TASK = {}
-create_map_window_to_task_name(DICT=MAP_WINDOW_TASK, TASK_INTERVALS=separate_tak_intervals, WINDOWS_SCHEDULE=WINDOWS)
+SET_OF_SEPARATED_TASKS = create_map_window_to_task_name(DICT=MAP_WINDOW_TASK, TASK_INTERVALS=separate_tak_intervals, WINDOWS_SCHEDULE=WINDOWS)
 
 
 
@@ -458,6 +472,7 @@ for i in range(len(window_crash_task_set)):
 graph_main_crash.add_edges(main_window_crash_graph_edges)
 main_window_crash_task_time = [GRAPH_INITIAL_APP.vs[i]["duration"] for i in range(len(GRAPH_INITIAL_APP.vs)) if i in window_crash_task_set]
 graph_main_crash.vs["duration"] = main_window_crash_task_time
+
 # --------------------------------------------------------------------------------------------------------------
 
 
