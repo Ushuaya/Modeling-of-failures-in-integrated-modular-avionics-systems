@@ -13,7 +13,7 @@ import pickle
 # ----------------------------------------------------------------------
 TASK_CRASHED_ID = 0
 # use it only in a case when task is separated on two part in different partitions (0 or 1 means left or right)
-PART_OF_TASK = 0 
+CRASHED_PART_OF_TASK = 1 
 MF_PERIOD = 100
 FIXATOR_TIME = 1
 
@@ -167,22 +167,45 @@ def Write_xml_first_iter(filename, MF_PERIOD, GRAPH_INITIAL_APP, windows, MAP_TA
         file.write("</system>\n")
 
 
-def Find_carsh_window_crash_set(filename, TASK_CRASHED_ID, windows, ):
+def Find_carsh_window_crash_set(filename, TASK_CRASHED_ID, windows, SET_OF_SEPARATED_TASKS, CRASHED_PART_OF_TASK,):
     with open(filename) as file:
         txt = file.read().split("\n")
         #print(txt)
         crashed_task_pos = -1
         time_task_crash_start = -1
         time_task_crash_finish = -1
-        for txt_line_num in range(len(txt)):
-            if (crashed_task_pos := txt[txt_line_num].find("task id=\"{}\"".format(TASK_CRASHED_ID))) != -1: 
-                time_task_crash_start = txt[txt_line_num + 2].find("time")
-                time_task_crash_finish = txt[txt_line_num + 3].find("time")
-                if (time_task_crash_start != -1):
-                    time_task_crash_start_num = int(re.findall(r'\d+', txt[txt_line_num + 2])[0])
-                    time_task_crash_finish_num = int(re.findall(r'\d+', txt[txt_line_num + 3])[0])
 
-                break 
+        if TASK_CRASHED_ID in SET_OF_SEPARATED_TASKS:
+            if CRASHED_PART_OF_TASK == 1:
+                for txt_line_num in range(len(txt)):
+                    if (crashed_task_pos := txt[txt_line_num].find("task id=\"{}\"".format(TASK_CRASHED_ID))) != -1: 
+                        time_task_crash_start = txt[txt_line_num + 4].find("time")
+                        time_task_crash_finish = txt[txt_line_num + 5].find("time")
+                        if (time_task_crash_start != -1):
+                            time_task_crash_start_num = int(re.findall(r'\d+', txt[txt_line_num + 4])[0])
+                            time_task_crash_finish_num = int(re.findall(r'\d+', txt[txt_line_num + 5])[0])
+
+                        break 
+            else:
+                for txt_line_num in range(len(txt)):
+                    if (crashed_task_pos := txt[txt_line_num].find("task id=\"{}\"".format(TASK_CRASHED_ID))) != -1: 
+                        time_task_crash_start = txt[txt_line_num + 2].find("time")
+                        time_task_crash_finish = txt[txt_line_num + 3].find("time")
+                        if (time_task_crash_start != -1):
+                            time_task_crash_start_num = int(re.findall(r'\d+', txt[txt_line_num + 2])[0])
+                            time_task_crash_finish_num = int(re.findall(r'\d+', txt[txt_line_num + 3])[0])
+
+                        break 
+        else:
+            for txt_line_num in range(len(txt)):
+                if (crashed_task_pos := txt[txt_line_num].find("task id=\"{}\"".format(TASK_CRASHED_ID))) != -1: 
+                    time_task_crash_start = txt[txt_line_num + 2].find("time")
+                    time_task_crash_finish = txt[txt_line_num + 3].find("time")
+                    if (time_task_crash_start != -1):
+                        time_task_crash_start_num = int(re.findall(r'\d+', txt[txt_line_num + 2])[0])
+                        time_task_crash_finish_num = int(re.findall(r'\d+', txt[txt_line_num + 3])[0])
+
+                    break 
 
         
         if crashed_task_pos != -1 and time_task_crash_start != -1 and time_task_crash_finish != -1:
@@ -197,19 +220,41 @@ def Find_carsh_window_crash_set(filename, TASK_CRASHED_ID, windows, ):
         window_crash_task_set = []
         for txt_line_num in range(len(txt)):
             if (crashed_task_pos := txt[txt_line_num].find("task id=")) != -1: 
-                time_task_crash_start = txt[txt_line_num + 2].find("time")
-                time_task_crash_finish = txt[txt_line_num + 3].find("time")
-                if (time_task_crash_start != -1):
-                    time_task_crash_start_num = int(re.findall(r'\d+', txt[txt_line_num + 2])[0])
-                if (time_task_crash_finish != -1):
-                    time_task_crash_finish_num = int(re.findall(r'\d+', txt[txt_line_num + 3])[0])
-                if (time_task_crash_start_num >= window_crashed["window_time"][0] and time_task_crash_finish_num >= window_crashed["window_time"][0] and time_task_crash_start_num <= window_crashed["window_time"][1] and time_task_crash_finish_num <= window_crashed["window_time"][1]):
-                    window_crash_task_set += [int(re.findall(r'\d+', txt[txt_line_num])[0])]
+                task_id = int(re.findall(r'\d+', txt[txt_line_num])[0])
+                if task_id in SET_OF_SEPARATED_TASKS:
+                    time_task_crash_start_1 = txt[txt_line_num + 2].find("time")
+                    time_task_crash_finish_1 = txt[txt_line_num + 3].find("time")
+                    time_task_crash_start_2 = txt[txt_line_num + 4].find("time")
+                    time_task_crash_finish_2 = txt[txt_line_num + 5].find("time")
+
+                    if (time_task_crash_start_1 != -1):
+                        time_task_crash_start_num = int(re.findall(r'\d+', txt[txt_line_num + 2])[0])
+                    if (time_task_crash_finish_1 != -1):
+                        time_task_crash_finish_num = int(re.findall(r'\d+', txt[txt_line_num + 3])[0])
+                    if (time_task_crash_start_num >= window_crashed["window_time"][0] and time_task_crash_finish_num >= window_crashed["window_time"][0] and time_task_crash_start_num <= window_crashed["window_time"][1] and time_task_crash_finish_num <= window_crashed["window_time"][1]):
+                        window_crash_task_set += [task_id]
+
+                    if (time_task_crash_start_2 != -1):
+                        time_task_crash_start_num = int(re.findall(r'\d+', txt[txt_line_num + 4])[0])
+                    if (time_task_crash_finish_2 != -1):
+                        time_task_crash_finish_num = int(re.findall(r'\d+', txt[txt_line_num + 5])[0])
+                    if (time_task_crash_start_num >= window_crashed["window_time"][0] and time_task_crash_finish_num >= window_crashed["window_time"][0] and time_task_crash_start_num <= window_crashed["window_time"][1] and time_task_crash_finish_num <= window_crashed["window_time"][1]):
+                        window_crash_task_set += [task_id]
+    
+                else:
+                    time_task_crash_start = txt[txt_line_num + 2].find("time")
+                    time_task_crash_finish = txt[txt_line_num + 3].find("time")
+                    if (time_task_crash_start != -1):
+                        time_task_crash_start_num = int(re.findall(r'\d+', txt[txt_line_num + 2])[0])
+                    if (time_task_crash_finish != -1):
+                        time_task_crash_finish_num = int(re.findall(r'\d+', txt[txt_line_num + 3])[0])
+                    if (time_task_crash_start_num >= window_crashed["window_time"][0] and time_task_crash_finish_num >= window_crashed["window_time"][0] and time_task_crash_start_num <= window_crashed["window_time"][1] and time_task_crash_finish_num <= window_crashed["window_time"][1]):
+                        window_crash_task_set += [int(re.findall(r'\d+', txt[txt_line_num])[0])]
     
     return window_crashed, window_crash_task_set 
 
 
-def write_nvp_xml(graph_main_crash, MF_PERIOD, windows_nvp, second_main_app_graph, GRAPH_INITIAL_APP):
+def write_nvp_xml(graph_main_crash, MF_PERIOD, windows_nvp, second_main_app_graph, GRAPH_INITIAL_APP, CRASHED_PART_OF_TASK, window_crash_task_set):
     with open("test_nvp.xml", "w") as file: 
         file.write("<?xml version=\"1.0\" ?>\n")
         file.write("<system>\n")
@@ -220,12 +265,19 @@ def write_nvp_xml(graph_main_crash, MF_PERIOD, windows_nvp, second_main_app_grap
         graph_fixator.vs["duration"] = [FIXATOR_TIME for _ in range(len(windows_nvp)//3)]
         graph_fixator.vs["name"] = [str(i) for i in graph_fixator.vs.indices]
 
+
         # case with separated tasks -- we eliminate right part of task, bcs whole task will be in reserve
         # --------------------------------------------------------------------------------------------------------------
-        for i in graph_main_crash.vs.indices:
-            if i in SET_OF_SEPARATED_TASKS:
-                tmp_lst = list(map(int ,inter_int[i][0:2]))
-                graph_main_crash.vs[i]["duration"] = tmp_lst[1] - tmp_lst[0]
+        if CRASHED_PART_OF_TASK == 0:
+            for i in graph_main_crash.vs.indices:
+                if i in SET_OF_SEPARATED_TASKS and i in window_crash_task_set and i == TASK_CRASHED_ID:
+                    tmp_lst = list(map(int ,inter_int[i][0:2]))
+                    graph_main_crash.vs[i]["duration"] = tmp_lst[1] - tmp_lst[0]
+        else: 
+            for i in graph_main_crash.vs.indices:
+                if i in SET_OF_SEPARATED_TASKS and i in window_crash_task_set and i == TASK_CRASHED_ID:
+                    tmp_lst = list(map(int ,inter_int[i][0:2]))
+                    graph_main_crash.vs[i]["duration"] = tmp_lst[1] - tmp_lst[0]
         # --------------------------------------------------------------------------------------------------------------
 
 
@@ -275,13 +327,17 @@ def write_nvp_xml(graph_main_crash, MF_PERIOD, windows_nvp, second_main_app_grap
 
             elif q_partition == "Main_crash":
                 for i in range(len(All_graphs_nvp_dict[q_partition].vs)):
-                    file.write("\t\t\t<task deadline=\"{}\" id=\"{}\" name=\"task_{}\" offset=\"0\" period=\"{}\" prio=\"1\" wcet=\"{}\"/>\n".format(MF_PERIOD - 1, str(int(All_graphs_nvp_dict[q_partition].vs[i]["name"])), q_partition + str(i), MF_PERIOD, All_graphs_nvp_dict[q_partition].vs[i]["duration"]))
+                    if i in SET_OF_SEPARATED_TASKS: 
+                        file.write("\t\t\t<task deadline=\"{}\" id=\"{}\" name=\"task_{}\" offset=\"0\" period=\"{}\" prio=\"1\" wcet=\"{}\"/>\n".format(MF_PERIOD - 1, Task_id_cout + len(GRAPH_INITIAL_APP.vs), q_partition + str(i), MF_PERIOD, All_graphs_nvp_dict[q_partition].vs[i]["duration"]))
+                    else:
+                        file.write("\t\t\t<task deadline=\"{}\" id=\"{}\" name=\"task_{}\" offset=\"0\" period=\"{}\" prio=\"1\" wcet=\"{}\"/>\n".format(MF_PERIOD - 1, str(int(All_graphs_nvp_dict[q_partition].vs[i]["name"])), q_partition + str(i), MF_PERIOD, All_graphs_nvp_dict[q_partition].vs[i]["duration"]))
                 
             else:
                 for i in range(len(All_graphs_nvp_dict[q_partition].vs)):
                     file.write("\t\t\t<task deadline=\"{}\" id=\"{}\" name=\"task_{}\" offset=\"0\" period=\"{}\" prio=\"1\" wcet=\"{}\"/>\n".format(MF_PERIOD - 1, Task_id_cout + len(GRAPH_INITIAL_APP.vs), q_partition + str(i), MF_PERIOD, All_graphs_nvp_dict[q_partition].vs[i]["duration"]))
                     Task_id_cout += 1
             file.write("\t\t</partition>\n\n")
+
             # file.write("\t\t<partition id=\"{}\" name=\"part_{}\" scheduler=\"FPPS\">\n".format(Map_partition_id[q_partition], q_partition ))
             # for i in range(len(All_graphs_nvp_dict[q_partition].vs)):
             #     # if q_partition != "Fixator":
@@ -393,7 +449,7 @@ visioner1.visualise(inter, [i[0] for i in WINDOWS] + [WINDOWS[-1][1] + 1], PICTU
 
 # FINDING A SET OF TASKS IN WINDOW WITH ERROR OCCURED
 # --------------------------------------------------------------------------------------------------------------
-window_crashed, window_crash_task_set = Find_carsh_window_crash_set("./result.txt", TASK_CRASHED_ID, WINDOWS, )
+window_crashed, window_crash_task_set = Find_carsh_window_crash_set("./result.txt", TASK_CRASHED_ID, WINDOWS, SET_OF_SEPARATED_TASKS, CRASHED_PART_OF_TASK)
 # --------------------------------------------------------------------------------------------------------------
 
 
@@ -473,6 +529,12 @@ graph_main_crash.add_edges(main_window_crash_graph_edges)
 main_window_crash_task_time = [GRAPH_INITIAL_APP.vs[i]["duration"] for i in range(len(GRAPH_INITIAL_APP.vs)) if i in window_crash_task_set]
 graph_main_crash.vs["duration"] = main_window_crash_task_time
 
+print("\n------------")
+print(graph_main_crash)
+for i in graph_main_crash.vs: 
+    print(i)
+print("------------\n")
+
 # --------------------------------------------------------------------------------------------------------------
 
 
@@ -482,13 +544,14 @@ graph_main_crash.vs["duration"] = main_window_crash_task_time
 second_main_app_graph = GRAPH_INITIAL_APP.copy()
 second_main_app_graph.vs["name"] = [str(i) for i in range(len(GRAPH_INITIAL_APP.vs))]
 for i in window_crash_task_set:
-    second_main_app_graph.delete_vertices(str(i))
+    if i not in SET_OF_SEPARATED_TASKS:
+        second_main_app_graph.delete_vertices(str(i))
 # --------------------------------------------------------------------------------------------------------------
 
 
 # WRITING XML FOR MODELLING NVP 
 # --------------------------------------------------------------------------------------------------------------
-write_nvp_xml(graph_main_crash, MF_PERIOD, windows_nvp, second_main_app_graph, GRAPH_INITIAL_APP)
+write_nvp_xml(graph_main_crash, MF_PERIOD, windows_nvp, second_main_app_graph, GRAPH_INITIAL_APP=GRAPH_INITIAL_APP, CRASHED_PART_OF_TASK=CRASHED_PART_OF_TASK, window_crash_task_set=window_crash_task_set)
 # --------------------------------------------------------------------------------------------------------------
 
 # RUNNING MODELLING SYSTEM FOR 
