@@ -13,7 +13,7 @@ import pickle
 # ----------------------------------------------------------------------
 TASK_CRASHED_ID = 0
 # use it only in a case when task is separated on two part in different partitions (0 or 1 means left or right)
-CRASHED_PART_OF_TASK = 1 
+CRASHED_PART_OF_TASK = 0 
 MF_PERIOD = 100
 FIXATOR_TIME = 1
 
@@ -121,7 +121,7 @@ def create_double_visualization(filename1, filename2, task_crasshed_id):
     draw = ImageDraw.Draw(img)
     font = ImageFont.truetype(font="./open-sans/OpenSans-ExtraBold.ttf", size=40)
     # draw.text((x, y),"Sample Text",(r,g,b))
-    draw.text((10, 10),"Crashed task: " + str(task_crasshed_id),(0,0,0), font=font )
+    draw.text((10, 10),"Crashed task: " + str(task_crasshed_id) + "; Part of crashed task: " + str(CRASHED_PART_OF_TASK),(0,0,0), font=font )
     with open("num_test.pkl", "rb") as file:
         next_test = pickle.load(file)
         try: 
