@@ -22,55 +22,55 @@
 	<task id="3" name="task3">
 		<job id="1">
 			<event type="exec" time="20"/>
-			<event type="finished" time="21"/>
+			<event type="finished" time="25"/>
 		</job>
 	</task>
 	<task id="4" name="task4">
 		<job id="1">
-			<event type="exec" time="21"/>
-			<event type="finished" time="26"/>
+			<event type="exec" time="25"/>
+			<event type="finished" time="31"/>
 		</job>
 	</task>
 	<task id="5" name="task5">
 		<job id="1">
-			<event type="exec" time="26"/>
-			<event type="finished" time="30"/>
+			<event type="exec" time="31"/>
+			<event type="finished" time="33"/>
 		</job>
 	</task>
 	<task id="6" name="task6">
 		<job id="1">
 			<event type="exec" time="40"/>
-			<event type="finished" time="42"/>
+			<event type="finished" time="41"/>
 		</job>
 	</task>
 	<task id="7" name="task7">
 		<job id="1">
-			<event type="exec" time="42"/>
-			<event type="finished" time="48"/>
+			<event type="exec" time="41"/>
+			<event type="finished" time="44"/>
 		</job>
 	</task>
 	<task id="8" name="task8">
 		<job id="1">
-			<event type="exec" time="48"/>
-			<event type="finished" time="49"/>
+			<event type="exec" time="44"/>
+			<event type="finished" time="47"/>
 		</job>
 	</task>
 	<task id="9" name="task9">
 		<job id="1">
-			<event type="exec" time="57"/>
-			<event type="finished" time="63"/>
+			<event type="exec" time="55"/>
+			<event type="finished" time="57"/>
 		</job>
 	</task>
 	<task id="10" name="task10">
 		<job id="1">
-			<event type="exec" time="49"/>
-			<event type="finished" time="51"/>
+			<event type="exec" time="47"/>
+			<event type="finished" time="49"/>
 		</job>
 	</task>
 	<task id="11" name="task11">
 		<job id="1">
-			<event type="exec" time="51"/>
-			<event type="finished" time="57"/>
+			<event type="exec" time="49"/>
+			<event type="finished" time="55"/>
 		</job>
 	</task>
 </trace>

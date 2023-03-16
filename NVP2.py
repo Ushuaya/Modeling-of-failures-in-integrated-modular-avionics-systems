@@ -455,9 +455,9 @@ print(MAP_WINDOW_TASK)
 
 
 
-visioner1 = vision.VISUALISER()
-"""Here you can specify name of output file."""
-visioner1.visualise_nvp_2(inter, [i[0] for i in WINDOWS] + [WINDOWS[-1][1] + 1], PICTURE_FILENAME_INITIAL_APP, MF_PERIOD)
+# visioner1 = vision.VISUALISER()
+# """Here you can specify name of output file."""
+# visioner1.visualise_nvp_2(inter, [i[0] for i in WINDOWS] + [WINDOWS[-1][1] + 1], PICTURE_FILENAME_INITIAL_APP, MF_PERIOD)
 # --------------------------------------------------------------------------------------------------------------
 
 
@@ -480,22 +480,24 @@ for win in WINDOWS:
         cur_time += win[1] - win[0]
         windows_nvp += [Window_elem("Fixator", [cur_time, cur_time + FIXATOR_TIME])]
         cur_time += FIXATOR_TIME
-        reserve_win_time = sum([GRAPH_INITIAL_APP.vs[i]['duration'] for i in MAP_WINDOW_TASK[win] ])
-        #windows_nvp += [Window_elem("Reserve", [cur_time, win[1] - win[0] + cur_time])]
-        #cur_time += win[1] - win[0]
-        windows_nvp += [Window_elem("Reserve", [cur_time, reserve_win_time + cur_time])]
-        cur_time += reserve_win_time
+        
+        # reserve_win_time = sum([GRAPH_INITIAL_APP.vs[i]['duration'] for i in MAP_WINDOW_TASK[win] ])
+        # #windows_nvp += [Window_elem("Reserve", [cur_time, win[1] - win[0] + cur_time])]
+        # #cur_time += win[1] - win[0]
+        # windows_nvp += [Window_elem("Reserve", [cur_time, reserve_win_time + cur_time])]
+        # cur_time += reserve_win_time
 
     else: # create window with crashed task and it's reserve
         windows_nvp += [Window_elem("Main_crash", [cur_time, win[1] - win[0] + cur_time], window_crashed["window_number"])]
         cur_time += win[1] - win[0]
         windows_nvp += [Window_elem("Fixator", [cur_time, cur_time + FIXATOR_TIME])]
         cur_time += FIXATOR_TIME
-        reserve_win_time = sum([GRAPH_INITIAL_APP.vs[i]['duration'] for i in MAP_WINDOW_TASK[win] ])
-        # windows_nvp += [Window_elem("Reserve_crash", [cur_time, win[1] - win[0] + cur_time])]
-        # cur_time += win[1] - win[0]
-        windows_nvp += [Window_elem("Reserve_crash", [cur_time, reserve_win_time + cur_time])]
-        cur_time += reserve_win_time
+        
+        # reserve_win_time = sum([GRAPH_INITIAL_APP.vs[i]['duration'] for i in MAP_WINDOW_TASK[win] ])
+        # # windows_nvp += [Window_elem("Reserve_crash", [cur_time, win[1] - win[0] + cur_time])]
+        # # cur_time += win[1] - win[0]
+        # windows_nvp += [Window_elem("Reserve_crash", [cur_time, reserve_win_time + cur_time])]
+        # cur_time += reserve_win_time
 
 for win in windows_nvp: 
     print(win)
@@ -586,7 +588,7 @@ parsing.print_intervals()
 
 visioner2 = vision.VISUALISER()
 """Here you can specify name of output file."""
-visioner2.visualise(inter2, [i.time[0] for i in windows_nvp] + [windows_nvp[-1].time[1] + 1], PICTURE_FILENAME_NVP, MF_PERIOD)
+visioner2.visualise_nvp_2(inter2, [i.time[0] for i in windows_nvp] + [windows_nvp[-1].time[1] + 1], PICTURE_FILENAME_NVP, MF_PERIOD, window_crashed, FIXATOR_TIME)
 
 create_double_visualization(PICTURE_FILENAME_INITIAL_APP, PICTURE_FILENAME_NVP, TASK_CRASHED_ID)
 
