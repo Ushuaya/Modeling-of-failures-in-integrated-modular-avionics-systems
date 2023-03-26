@@ -134,9 +134,14 @@ class VISUALISER:
             
             for p in begins:
                 if "Reserve" not in i:
-                    ax.annotate(i, (p, 0.5), xytext=((p+2)/MF_period, 0.25 + y_offset[j%len(y_offset)]), 
-                            textcoords='axes fraction', 
-                            arrowprops=dict(shrink=0.0001))
+                    if p >= windws[NUM_WINDOW_CRASHED["window_number"] + 1]:
+                        ax.annotate(i, (p + MAX_WIN_TIME, 1.5), xytext=((p+2)/MF_period, 0.75 + y_offset[j%len(y_offset)]), 
+                                textcoords='axes fraction', 
+                                arrowprops=dict(shrink=0.0001))
+                    else:
+                        ax.annotate(i, (p, 0.5), xytext=((p+2)/MF_period, 0.25 + y_offset[j%len(y_offset)]), 
+                                textcoords='axes fraction', 
+                                arrowprops=dict(shrink=0.0001))
 
         #windws = list(map(int, list(np.arange(0, 240, 20))))
         begins = []

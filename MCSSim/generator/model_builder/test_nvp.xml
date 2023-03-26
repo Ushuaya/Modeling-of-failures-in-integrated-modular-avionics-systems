@@ -1,41 +1,43 @@
 <?xml version="1.0" ?>
 <system>
-	<module major_frame="104" name="core1">
+	<module major_frame="176" name="core1">
 
 		<partition id="0" name="part_Main_crash" scheduler="FPPS">
-			<task deadline="103" id="22" name="task_Main_crash0" offset="0" period="104" prio="1" wcet="4"/>
-			<task deadline="103" id="1" name="task_Main_crash1" offset="0" period="104" prio="1" wcet="8"/>
-			<task deadline="103" id="2" name="task_Main_crash2" offset="0" period="104" prio="1" wcet="8"/>
+			<task deadline="175" id="22" name="task_Main_crash0" offset="0" period="176" prio="1" wcet="4"/>
+			<task deadline="175" id="1" name="task_Main_crash1" offset="0" period="176" prio="1" wcet="8"/>
+			<task deadline="175" id="2" name="task_Main_crash2" offset="0" period="176" prio="1" wcet="8"/>
 		</partition>
 
 		<partition id="1" name="part_Main_part_1" scheduler="FPPS">
-			<task deadline="103" id="3" name="task_Main_part_11" offset="0" period="104" prio="1" wcet="5"/>
-			<task deadline="103" id="4" name="task_Main_part_12" offset="0" period="104" prio="1" wcet="6"/>
-			<task deadline="103" id="5" name="task_Main_part_13" offset="0" period="104" prio="1" wcet="2"/>
+			<task deadline="175" id="3" name="task_Main_part_11" offset="0" period="176" prio="1" wcet="1"/>
+			<task deadline="175" id="4" name="task_Main_part_12" offset="0" period="176" prio="1" wcet="4"/>
+			<task deadline="175" id="5" name="task_Main_part_13" offset="0" period="176" prio="1" wcet="7"/>
 		</partition>
 
 		<partition id="2" name="part_Main_part_2" scheduler="FPPS">
-			<task deadline="103" id="6" name="task_Main_part_24" offset="0" period="104" prio="1" wcet="1"/>
-			<task deadline="103" id="7" name="task_Main_part_25" offset="0" period="104" prio="1" wcet="3"/>
-			<task deadline="103" id="8" name="task_Main_part_26" offset="0" period="104" prio="1" wcet="3"/>
-			<task deadline="103" id="9" name="task_Main_part_27" offset="0" period="104" prio="1" wcet="2"/>
-			<task deadline="103" id="10" name="task_Main_part_28" offset="0" period="104" prio="1" wcet="2"/>
-			<task deadline="103" id="11" name="task_Main_part_29" offset="0" period="104" prio="1" wcet="6"/>
+			<task deadline="175" id="6" name="task_Main_part_24" offset="0" period="176" prio="1" wcet="3"/>
+			<task deadline="175" id="7" name="task_Main_part_25" offset="0" period="176" prio="1" wcet="4"/>
+			<task deadline="175" id="8" name="task_Main_part_26" offset="0" period="176" prio="1" wcet="6"/>
+			<task deadline="175" id="9" name="task_Main_part_27" offset="0" period="176" prio="1" wcet="7"/>
+			<task deadline="175" id="10" name="task_Main_part_28" offset="0" period="176" prio="1" wcet="5"/>
+			<task deadline="175" id="11" name="task_Main_part_29" offset="0" period="176" prio="1" wcet="3"/>
 		</partition>
 
 		<partition id="0" name="part_Main_part_0" scheduler="FPPS">
-			<task deadline="103" id="0" name="task_Main_part_00" offset="0" period="104" prio="1" wcet="8"/>
+			<task deadline="175" id="0" name="task_Main_part_00" offset="0" period="176" prio="1" wcet="8"/>
 		</partition>
 
 		<partition id="4" name="part_Reserve_crash" scheduler="FPPS">
-			<task deadline="103" id="22" name="task_Reserve_crash0" offset="0" period="104" prio="1" wcet="8"/>
-			<task deadline="103" id="23" name="task_Reserve_crash1" offset="0" period="104" prio="1" wcet="8"/>
-			<task deadline="103" id="24" name="task_Reserve_crash2" offset="0" period="104" prio="1" wcet="8"/>
+			<task deadline="175" id="22" name="task_Reserve_crash0" offset="0" period="176" prio="1" wcet="8"/>
+			<task deadline="175" id="23" name="task_Reserve_crash1" offset="0" period="176" prio="1" wcet="8"/>
+			<task deadline="175" id="24" name="task_Reserve_crash2" offset="0" period="176" prio="1" wcet="8"/>
 		</partition>
 
 		<partition id="5" name="part_Fixator" scheduler="FPPS">
-			<task deadline="103" id="25" name="task_Fixator0" offset="0" period="104" prio="1" wcet="1"/>
-			<task deadline="103" id="26" name="task_Fixator1" offset="0" period="104" prio="1" wcet="1"/>
+			<task deadline="175" id="25" name="task_Fixator0" offset="0" period="176" prio="1" wcet="1"/>
+			<task deadline="175" id="26" name="task_Fixator1" offset="0" period="176" prio="1" wcet="1"/>
+			<task deadline="175" id="27" name="task_Fixator2" offset="0" period="176" prio="1" wcet="1"/>
+			<task deadline="175" id="28" name="task_Fixator3" offset="0" period="176" prio="1" wcet="1"/>
 		</partition>
 
 		<partition id="6" name="part_Reserve" scheduler="FPPS">
@@ -43,12 +45,16 @@
 
 		<window partition="0" start="0" stop="20"/>
 		<window partition="5" start="20" stop="21"/>
-		<window partition="1" start="21" stop="41"/>
-		<window partition="5" start="41" stop="42"/>
-		<window partition="2" start="42" stop="82"/>
-		<window partition="5" start="82" stop="83"/>
-		<window partition="0" start="83" stop="103"/>
-		<window partition="5" start="103" stop="104"/>
+		<window partition="4" start="21" stop="45"/>
+		<window partition="1" start="45" stop="65"/>
+		<window partition="5" start="65" stop="66"/>
+		<window partition="6" start="66" stop="78"/>
+		<window partition="2" start="78" stop="118"/>
+		<window partition="5" start="118" stop="119"/>
+		<window partition="6" start="119" stop="147"/>
+		<window partition="0" start="147" stop="167"/>
+		<window partition="5" start="167" stop="168"/>
+		<window partition="6" start="168" stop="176"/>
 	</module>
 	<link delay="0" dst="9" src="11"/>
 	<link delay="0" dst="0" src="2"/>
