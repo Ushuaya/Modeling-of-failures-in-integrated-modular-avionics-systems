@@ -20,30 +20,30 @@
 	<task id="3" name="task_Main_part_11">
 		<job id="1">
 			<event type="exec" time="45"/>
-			<event type="finished" time="46"/>
+			<event type="finished" time="52"/>
 		</job>
 	</task>
 	<task id="4" name="task_Main_part_12">
 		<job id="1">
-			<event type="exec" time="46"/>
-			<event type="finished" time="50"/>
+			<event type="exec" time="52"/>
+			<event type="finished" time="55"/>
 		</job>
 	</task>
 	<task id="5" name="task_Main_part_13">
 		<job id="1">
-			<event type="exec" time="50"/>
-			<event type="finished" time="57"/>
+			<event type="exec" time="55"/>
+			<event type="finished" time="56"/>
 		</job>
 	</task>
 	<task id="6" name="task_Main_part_24">
 		<job id="1">
-			<event type="exec" time="78"/>
-			<event type="finished" time="81"/>
+			<event type="exec" time="77"/>
+			<event type="finished" time="80"/>
 		</job>
 	</task>
 	<task id="7" name="task_Main_part_25">
 		<job id="1">
-			<event type="exec" time="81"/>
+			<event type="exec" time="80"/>
 			<event type="finished" time="85"/>
 		</job>
 	</task>
@@ -51,24 +51,6 @@
 		<job id="1">
 			<event type="exec" time="85"/>
 			<event type="finished" time="91"/>
-		</job>
-	</task>
-	<task id="9" name="task_Main_part_27">
-		<job id="1">
-			<event type="exec" time="99"/>
-			<event type="finished" time="106"/>
-		</job>
-	</task>
-	<task id="10" name="task_Main_part_28">
-		<job id="1">
-			<event type="exec" time="91"/>
-			<event type="finished" time="96"/>
-		</job>
-	</task>
-	<task id="11" name="task_Main_part_29">
-		<job id="1">
-			<event type="exec" time="96"/>
-			<event type="finished" time="99"/>
 		</job>
 	</task>
 	<task id="0" name="task_Main_part_00"/>
@@ -104,14 +86,14 @@
 	</task>
 	<task id="27" name="task_Fixator2">
 		<job id="1">
-			<event type="exec" time="118"/>
-			<event type="finished" time="119"/>
+			<event type="exec" time="117"/>
+			<event type="finished" time="118"/>
 		</job>
 	</task>
 	<task id="28" name="task_Fixator3">
 		<job id="1">
-			<event type="exec" time="167"/>
-			<event type="finished" time="168"/>
+			<event type="exec" time="152"/>
+			<event type="finished" time="153"/>
 		</job>
 	</task>
 </trace>

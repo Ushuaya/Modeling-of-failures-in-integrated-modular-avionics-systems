@@ -65,6 +65,8 @@ def read_data(TASK_CRASHED_ID, CRASHED_PART_OF_TASK, MF_PERIOD, FIXATOR_TIME, GR
 
     MAP_PARTITION_TASK = eval(config["MAP_PARTITION_TASK"]["dict"])
     MAP_WINDOW_PARTITION = eval(config["MAP_WINDOW_PARTITION"]["dict"])
+
+    return TASK_CRASHED_ID, CRASHED_PART_OF_TASK, MF_PERIOD, FIXATOR_TIME, GRAPH_INITIAL_APP, MAP_PARTITION_TASK, MAP_WINDOW_PARTITION
     
 
     
@@ -151,7 +153,8 @@ def create_double_visualization(filename1, filename2, task_crasshed_id):
     draw = ImageDraw.Draw(img)
     font = ImageFont.truetype(font="./open-sans/OpenSans-ExtraBold.ttf", size=40)
     # draw.text((x, y),"Sample Text",(r,g,b))
-    draw.text((10, 10),"Crashed task: " + str(task_crasshed_id) + "; Part of crashed task: " + str(CRASHED_PART_OF_TASK),(0,0,0), font=font )
+    draw.text((10, 10),"No fault",(0,0,0), font=font )
+    draw.text((10, 256*2 + 10),"Crashed task: " + str(task_crasshed_id) + "; Part of crashed task: " + "Left" if CRASHED_PART_OF_TASK == 0 else "Right",(0,0,0), font=font )
     with open("num_test.pkl", "rb") as file:
         next_test = pickle.load(file)
         try: 
@@ -288,7 +291,7 @@ def write_nvp_xml(graph_main_crash, MF_PERIOD, windows_nvp, second_main_app_grap
     with open("test_nvp.xml", "w") as file: 
         file.write("<?xml version=\"1.0\" ?>\n")
         file.write("<system>\n")
-        file.write("\t<module major_frame=\"{}\" name=\"core1\">\n\n".format(MF_PERIOD))
+        file.write("\t<module major_frame=\"{}\" name=\"core1\">\n\n".format(MF_PERIOD+1))
 
         graph_reserve_window = graph_main_crash.copy() 
         graph_fixator = ig.Graph(n=len(windows_nvp)//3)
@@ -353,18 +356,18 @@ def write_nvp_xml(graph_main_crash, MF_PERIOD, windows_nvp, second_main_app_grap
                     tmp1 = int(All_graphs_nvp_dict["Main"].vs[i]["name"])
                     tmp2 = MAP_PARTITION_TASK[Map_partition_id[q_partition]]
                     if tmp1 in tmp2:
-                        file.write("\t\t\t<task deadline=\"{}\" id=\"{}\" name=\"task_{}\" offset=\"0\" period=\"{}\" prio=\"1\" wcet=\"{}\"/>\n".format(MF_PERIOD - 1, str(int(All_graphs_nvp_dict["Main"].vs[i]["name"])), q_partition + str(i), MF_PERIOD, All_graphs_nvp_dict["Main"].vs[i]["duration"]))
+                        file.write("\t\t\t<task deadline=\"{}\" id=\"{}\" name=\"task_{}\" offset=\"0\" period=\"{}\" prio=\"1\" wcet=\"{}\"/>\n".format(MF_PERIOD + 1, str(int(All_graphs_nvp_dict["Main"].vs[i]["name"])), q_partition + str(i), MF_PERIOD, All_graphs_nvp_dict["Main"].vs[i]["duration"]))
 
             elif q_partition == "Main_crash":
                 for i in range(len(All_graphs_nvp_dict[q_partition].vs)):
                     if i in SET_OF_SEPARATED_TASKS: 
-                        file.write("\t\t\t<task deadline=\"{}\" id=\"{}\" name=\"task_{}\" offset=\"0\" period=\"{}\" prio=\"1\" wcet=\"{}\"/>\n".format(MF_PERIOD - 1, Task_id_cout + len(GRAPH_INITIAL_APP.vs), q_partition + str(i), MF_PERIOD, All_graphs_nvp_dict[q_partition].vs[i]["duration"]))
+                        file.write("\t\t\t<task deadline=\"{}\" id=\"{}\" name=\"task_{}\" offset=\"0\" period=\"{}\" prio=\"1\" wcet=\"{}\"/>\n".format(MF_PERIOD + 1, Task_id_cout + len(GRAPH_INITIAL_APP.vs), q_partition + str(i), MF_PERIOD, All_graphs_nvp_dict[q_partition].vs[i]["duration"]))
                     else:
-                        file.write("\t\t\t<task deadline=\"{}\" id=\"{}\" name=\"task_{}\" offset=\"0\" period=\"{}\" prio=\"1\" wcet=\"{}\"/>\n".format(MF_PERIOD - 1, str(int(All_graphs_nvp_dict[q_partition].vs[i]["name"])), q_partition + str(i), MF_PERIOD, All_graphs_nvp_dict[q_partition].vs[i]["duration"]))
+                        file.write("\t\t\t<task deadline=\"{}\" id=\"{}\" name=\"task_{}\" offset=\"0\" period=\"{}\" prio=\"1\" wcet=\"{}\"/>\n".format(MF_PERIOD + 1, str(int(All_graphs_nvp_dict[q_partition].vs[i]["name"])), q_partition + str(i), MF_PERIOD, All_graphs_nvp_dict[q_partition].vs[i]["duration"]))
                 
             else:
                 for i in range(len(All_graphs_nvp_dict[q_partition].vs)):
-                    file.write("\t\t\t<task deadline=\"{}\" id=\"{}\" name=\"task_{}\" offset=\"0\" period=\"{}\" prio=\"1\" wcet=\"{}\"/>\n".format(MF_PERIOD - 1, Task_id_cout + len(GRAPH_INITIAL_APP.vs), q_partition + str(i), MF_PERIOD, All_graphs_nvp_dict[q_partition].vs[i]["duration"]))
+                    file.write("\t\t\t<task deadline=\"{}\" id=\"{}\" name=\"task_{}\" offset=\"0\" period=\"{}\" prio=\"1\" wcet=\"{}\"/>\n".format(MF_PERIOD + 1, Task_id_cout + len(GRAPH_INITIAL_APP.vs), q_partition + str(i), MF_PERIOD, All_graphs_nvp_dict[q_partition].vs[i]["duration"]))
                     Task_id_cout += 1
             file.write("\t\t</partition>\n\n")
 
@@ -429,9 +432,19 @@ def write_nvp_xml(graph_main_crash, MF_PERIOD, windows_nvp, second_main_app_grap
 
 # INPUT FROM EXTERNAL FILE
 # --------------------------------------------------------------------------------------------------------------
-read_data(TASK_CRASHED_ID, CRASHED_PART_OF_TASK, MF_PERIOD, FIXATOR_TIME, GRAPH_INITIAL_APP, MAP_PARTITION_TASK, MAP_WINDOW_PARTITION)
+TASK_CRASHED_ID, CRASHED_PART_OF_TASK, MF_PERIOD, FIXATOR_TIME, GRAPH_INITIAL_APP, MAP_PARTITION_TASK, MAP_WINDOW_PARTITION = read_data(TASK_CRASHED_ID, CRASHED_PART_OF_TASK, MF_PERIOD, FIXATOR_TIME, GRAPH_INITIAL_APP, MAP_PARTITION_TASK, MAP_WINDOW_PARTITION)
 # --------------------------------------------------------------------------------------------------------------
 
+# hense we can create: 
+# ---
+MAP_WINDOWSTARTTIME_PARTITION = dict((k[0] ,v) for k,v in MAP_WINDOW_PARTITION.items())
+
+# ---
+
+WINDOWS = [i for i in MAP_WINDOW_PARTITION]
+PICTURE_FILENAME_INITIAL_APP = "initial_app"
+PICTURE_FILENAME_NVP = "nvp_fault"
+# ----------------------------------------------------------------------
 
 # CREATING XML FILE FOR FIRST ITERATION OF ALGORYTHM 
 # --------------------------------------------------------------------------------------------------------------
@@ -441,9 +454,9 @@ Write_xml_first_iter("test.xml", MF_PERIOD, GRAPH_INITIAL_APP, WINDOWS, MAP_PART
 
 # RUNNING MODELLING SYSTEM ON FIRST ITERATION 
 # --------------------------------------------------------------------------------------------------------------
-os.system("cp test.xml  MCSSim/generator/model_builder") 
+os.system("cp test.xml  MCSSim/generator/model_builder")
 os.system("cd ./MCSSim/generator/model_builder; ./model_builder test.xml > result.txt; cd -")
-os.system("cp ./MCSSim/generator/model_builder/result.txt  .") 
+os.system("cp ./MCSSim/generator/model_builder/result.txt  .")
 # --------------------------------------------------------------------------------------------------------------
 
 # VISUALIZING FIRST ITERATION APPLICATION 
@@ -503,7 +516,10 @@ for win in WINDOWS:
         cur_time += win[1] - win[0]
         windows_nvp += [Window_elem("Fixator", [cur_time, cur_time + FIXATOR_TIME])]
         cur_time += FIXATOR_TIME
-        reserve_win_time = sum([GRAPH_INITIAL_APP.vs[i]['duration'] for i in MAP_WINDOW_TASK[win] ])
+        if win in MAP_WINDOW_TASK:
+            reserve_win_time = sum([GRAPH_INITIAL_APP.vs[i]['duration'] for i in MAP_WINDOW_TASK[win] ])
+        else: 
+            reserve_win_time = 0
         #windows_nvp += [Window_elem("Reserve", [cur_time, win[1] - win[0] + cur_time])]
         #cur_time += win[1] - win[0]
         windows_nvp += [Window_elem("Reserve", [cur_time, reserve_win_time + cur_time])]
@@ -606,10 +622,17 @@ parsing = parser_.INTERVAL()
 inter2, inter2_int = parsing.create_int("result_nvp.txt")
 parsing.print_intervals()
 
+PICTURE_WITHOUT_FAULT = "no_fault"
+
 
 visioner2 = vision.VISUALISER()
 """Here you can specify name of output file."""
 visioner2.visualise(inter2, [i.time[0] for i in windows_nvp] + [windows_nvp[-1].time[1] + 1], PICTURE_FILENAME_NVP, MF_PERIOD)
 
-create_double_visualization(PICTURE_FILENAME_INITIAL_APP, PICTURE_FILENAME_NVP, TASK_CRASHED_ID)
+
+
+visioner2.visualise({i:inter2[i] for i in inter2 if "Reserve" not in i }, [i.time[0] for i in windows_nvp] + [windows_nvp[-1].time[1] + 1], PICTURE_WITHOUT_FAULT, MF_PERIOD)
+
+
+create_double_visualization(PICTURE_WITHOUT_FAULT, PICTURE_FILENAME_NVP, TASK_CRASHED_ID)
 
