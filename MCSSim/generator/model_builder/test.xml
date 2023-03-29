@@ -4,7 +4,7 @@
 		<partition id="0" name="part0" scheduler="FPPS">
 			<task deadline="99" id="0" name="task0" offset="0" period="100" prio="1" wcet="8"/>
 			<task deadline="99" id="1" name="task1" offset="0" period="100" prio="1" wcet="8"/>
-			<task deadline="99" id="2" name="task2" offset="0" period="100" prio="1" wcet="8"/>
+			<task deadline="99" id="2" name="task2" offset="0" period="100" prio="1" wcet="7"/>
 		</partition>
 		<partition id="1" name="part1" scheduler="FPPS">
 			<task deadline="99" id="3" name="task3" offset="0" period="100" prio="1" wcet="7"/>

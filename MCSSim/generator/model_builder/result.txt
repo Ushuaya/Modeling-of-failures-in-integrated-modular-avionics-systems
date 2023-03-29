@@ -1,10 +1,10 @@
 <trace>
 	<task id="0" name="task0">
 		<job id="1">
-			<event type="exec" time="16"/>
+			<event type="exec" time="15"/>
 			<event type="preempt" time="20"/>
 			<event type="exec" time="80"/>
-			<event type="finished" time="84"/>
+			<event type="finished" time="83"/>
 		</job>
 	</task>
 	<task id="1" name="task1">
@@ -16,7 +16,7 @@
 	<task id="2" name="task2">
 		<job id="1">
 			<event type="exec" time="8"/>
-			<event type="finished" time="16"/>
+			<event type="finished" time="15"/>
 		</job>
 	</task>
 	<task id="3" name="task3">
