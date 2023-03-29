@@ -334,43 +334,52 @@ def write_nvp_xml(graph_main_crash, MF_PERIOD, windows_nvp, second_main_app_grap
         # All_win_dict = {"Main": 0, "Main_crash": 1, "Reserve_crash": 2, "Fixator": 3,  "Reserve": 4}
         # CREATING MAP FROM PARTITION TO IT'S ID
         Map_partition_id = {}
+        
         counter = 0
         for i in windows_nvp:
             if i.application not in Map_partition_id:
                 if i.partition_number != None:
                     Map_partition_id[i.application] = i.partition_number
+
                     counter += 1
 
-        Map_partition_id["Reserve_crash"] = len(Map_partition_id)
-        Map_partition_id["Fixator"] = len(Map_partition_id)
+        Map_partition_id["Reserve_crash"] = len(Map_partition_id)-1
+        Map_partition_id["Fixator"] = len(Map_partition_id)-1
         #Map_partition_id["Reserve"] = len(Map_partition_id)
 
 
         # Writing file 
         Task_id_cout = 0 # Varaible to create unique numeric ids of tasks
         tmp_count = 0
+        set_of_ready_partition = set()
         for q_partition in Map_partition_id:
-            file.write("\t\t<partition id=\"{}\" name=\"part_{}\" scheduler=\"FPPS\">\n".format(Map_partition_id[q_partition], q_partition ))
-            if q_partition.startswith("Main_part"):
-                for i in range(len(All_graphs_nvp_dict["Main"].vs)):
-                    tmp1 = int(All_graphs_nvp_dict["Main"].vs[i]["name"])
-                    tmp2 = MAP_PARTITION_TASK[Map_partition_id[q_partition]]
-                    if tmp1 in tmp2:
-                        file.write("\t\t\t<task deadline=\"{}\" id=\"{}\" name=\"task_{}\" offset=\"0\" period=\"{}\" prio=\"1\" wcet=\"{}\"/>\n".format(MF_PERIOD + 1, str(int(All_graphs_nvp_dict["Main"].vs[i]["name"])), q_partition + str(i), MF_PERIOD, All_graphs_nvp_dict["Main"].vs[i]["duration"]))
 
-            elif q_partition == "Main_crash":
-                for i in range(len(All_graphs_nvp_dict[q_partition].vs)):
-                    if i in SET_OF_SEPARATED_TASKS: 
-                        file.write("\t\t\t<task deadline=\"{}\" id=\"{}\" name=\"task_{}\" offset=\"0\" period=\"{}\" prio=\"1\" wcet=\"{}\"/>\n".format(MF_PERIOD + 1, Task_id_cout + len(GRAPH_INITIAL_APP.vs), q_partition + str(i), MF_PERIOD, All_graphs_nvp_dict[q_partition].vs[i]["duration"]))
-                    else:
-                        file.write("\t\t\t<task deadline=\"{}\" id=\"{}\" name=\"task_{}\" offset=\"0\" period=\"{}\" prio=\"1\" wcet=\"{}\"/>\n".format(MF_PERIOD + 1, str(int(All_graphs_nvp_dict[q_partition].vs[i]["name"])), q_partition + str(i), MF_PERIOD, All_graphs_nvp_dict[q_partition].vs[i]["duration"]))
-                
-            else:
-                for i in range(len(All_graphs_nvp_dict[q_partition].vs)):
-                    file.write("\t\t\t<task deadline=\"{}\" id=\"{}\" name=\"task_{}\" offset=\"0\" period=\"{}\" prio=\"1\" wcet=\"{}\"/>\n".format(MF_PERIOD + 1, Task_id_cout + len(GRAPH_INITIAL_APP.vs), q_partition + str(i), MF_PERIOD, All_graphs_nvp_dict[q_partition].vs[i]["duration"]))
-                    Task_id_cout += 1
-            file.write("\t\t</partition>\n\n")
+            if Map_partition_id[q_partition] not in set_of_ready_partition:
+                file.write("\t\t<partition id=\"{}\" name=\"part_{}\" scheduler=\"FPPS\">\n".format(Map_partition_id[q_partition], q_partition ))
+                for q_partition_2 in Map_partition_id:
+                    if Map_partition_id[q_partition_2] == Map_partition_id[q_partition]:
+                        
+                        if q_partition_2.startswith("Main_part"):
+                            for i in range(len(All_graphs_nvp_dict["Main"].vs)):
+                                tmp1 = int(All_graphs_nvp_dict["Main"].vs[i]["name"])
+                                tmp2 = MAP_PARTITION_TASK[Map_partition_id[q_partition_2]]
+                                if tmp1 in tmp2:
+                                    file.write("\t\t\t<task deadline=\"{}\" id=\"{}\" name=\"task_{}\" offset=\"0\" period=\"{}\" prio=\"1\" wcet=\"{}\"/>\n".format(MF_PERIOD + 1, str(int(All_graphs_nvp_dict["Main"].vs[i]["name"])), q_partition + str(i), MF_PERIOD, All_graphs_nvp_dict["Main"].vs[i]["duration"]))
 
+                        elif q_partition_2 == "Main_crash":
+                            for i in range(len(All_graphs_nvp_dict[q_partition_2].vs)):
+                                if i in SET_OF_SEPARATED_TASKS: 
+                                    file.write("\t\t\t<task deadline=\"{}\" id=\"{}\" name=\"task_{}\" offset=\"0\" period=\"{}\" prio=\"1\" wcet=\"{}\"/>\n".format(MF_PERIOD + 1, Task_id_cout + len(GRAPH_INITIAL_APP.vs), q_partition + str(i), MF_PERIOD, All_graphs_nvp_dict[q_partition].vs[i]["duration"]))
+                                else:
+                                    file.write("\t\t\t<task deadline=\"{}\" id=\"{}\" name=\"task_{}\" offset=\"0\" period=\"{}\" prio=\"1\" wcet=\"{}\"/>\n".format(MF_PERIOD + 1, str(int(All_graphs_nvp_dict[q_partition].vs[i]["name"])), q_partition + str(i), MF_PERIOD, All_graphs_nvp_dict[q_partition].vs[i]["duration"]))
+                            
+                        else:
+                            for i in range(len(All_graphs_nvp_dict[q_partition_2].vs)):
+                                file.write("\t\t\t<task deadline=\"{}\" id=\"{}\" name=\"task_{}\" offset=\"0\" period=\"{}\" prio=\"1\" wcet=\"{}\"/>\n".format(MF_PERIOD + 1, Task_id_cout + len(GRAPH_INITIAL_APP.vs), q_partition + str(i), MF_PERIOD, All_graphs_nvp_dict[q_partition].vs[i]["duration"]))
+                                Task_id_cout += 1
+                file.write("\t\t</partition>\n\n")
+
+            set_of_ready_partition.add(Map_partition_id[q_partition])
             # file.write("\t\t<partition id=\"{}\" name=\"part_{}\" scheduler=\"FPPS\">\n".format(Map_partition_id[q_partition], q_partition ))
             # for i in range(len(All_graphs_nvp_dict[q_partition].vs)):
             #     # if q_partition != "Fixator":
@@ -389,7 +398,7 @@ def write_nvp_xml(graph_main_crash, MF_PERIOD, windows_nvp, second_main_app_grap
         #file.write("\t\t\t<task deadline=\"299\" id=\"reserve\" name=\"reserve\" offset=\"0\" period=\"300\" prio=\"1\" wcet=\"100\"/>\n")
         file.write("\t\t</partition>\n\n")
 
-        Map_partition_id["Reserve"] = len(Map_partition_id)
+        Map_partition_id["Reserve"] = len(Map_partition_id)-1
 
 
         for i in range(len(windows_nvp)):

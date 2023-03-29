@@ -6,6 +6,7 @@
 			<task deadline="162" id="22" name="task_Main_crash0" offset="0" period="161" prio="1" wcet="4"/>
 			<task deadline="162" id="1" name="task_Main_crash1" offset="0" period="161" prio="1" wcet="8"/>
 			<task deadline="162" id="2" name="task_Main_crash2" offset="0" period="161" prio="1" wcet="8"/>
+			<task deadline="162" id="0" name="task_Main_crash0" offset="0" period="161" prio="1" wcet="8"/>
 		</partition>
 
 		<partition id="1" name="part_Main_part_1" scheduler="FPPS">
@@ -20,17 +21,13 @@
 			<task deadline="162" id="8" name="task_Main_part_26" offset="0" period="161" prio="1" wcet="6"/>
 		</partition>
 
-		<partition id="0" name="part_Main_part_0" scheduler="FPPS">
-			<task deadline="162" id="0" name="task_Main_part_00" offset="0" period="161" prio="1" wcet="8"/>
-		</partition>
-
-		<partition id="4" name="part_Reserve_crash" scheduler="FPPS">
+		<partition id="3" name="part_Reserve_crash" scheduler="FPPS">
 			<task deadline="162" id="22" name="task_Reserve_crash0" offset="0" period="161" prio="1" wcet="8"/>
 			<task deadline="162" id="23" name="task_Reserve_crash1" offset="0" period="161" prio="1" wcet="8"/>
 			<task deadline="162" id="24" name="task_Reserve_crash2" offset="0" period="161" prio="1" wcet="8"/>
 		</partition>
 
-		<partition id="5" name="part_Fixator" scheduler="FPPS">
+		<partition id="4" name="part_Fixator" scheduler="FPPS">
 			<task deadline="162" id="25" name="task_Fixator0" offset="0" period="161" prio="1" wcet="1"/>
 			<task deadline="162" id="26" name="task_Fixator1" offset="0" period="161" prio="1" wcet="1"/>
 			<task deadline="162" id="27" name="task_Fixator2" offset="0" period="161" prio="1" wcet="1"/>
@@ -41,17 +38,17 @@
 		</partition>
 
 		<window partition="0" start="0" stop="20"/>
-		<window partition="5" start="20" stop="21"/>
-		<window partition="4" start="21" stop="45"/>
+		<window partition="4" start="20" stop="21"/>
+		<window partition="3" start="21" stop="45"/>
 		<window partition="1" start="45" stop="65"/>
-		<window partition="5" start="65" stop="66"/>
-		<window partition="6" start="66" stop="77"/>
+		<window partition="4" start="65" stop="66"/>
+		<window partition="5" start="66" stop="77"/>
 		<window partition="2" start="77" stop="117"/>
-		<window partition="5" start="117" stop="118"/>
-		<window partition="6" start="118" stop="132"/>
+		<window partition="4" start="117" stop="118"/>
+		<window partition="5" start="118" stop="132"/>
 		<window partition="0" start="132" stop="152"/>
-		<window partition="5" start="152" stop="153"/>
-		<window partition="6" start="153" stop="161"/>
+		<window partition="4" start="152" stop="153"/>
+		<window partition="5" start="153" stop="161"/>
 	</module>
 	<link delay="0" dst="0" src="2"/>
 	<link delay="0" dst="22" src="24"/>
