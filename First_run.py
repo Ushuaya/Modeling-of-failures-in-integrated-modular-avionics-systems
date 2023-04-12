@@ -783,7 +783,11 @@ graph_main_crash.vs["duration"] = main_window_crash_task_time
 
 # --------------------------------------------------------------------------------------------------------------
 
-
+# CREATING GRAPH FOR RESERVE WINDOW 
+# --------------------------------------------------------------------------------------------------------------
+second_main_app_graph_no_fault = GRAPH_INITIAL_APP.copy()
+second_main_app_graph_no_fault.vs["name"] = [str(i) for i in range(len(GRAPH_INITIAL_APP.vs))]
+# --------------------------------------------------------------------------------------------------------------
 
 # CREATING GRAPH FOR RESERVE WINDOW 
 # --------------------------------------------------------------------------------------------------------------
@@ -797,7 +801,7 @@ for i in window_crash_task_set:
 # WRITING XML FOR MODELLING NVP WITHOUT ERROR
 # --------------------------------------------------------------------------------------------------------------
 MAP__NAMES_IN_FILE__ID = {}
-write_nvp_xml_no_fault(graph_main_crash, MF_PERIOD, windows_nvp_no_fault, second_main_app_graph, GRAPH_INITIAL_APP=GRAPH_INITIAL_APP, CRASHED_PART_OF_TASK=CRASHED_PART_OF_TASK, window_crash_task_set=window_crash_task_set)
+write_nvp_xml_no_fault(graph_main_crash, MF_PERIOD, windows_nvp_no_fault, second_main_app_graph_no_fault, GRAPH_INITIAL_APP=GRAPH_INITIAL_APP, CRASHED_PART_OF_TASK=CRASHED_PART_OF_TASK, window_crash_task_set=window_crash_task_set)
 # --------------------------------------------------------------------------------------------------------------
 
 
