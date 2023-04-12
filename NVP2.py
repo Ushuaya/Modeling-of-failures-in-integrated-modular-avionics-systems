@@ -13,16 +13,16 @@ import pickle
 # ----------------------------------------------------------------------
 TASK_CRASHED_ID = 0
 # use it only in a case when task is separated on two part in different partitions (0 or 1 means left or right)
-CRASHED_PART_OF_TASK = 0 
+CRASHED_PART_OF_TASK = 1
 MF_PERIOD = 100
 FIXATOR_TIME = 1
 
-GRAPH_INITIAL_APP = ig.Graph(n=22, edges=[[11, 9], [2, 0]])
+GRAPH_INITIAL_APP = ig.Graph(n=22, edges=[ ])
 GRAPH_INITIAL_APP.vs["duration"] = [8, 8, 8] + [random.randint(1,7) for _ in range(len(GRAPH_INITIAL_APP.vs) - 3)]
 
 # Partition numbers sequence must start from 0 
-MAP_PARTITION_TASK = {0: (0, 1, 2), 1: (3, 4, 5), 2: (6, 7, 8, 9, 10, 11), }
-MAP_WINDOW_PARTITION = {(0, 20): 0, (20, 40): 1, (40, 80): 2, (80, 100): 0}
+MAP_PARTITION_TASK = {0: (0, 1, 2), 1: (3, 4, 5), 2: (6, 7, 8, 9, 10)}
+MAP_WINDOW_PARTITION = {(0, 20): 0, (20, 40): 0, (40, 80): 2, (80, 100): 1}
 #MAP_WINDOW_PARTITION = dict((v,k) for k,v in MAP_PARTITION_WINDOW.items())
 #MAP_PARTITION_WINDOW = {0: (0, 20), 1: (20, 40), 2: (40, 80), 0: (80, 100)}
 
@@ -121,15 +121,16 @@ def create_double_visualization(filename1, filename2, task_crasshed_id):
     draw = ImageDraw.Draw(img)
     font = ImageFont.truetype(font="./open-sans/OpenSans-ExtraBold.ttf", size=40)
     # draw.text((x, y),"Sample Text",(r,g,b))
-    draw.text((10, 10),"Crashed task: " + str(task_crasshed_id) + "; Part of crashed task: " + str(CRASHED_PART_OF_TASK),(0,0,0), font=font )
+    draw.text((10, 10),"No fault",(0,0,0), font=font )
+    draw.text((10, 256*2 + 10),"Crashed task: " + str(task_crasshed_id) + "; Part of crashed task: " + "Left" if CRASHED_PART_OF_TASK == 0 else "Right",(0,0,0), font=font )
     with open("num_test.pkl", "rb") as file:
         next_test = pickle.load(file)
         try: 
-            os.mkdir("./tests/test{}".format(next_test))
+            os.mkdir("./tests_nvp_2/test{}".format(next_test))
         except:
             pass
         img.show()
-        img.save("./tests/test{}/RESULT.png".format(next_test))
+        img.save("./tests_nvp_2/test{}/RESULT.png".format(next_test))
         next_test += 1
     with open("num_test.pkl", "wb") as file:
         pickle.dump(next_test, file)
@@ -588,7 +589,13 @@ parsing.print_intervals()
 
 visioner2 = vision.VISUALISER()
 """Here you can specify name of output file."""
-visioner2.visualise_nvp_2(inter2, [i.time[0] for i in windows_nvp] + [windows_nvp[-1].time[1] + 1], PICTURE_FILENAME_NVP, MF_PERIOD, window_crashed, FIXATOR_TIME)
 
-create_double_visualization(PICTURE_FILENAME_INITIAL_APP, PICTURE_FILENAME_NVP, TASK_CRASHED_ID)
+merge_file_1 = visioner2.visualise_nvp_2(inter2, [i.time[0] for i in windows_nvp] + [windows_nvp[-1].time[1] + 1], PICTURE_FILENAME_NVP, MF_PERIOD, window_crashed, FIXATOR_TIME)
+
+merge_file_2 = visioner2.visualise_nvp_2_no_fault(inter2, [i.time[0] for i in windows_nvp] + [windows_nvp[-1].time[1] + 1], PICTURE_FILENAME_NVP, MF_PERIOD, window_crashed, FIXATOR_TIME)
+
+
+
+create_double_visualization(merge_file_2, merge_file_1, TASK_CRASHED_ID)
+
 

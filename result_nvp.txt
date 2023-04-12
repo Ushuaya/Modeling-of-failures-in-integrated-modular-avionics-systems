@@ -1,0 +1,100 @@
+<trace>
+	<task id="22" name="task_Main_crash0_ERR">
+		<job id="1">
+			<event type="exec" time="0"/>
+			<event type="finished" time="5"/>
+		</job>
+	</task>
+	<task id="1" name="task_Main_crash1">
+		<job id="1">
+			<event type="exec" time="5"/>
+			<event type="finished" time="13"/>
+		</job>
+	</task>
+	<task id="2" name="task_Main_crash2">
+		<job id="1">
+			<event type="exec" time="13"/>
+			<event type="finished" time="20"/>
+		</job>
+	</task>
+	<task id="3" name="task_Main_part_11">
+		<job id="1">
+			<event type="exec" time="44"/>
+			<event type="finished" time="51"/>
+		</job>
+	</task>
+	<task id="4" name="task_Main_part_12">
+		<job id="1">
+			<event type="exec" time="51"/>
+			<event type="finished" time="54"/>
+		</job>
+	</task>
+	<task id="5" name="task_Main_part_13">
+		<job id="1">
+			<event type="exec" time="54"/>
+			<event type="finished" time="55"/>
+		</job>
+	</task>
+	<task id="6" name="task_Main_part_24">
+		<job id="1">
+			<event type="exec" time="76"/>
+			<event type="finished" time="79"/>
+		</job>
+	</task>
+	<task id="7" name="task_Main_part_25">
+		<job id="1">
+			<event type="exec" time="79"/>
+			<event type="finished" time="84"/>
+		</job>
+	</task>
+	<task id="8" name="task_Main_part_26">
+		<job id="1">
+			<event type="exec" time="84"/>
+			<event type="finished" time="90"/>
+		</job>
+	</task>
+	<task id="0" name="task_Main_part_00_ERR"/>
+	<task id="22" name="task_Reserve_crash0_ERR">
+		<job id="1">
+			<event type="exec" time="36"/>
+			<event type="finished" time="44"/>
+		</job>
+	</task>
+	<task id="23" name="task_Reserve_crash1">
+		<job id="1">
+			<event type="exec" time="21"/>
+			<event type="finished" time="29"/>
+		</job>
+	</task>
+	<task id="24" name="task_Reserve_crash2">
+		<job id="1">
+			<event type="exec" time="29"/>
+			<event type="finished" time="36"/>
+		</job>
+	</task>
+	<task id="25" name="task_Fixator0">
+		<job id="1">
+			<event type="exec" time="20"/>
+			<event type="finished" time="21"/>
+		</job>
+	</task>
+	<task id="26" name="task_Fixator1">
+		<job id="1">
+			<event type="exec" time="64"/>
+			<event type="finished" time="65"/>
+		</job>
+	</task>
+	<task id="27" name="task_Fixator2">
+		<job id="1">
+			<event type="exec" time="116"/>
+			<event type="finished" time="117"/>
+		</job>
+	</task>
+	<task id="28" name="task_Fixator3">
+		<job id="1">
+			<event type="exec" time="151"/>
+			<event type="finished" time="152"/>
+		</job>
+	</task>
+</trace>
+

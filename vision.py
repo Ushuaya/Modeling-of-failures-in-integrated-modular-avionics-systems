@@ -16,7 +16,7 @@ class VISUALISER:
     
     colours = ['#eaaaff', 'blue', 'orange', 'green', 'purple', 'red', 'brown', 'pink', 'gray', 'olive', 'cyan']
 
-    def visualise(self, dict_inter, windws, filename = "graph.out", MF_period = 240):
+    def visualise(self, dict_inter, windws, filename = "graph.out", MF_period = 240, MAP__NAMES_IN_FILE__ID__ERR = {}):
         """Visualisation using matplotlib."""
         begins = []
         ends = []
@@ -33,11 +33,27 @@ class VISUALISER:
                             (0, 0.5), facecolors=(colour))
             j+=1
 
+            if "_ERR" in i:
+                stp_lst = [0 + (j * 0.5)/20 for j in range(20)]
+                for step in stp_lst:
+                    l_p = step
+                    r_p = step + 0.00625
+                    ax.broken_barh(list(zip(df["begin"].values, 
+                            (df["end"] - df["begin"]).values)), 
+                            (l_p, 0.0125), facecolors=(['black']))
+
             
             for p in begins:
-                ax.annotate(i, (p, 0.5), xytext=((p+2)/MF_period, 0.7 + y_offset[j%len(y_offset)]), 
+                if MAP__NAMES_IN_FILE__ID__ERR and "Fixator" not in i:
+                    ax.annotate(str(MAP__NAMES_IN_FILE__ID__ERR[i[5:]]), (p, 0.5), xytext=((p+2)/MF_period, 0.7 + y_offset[j%len(y_offset)]), 
+                            textcoords='axes fraction', fontsize=16, 
+                            arrowprops=dict(shrink=0.0001))
+                else:
+                    ax.annotate(i, (p, 0.5), xytext=((p+2)/MF_period, 0.7 + y_offset[j%len(y_offset)]), 
                             textcoords='axes fraction', 
                             arrowprops=dict(shrink=0.0001))
+                
+            
 
         #windws = list(map(int, list(np.arange(0, 240, 20))))
         begins = []
@@ -85,6 +101,100 @@ class VISUALISER:
         # with open("num_test.pkl", "wb") as file:
         #     pickle.dump(next_test, file)
 
+    def visualise_nvp_2_no_fault(self, dict_inter, windws, filename = "graph.out", MF_period = 240, NUM_WINDOW_CRASHED=-1, FIXATOR_TIME=0):
+        """Visualisation using matplotlib."""
+        begins = []
+        ends = []
+        fig, ax = plt.subplots()
+        j = 0
+        y_offset = [0.03*j for j in range(8)]
+
+
+        # find biggest window time period 
+        MAX_WIN_TIME = 0
+        for i in range(len(windws) - 1):
+            if (wind_diff := (windws[i + 1] - windws[i])) > MAX_WIN_TIME:
+                MAX_WIN_TIME = wind_diff
+
+        MAX_WIN_TIME += 2 * FIXATOR_TIME
+
+        for i in dict_inter: 
+            begins =list(map(int, dict_inter[i][::2]))
+            ends =list(map(int, dict_inter[i][1::2]))
+            df = pd.DataFrame({"begin": begins, "end" : ends})
+            colour = self.colours[j%len(self.colours)]
+
+            for lft, rgt in list(zip(df["begin"].values, 
+                            (df["end"] - df["begin"]).values)):
+                ax.broken_barh([(lft, rgt)], 
+                            (0, 0.5), facecolors=(colour))
+
+            # ax.broken_barh(list(zip(df["begin"].values, 
+            #                 (df["end"] - df["begin"]).values)), 
+            #                 (0, 0.5), facecolors=(colour))
+            j+=1
+
+            
+            for p in begins:
+                if "Reserve" not in i:
+                    ax.annotate(i, (p, 0.5), xytext=((p+2)/MF_period, 0.25 + y_offset[j%len(y_offset)]), 
+                            textcoords='axes fraction', 
+                            arrowprops=dict(shrink=0.0001))
+
+        #windws = list(map(int, list(np.arange(0, 240, 20))))
+        begins = []
+        ends = []
+
+        for i in windws:
+            begins.append(i)
+            ends.append(i+0.5)
+
+
+        # window line separators  
+        df = pd.DataFrame({"begin": begins, "end" : ends})
+        ax.broken_barh(list(zip(df["begin"].values, 
+                        (df["end"] - df["begin"]).values)), 
+                        (0, 1), facecolors='black')
+
+        # print(df["begin"].values) 
+        # print(list(map(lambda x: x + MAX_WIN_TIME, df["begin"].values)))
+        # print((df["end"] - df["begin"]).values) 
+        # print(list(map(lambda x: x + MAX_WIN_TIME, (df["end"] - df["begin"]).values))) 
+
+        ax.broken_barh(list(zip(
+                        list(map(lambda x: x + MAX_WIN_TIME, df["begin"].values)), 
+                        list(map(lambda x: x + 0, (df["end"] - df["begin"]).values))
+                        )), 
+                        (1, 2), facecolors='black')
+        
+        ax.set_ylim(0, 2)
+        ax.set_xlim(0, MF_period + MAX_WIN_TIME)
+        ax.set_yticks([1, 2], labels=['core1', 'core2']) 
+        plt.xticks(np.arange(0, MF_period+1 + MAX_WIN_TIME, 10.0))
+        # plt.yticks([])
+        ax.grid(True)
+        fig.set_size_inches(20, 1 * 5, forward=True)
+
+   
+        # plt.savefig("tmp1.png")
+        # plt.clf()
+        # plt.cla()
+
+        # df = pd.DataFrame({"begin": [], "end" : []})
+        # ax.broken_barh(list(zip(df["begin"].values, 
+        #                 (df["end"] - df["begin"]).values)), 
+        #                 (0, 1), facecolors='black')
+        # ax.set_ylim(0, 1)
+        # ax.set_xlim(0, MF_period)
+        # plt.xticks(np.arange(0, MF_period+1, 10.0))
+        # plt.yticks([])
+        # ax.grid(True)
+
+        plt.savefig("tmp1.png")
+
+        return "tmp1"
+
+
     def visualise_nvp_2(self, dict_inter, windws, filename = "graph.out", MF_period = 240, NUM_WINDOW_CRASHED=-1, FIXATOR_TIME=0):
         """Visualisation using matplotlib."""
         begins = []
@@ -112,13 +222,13 @@ class VISUALISER:
                             (df["end"] - df["begin"]).values)):
                 
                 # this is broken window -- we need to dublicate it on the reserver window
-                if (lft >= windws[NUM_WINDOW_CRASHED["window_number"]]) and (lft + rgt <= windws[NUM_WINDOW_CRASHED["window_number"] + 1]):
+                if (lft >= windws[NUM_WINDOW_CRASHED["window_number"]*2]) and (lft + rgt <= windws[NUM_WINDOW_CRASHED["window_number"]*2 + 1]):
                     ax.broken_barh([(lft + MAX_WIN_TIME, rgt)], 
                             (1, 0.5), facecolors=(colour))
                     ax.broken_barh([(lft, rgt)], 
                             (0, 0.5), facecolors=(colour))
 
-                elif lft >= windws[NUM_WINDOW_CRASHED["window_number"] + 1]:
+                elif lft >= windws[NUM_WINDOW_CRASHED["window_number"]*2 + 1]:
                     ax.broken_barh([(lft + MAX_WIN_TIME, rgt)], 
                             (1, 0.5), facecolors=(colour))
 
@@ -134,7 +244,7 @@ class VISUALISER:
             
             for p in begins:
                 if "Reserve" not in i:
-                    if p >= windws[NUM_WINDOW_CRASHED["window_number"] + 1]:
+                    if p >= windws[NUM_WINDOW_CRASHED["window_number"]*2 + 1]:
                         ax.annotate(i, (p + MAX_WIN_TIME, 1.5), xytext=((p+2)/MF_period, 0.75 + y_offset[j%len(y_offset)]), 
                                 textcoords='axes fraction', 
                                 arrowprops=dict(shrink=0.0001))
@@ -193,6 +303,8 @@ class VISUALISER:
         # ax.grid(True)
 
         plt.savefig("tmp2.png")
+
+        return "tmp2"
 
         #self.create_nvp_vis(PICTURE_FILENAME_INITIAL_APP="tmp1.png", PICTURE_FILENAME_NVP="tmp2.png", TASK_CRASHED_ID=-1)
 

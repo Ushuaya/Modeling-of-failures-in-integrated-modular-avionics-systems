@@ -2,36 +2,39 @@
 <system>
 	<module major_frame="161" name="core1">
 
-		<partition id="0" name="part_Main_part_0" scheduler="FPPS">
-			<task deadline="161" id="0" name="task_Main_part_00" offset="0" period="160" prio="1" wcet="8"/>
-			<task deadline="161" id="1" name="task_Main_part_01" offset="0" period="160" prio="1" wcet="7"/>
+		<partition id="0" name="part_Main_crash" scheduler="FPPS">
+			<task deadline="161" id="22" name="task_Main_crash0_ERR" offset="0" period="160" prio="1" wcet="5"/>
+			<task deadline="161" id="1" name="task_Main_crash1" offset="0" period="160" prio="1" wcet="8"/>
+			<task deadline="161" id="2" name="task_Main_crash2" offset="0" period="160" prio="1" wcet="7"/>
 		</partition>
 
 		<partition id="1" name="part_Main_part_1" scheduler="FPPS">
-			<task deadline="161" id="3" name="task_Main_part_12" offset="0" period="160" prio="1" wcet="7"/>
-			<task deadline="161" id="4" name="task_Main_part_13" offset="0" period="160" prio="1" wcet="3"/>
-			<task deadline="161" id="5" name="task_Main_part_14" offset="0" period="160" prio="1" wcet="1"/>
+			<task deadline="161" id="3" name="task_Main_part_11" offset="0" period="160" prio="1" wcet="7"/>
+			<task deadline="161" id="4" name="task_Main_part_12" offset="0" period="160" prio="1" wcet="3"/>
+			<task deadline="161" id="5" name="task_Main_part_13" offset="0" period="160" prio="1" wcet="1"/>
 		</partition>
 
 		<partition id="2" name="part_Main_part_2" scheduler="FPPS">
-			<task deadline="161" id="6" name="task_Main_part_25" offset="0" period="160" prio="1" wcet="3"/>
-			<task deadline="161" id="7" name="task_Main_part_26" offset="0" period="160" prio="1" wcet="5"/>
-			<task deadline="161" id="8" name="task_Main_part_27" offset="0" period="160" prio="1" wcet="6"/>
+			<task deadline="161" id="6" name="task_Main_part_24" offset="0" period="160" prio="1" wcet="3"/>
+			<task deadline="161" id="7" name="task_Main_part_25" offset="0" period="160" prio="1" wcet="5"/>
+			<task deadline="161" id="8" name="task_Main_part_26" offset="0" period="160" prio="1" wcet="6"/>
 		</partition>
 
-		<partition id="3" name="part_Main_crash" scheduler="FPPS">
-			<task deadline="161" id="22" name="task_Main_crash0" offset="0" period="160" prio="1" wcet="5"/>
+		<partition id="0" name="part_Main_part_0" scheduler="FPPS">
+			<task deadline="161" id="0" name="task_Main_part_00_ERR" offset="0" period="160" prio="1" wcet="8"/>
 		</partition>
 
 		<partition id="4" name="part_Reserve_crash" scheduler="FPPS">
-			<task deadline="161" id="22" name="task_Reserve_crash0" offset="0" period="160" prio="1" wcet="8"/>
+			<task deadline="161" id="22" name="task_Reserve_crash0_ERR" offset="0" period="160" prio="1" wcet="8"/>
+			<task deadline="161" id="23" name="task_Reserve_crash1" offset="0" period="160" prio="1" wcet="8"/>
+			<task deadline="161" id="24" name="task_Reserve_crash2" offset="0" period="160" prio="1" wcet="7"/>
 		</partition>
 
 		<partition id="5" name="part_Fixator" scheduler="FPPS">
-			<task deadline="161" id="23" name="task_Fixator0" offset="0" period="160" prio="1" wcet="1"/>
-			<task deadline="161" id="24" name="task_Fixator1" offset="0" period="160" prio="1" wcet="1"/>
-			<task deadline="161" id="25" name="task_Fixator2" offset="0" period="160" prio="1" wcet="1"/>
-			<task deadline="161" id="26" name="task_Fixator3" offset="0" period="160" prio="1" wcet="1"/>
+			<task deadline="161" id="25" name="task_Fixator0" offset="0" period="160" prio="1" wcet="1"/>
+			<task deadline="161" id="26" name="task_Fixator1" offset="0" period="160" prio="1" wcet="1"/>
+			<task deadline="161" id="27" name="task_Fixator2" offset="0" period="160" prio="1" wcet="1"/>
+			<task deadline="161" id="28" name="task_Fixator3" offset="0" period="160" prio="1" wcet="1"/>
 		</partition>
 
 		<partition id="6" name="part_Reserve" scheduler="FPPS">
@@ -39,16 +42,17 @@
 
 		<window partition="0" start="0" stop="20"/>
 		<window partition="5" start="20" stop="21"/>
-		<window partition="6" start="21" stop="44"/>
+		<window partition="4" start="21" stop="44"/>
 		<window partition="1" start="44" stop="64"/>
 		<window partition="5" start="64" stop="65"/>
 		<window partition="6" start="65" stop="76"/>
 		<window partition="2" start="76" stop="116"/>
 		<window partition="5" start="116" stop="117"/>
 		<window partition="6" start="117" stop="131"/>
-		<window partition="3" start="131" stop="151"/>
+		<window partition="0" start="131" stop="151"/>
 		<window partition="5" start="151" stop="152"/>
-		<window partition="4" start="152" stop="160"/>
+		<window partition="6" start="152" stop="160"/>
 	</module>
 	<link delay="0" dst="0" src="2"/>
+	<link delay="0" dst="22" src="24"/>
 </system>
