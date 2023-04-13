@@ -498,7 +498,7 @@ def write_nvp_xml(graph_main_crash, MF_PERIOD, windows_nvp, second_main_app_grap
                 min_ = int(i["name"])
         if min_ != 0:
             for i in range(len(second_main_app_graph.vs)): 
-                second_main_app_graph.vs[i]['name'] = str(int(second_main_app_graph.vs[i]['name']) - min_)
+                second_main_app_graph.vs[i]['new_id'] = str(int(second_main_app_graph.vs[i]['name']) - min_)
 
         print("\n------------")
         print(graph_main_crash)
@@ -527,7 +527,7 @@ def write_nvp_xml(graph_main_crash, MF_PERIOD, windows_nvp, second_main_app_grap
                             tmp_name = "_ERR"
                         else:
                             tmp_name = ""
-                        file.write("\t\t\t<task deadline=\"{}\" id=\"{}\" name=\"task_{}\" offset=\"0\" period=\"{}\" prio=\"1\" wcet=\"{}\"/>\n".format(MF_PERIOD + 1, str(int(All_graphs_nvp_dict["Main"].vs[i]["name"])), q_partition + str(i) + tmp_name, MF_PERIOD, All_graphs_nvp_dict["Main"].vs[i]["duration"]))
+                        file.write("\t\t\t<task deadline=\"{}\" id=\"{}\" name=\"task_{}\" offset=\"0\" period=\"{}\" prio=\"1\" wcet=\"{}\"/>\n".format(MF_PERIOD + 1, str(int(All_graphs_nvp_dict["Main"].vs[i]["new_id"])) if min_ != 0 else str(int(All_graphs_nvp_dict["Main"].vs[i]["name"])), q_partition + str(i) + tmp_name, MF_PERIOD, All_graphs_nvp_dict["Main"].vs[i]["duration"]))
                         MAP__NAMES_IN_FILE__ID__ERR[q_partition + str(i) + tmp_name] = tmp1
 
             elif q_partition == "Main_crash":
@@ -783,7 +783,7 @@ graph_main_crash.vs["duration"] = main_window_crash_task_time
 
 # --------------------------------------------------------------------------------------------------------------
 
-# CREATING GRAPH FOR RESERVE WINDOW 
+# CREATING GRAPH FOR CASE ILLUSTRATING APP WITHOUT ERRORS
 # --------------------------------------------------------------------------------------------------------------
 second_main_app_graph_no_fault = GRAPH_INITIAL_APP.copy()
 second_main_app_graph_no_fault.vs["name"] = [str(i) for i in range(len(GRAPH_INITIAL_APP.vs))]
@@ -797,6 +797,18 @@ for i in window_crash_task_set:
     if i not in SET_OF_SEPARATED_TASKS:
         second_main_app_graph.delete_vertices(str(i))
 # --------------------------------------------------------------------------------------------------------------
+
+print("\n------------")
+print(GRAPH_INITIAL_APP)
+for i in GRAPH_INITIAL_APP.vs: 
+    print(i)
+print("------------\n")
+
+print("\n------------")
+print(second_main_app_graph)
+for i in second_main_app_graph.vs: 
+    print(i)
+print("------------\n")
 
 # WRITING XML FOR MODELLING NVP WITHOUT ERROR
 # --------------------------------------------------------------------------------------------------------------
