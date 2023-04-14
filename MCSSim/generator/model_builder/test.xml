@@ -2,14 +2,10 @@
 <system>
 	<module major_frame="100" name="core1">
 		<partition id="0" name="part0" scheduler="FPPS">
-			<task deadline="99" id="0" name="task0" offset="0" period="100" prio="1" wcet="6"/>
-			<task deadline="99" id="1" name="task1" offset="0" period="100" prio="1" wcet="5"/>
-			<task deadline="99" id="2" name="task2" offset="0" period="100" prio="1" wcet="6"/>
+			<task deadline="99" id="0" name="task0" offset="0" period="100" prio="1" wcet="16"/>
 		</partition>
 		<partition id="1" name="part1" scheduler="FPPS">
-			<task deadline="99" id="3" name="task3" offset="0" period="100" prio="1" wcet="5"/>
-			<task deadline="99" id="4" name="task4" offset="0" period="100" prio="1" wcet="6"/>
-			<task deadline="99" id="5" name="task5" offset="0" period="100" prio="1" wcet="5"/>
+			<task deadline="99" id="1" name="task1" offset="0" period="100" prio="1" wcet="16"/>
 		</partition>
 		<window partition="0" start="0" stop="20"/>
 		<window partition="1" start="20" stop="40"/>

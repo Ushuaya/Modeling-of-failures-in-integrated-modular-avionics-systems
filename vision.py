@@ -55,7 +55,6 @@ class VISUALISER:
                 
             
 
-        #windws = list(map(int, list(np.arange(0, 240, 20))))
         begins = []
         ends = []
 
@@ -101,7 +100,7 @@ class VISUALISER:
         # with open("num_test.pkl", "wb") as file:
         #     pickle.dump(next_test, file)
 
-    def visualise_nvp_2_no_fault(self, dict_inter, windws, filename = "graph.out", MF_period = 240, NUM_WINDOW_CRASHED=-1, FIXATOR_TIME=0):
+    def visualise_nvp_2_no_fault(self, dict_inter, windws, filename = "graph.out", MF_period = 240, NUM_WINDOW_CRASHED=-1, FIXATOR_TIME=0, MAP__NAMES_IN_FILE__ID__ERR = {}):
         """Visualisation using matplotlib."""
         begins = []
         ends = []
@@ -134,12 +133,26 @@ class VISUALISER:
             #                 (0, 0.5), facecolors=(colour))
             j+=1
 
+            # if "_ERR" in i:
+            #     stp_lst = [0 + (j * 0.5)/20 for j in range(20)]
+            #     for step in stp_lst:
+            #         l_p = step
+            #         r_p = step + 0.00625
+            #         ax.broken_barh(list(zip(df["begin"].values, 
+            #                 (df["end"] - df["begin"]).values)), 
+            #                 (l_p, 0.0125), facecolors=(['black']))
+
             
             for p in begins:
-                if "Reserve" not in i:
-                    ax.annotate(i, (p, 0.5), xytext=((p+2)/MF_period, 0.25 + y_offset[j%len(y_offset)]), 
-                            textcoords='axes fraction', 
+                if MAP__NAMES_IN_FILE__ID__ERR and "Fixator" not in i:
+                    ax.annotate(str(MAP__NAMES_IN_FILE__ID__ERR[i[5:]]), (p, 0.5), xytext=((p+2)/(MF_period * 1.3), 0.7 + y_offset[j%len(y_offset)]), 
+                            textcoords='axes fraction', fontsize=16, 
                             arrowprops=dict(shrink=0.0001))
+                else:
+                    if "Reserve" not in i:
+                        ax.annotate(i, (p, 0.5), xytext=((p+2)/MF_period, 0.25 + y_offset[j%len(y_offset)]), 
+                                textcoords='axes fraction', 
+                                arrowprops=dict(shrink=0.0001))
 
         #windws = list(map(int, list(np.arange(0, 240, 20))))
         begins = []
@@ -195,7 +208,7 @@ class VISUALISER:
         return "tmp1"
 
 
-    def visualise_nvp_2(self, dict_inter, windws, filename = "graph.out", MF_period = 240, NUM_WINDOW_CRASHED=-1, FIXATOR_TIME=0):
+    def visualise_nvp_2(self, dict_inter, windws, filename = "graph.out", MF_period = 240, NUM_WINDOW_CRASHED=-1, FIXATOR_TIME=0, MAP__NAMES_IN_FILE__ID__ERR = {}, info_task_err_right_prt = None):
         """Visualisation using matplotlib."""
         begins = []
         ends = []
@@ -223,10 +236,16 @@ class VISUALISER:
                 
                 # this is broken window -- we need to dublicate it on the reserver window
                 if (lft >= windws[NUM_WINDOW_CRASHED["window_number"]*2]) and (lft + rgt <= windws[NUM_WINDOW_CRASHED["window_number"]*2 + 1]):
-                    ax.broken_barh([(lft + MAX_WIN_TIME, rgt)], 
-                            (1, 0.5), facecolors=(colour))
-                    ax.broken_barh([(lft, rgt)], 
-                            (0, 0.5), facecolors=(colour))
+                    if info_task_err_right_prt != None:
+                        ax.broken_barh([(lft + MAX_WIN_TIME, info_task_err_right_prt["old_time"])], 
+                                (1, 0.5), facecolors=(colour))
+                        ax.broken_barh([(lft, info_task_err_right_prt["new_time"])], 
+                                (0, 0.5), facecolors=(colour))
+                    else:
+                        ax.broken_barh([(lft + MAX_WIN_TIME, rgt)], 
+                                (1, 0.5), facecolors=(colour))
+                        ax.broken_barh([(lft, rgt)], 
+                                (0, 0.5), facecolors=(colour))
 
                 elif lft >= windws[NUM_WINDOW_CRASHED["window_number"]*2 + 1]:
                     ax.broken_barh([(lft + MAX_WIN_TIME, rgt)], 
@@ -241,17 +260,41 @@ class VISUALISER:
             #                 (0, 0.5), facecolors=(colour))
             j+=1
 
+            if "_ERR" in i:
+                stp_lst = [0 + (j * 0.5)/20 for j in range(20)]
+                for step in stp_lst:
+                    l_p = step
+                    r_p = step + 0.00625
+                    ax.broken_barh(list(zip(df["begin"].values, 
+                            (df["end"] - df["begin"]).values)), 
+                            (l_p, 0.0125), facecolors=(['black']))
+
             
             for p in begins:
-                if "Reserve" not in i:
-                    if p >= windws[NUM_WINDOW_CRASHED["window_number"]*2 + 1]:
-                        ax.annotate(i, (p + MAX_WIN_TIME, 1.5), xytext=((p+2)/MF_period, 0.75 + y_offset[j%len(y_offset)]), 
-                                textcoords='axes fraction', 
-                                arrowprops=dict(shrink=0.0001))
-                    else:
-                        ax.annotate(i, (p, 0.5), xytext=((p+2)/MF_period, 0.25 + y_offset[j%len(y_offset)]), 
-                                textcoords='axes fraction', 
-                                arrowprops=dict(shrink=0.0001))
+                if MAP__NAMES_IN_FILE__ID__ERR and "Fixator" not in i:
+                    if "Reserve" not in i:
+                        if p >= windws[NUM_WINDOW_CRASHED["window_number"]*2 + 1]:
+                            ax.annotate(MAP__NAMES_IN_FILE__ID__ERR[i[5:]], (p + MAX_WIN_TIME, 1.5), xytext=((p+2)/ (MF_period * 0.9), 0.9 + y_offset[j%len(y_offset)]), 
+                                    textcoords='axes fraction', fontsize=16,
+                                    arrowprops=dict(shrink=0.0001))
+                        else:
+                            ax.annotate(MAP__NAMES_IN_FILE__ID__ERR[i[5:]], (p, 0.5), xytext=((p+2)/(MF_period * 1.3), 0.75 + y_offset[j%len(y_offset)]), 
+                                    textcoords='axes fraction', fontsize=16,
+                                    arrowprops=dict(shrink=0.0001))
+
+                    # ax.annotate(str(MAP__NAMES_IN_FILE__ID__ERR[i[5:]]), (p, 0.5), xytext=((p+2)/MF_period, 0.7 + y_offset[j%len(y_offset)]), 
+                    #         textcoords='axes fraction', fontsize=16, 
+                    #         arrowprops=dict(shrink=0.0001))
+                else:
+                    if "Reserve" not in i:
+                        if p >= windws[NUM_WINDOW_CRASHED["window_number"]*2 + 1]:
+                            ax.annotate(i, (p + MAX_WIN_TIME, 1.5), xytext=((p+2)/MF_period, 0.75 + y_offset[j%len(y_offset)]), 
+                                    textcoords='axes fraction', 
+                                    arrowprops=dict(shrink=0.0001))
+                        else:
+                            ax.annotate(i, (p, 0.5), xytext=((p+2)/MF_period, 0.25 + y_offset[j%len(y_offset)]), 
+                                    textcoords='axes fraction', 
+                                    arrowprops=dict(shrink=0.0001))
 
         #windws = list(map(int, list(np.arange(0, 240, 20))))
         begins = []
