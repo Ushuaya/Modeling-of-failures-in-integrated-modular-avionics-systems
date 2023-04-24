@@ -42,17 +42,17 @@ class VISUALISER:
                             (df["end"] - df["begin"]).values)), 
                             (l_p, 0.0125), facecolors=(['black']))
 
-            
+            count_index = 0
             for p in begins:
                 if MAP__NAMES_IN_FILE__ID__ERR and "Fixator" not in i:
-                    ax.annotate(str(MAP__NAMES_IN_FILE__ID__ERR[i[5:]]), (p, 0.5), xytext=((p+2)/MF_period, 0.7 + y_offset[j%len(y_offset)]), 
+                    ax.annotate(str(MAP__NAMES_IN_FILE__ID__ERR[i[5:]]), (p + (ends[count_index] - begins[count_index])/2, 0.5), xytext=((p+2)/MF_period, 0.7 + y_offset[j%len(y_offset)]), 
                             textcoords='axes fraction', fontsize=16, 
                             arrowprops=dict(shrink=0.0001))
                 else:
-                    ax.annotate(i, (p, 0.5), xytext=((p+2)/MF_period, 0.7 + y_offset[j%len(y_offset)]), 
+                    ax.annotate(i, (p + (ends[count_index] - begins[count_index])/2, 0.5), xytext=((p+2)/MF_period, 0.7 + y_offset[j%len(y_offset)]), 
                             textcoords='axes fraction', 
                             arrowprops=dict(shrink=0.0001))
-                
+                count_index += 1
             
 
         begins = []
@@ -142,17 +142,18 @@ class VISUALISER:
             #                 (df["end"] - df["begin"]).values)), 
             #                 (l_p, 0.0125), facecolors=(['black']))
 
-            
+            count_index = 0
             for p in begins:
                 if MAP__NAMES_IN_FILE__ID__ERR and "Fixator" not in i:
-                    ax.annotate(str(MAP__NAMES_IN_FILE__ID__ERR[i[5:]]), (p, 0.5), xytext=((p+2)/(MF_period * 1.3), 0.7 + y_offset[j%len(y_offset)]), 
+                    ax.annotate(str(MAP__NAMES_IN_FILE__ID__ERR[i[5:]]), (p + (ends[count_index] - begins[count_index])/2, 0.5), xytext=((p+2)/(MF_period * 1.3), 0.7 + y_offset[j%len(y_offset)]), 
                             textcoords='axes fraction', fontsize=16, 
                             arrowprops=dict(shrink=0.0001))
                 else:
                     if "Reserve" not in i:
-                        ax.annotate(i, (p, 0.5), xytext=((p+2)/MF_period, 0.25 + y_offset[j%len(y_offset)]), 
+                        ax.annotate(i, (p + (ends[count_index] - begins[count_index])/2, 0.5), xytext=((p+2)/MF_period, 0.25 + y_offset[j%len(y_offset)]), 
                                 textcoords='axes fraction', 
                                 arrowprops=dict(shrink=0.0001))
+                count_index += 1
 
         #windws = list(map(int, list(np.arange(0, 240, 20))))
         begins = []
@@ -169,11 +170,7 @@ class VISUALISER:
                         (df["end"] - df["begin"]).values)), 
                         (0, 1), facecolors='black')
 
-        # print(df["begin"].values) 
-        # print(list(map(lambda x: x + MAX_WIN_TIME, df["begin"].values)))
-        # print((df["end"] - df["begin"]).values) 
-        # print(list(map(lambda x: x + MAX_WIN_TIME, (df["end"] - df["begin"]).values))) 
-
+    
         ax.broken_barh(list(zip(
                         list(map(lambda x: x + MAX_WIN_TIME, df["begin"].values)), 
                         list(map(lambda x: x + 0, (df["end"] - df["begin"]).values))
@@ -188,20 +185,7 @@ class VISUALISER:
         ax.grid(True)
         fig.set_size_inches(20, 1 * 5, forward=True)
 
-   
-        # plt.savefig("tmp1.png")
-        # plt.clf()
-        # plt.cla()
 
-        # df = pd.DataFrame({"begin": [], "end" : []})
-        # ax.broken_barh(list(zip(df["begin"].values, 
-        #                 (df["end"] - df["begin"]).values)), 
-        #                 (0, 1), facecolors='black')
-        # ax.set_ylim(0, 1)
-        # ax.set_xlim(0, MF_period)
-        # plt.xticks(np.arange(0, MF_period+1, 10.0))
-        # plt.yticks([])
-        # ax.grid(True)
 
         plt.savefig("tmp1.png")
 
@@ -269,16 +253,16 @@ class VISUALISER:
                             (df["end"] - df["begin"]).values)), 
                             (l_p, 0.0125), facecolors=(['black']))
 
-            
+            count_index = 0
             for p in begins:
                 if MAP__NAMES_IN_FILE__ID__ERR and "Fixator" not in i:
                     if "Reserve" not in i:
                         if p >= windws[NUM_WINDOW_CRASHED["window_number"]*2 + 1]:
-                            ax.annotate(MAP__NAMES_IN_FILE__ID__ERR[i[5:]], (p + MAX_WIN_TIME, 1.5), xytext=((p+2)/ (MF_period * 0.9), 0.9 + y_offset[j%len(y_offset)]), 
+                            ax.annotate(MAP__NAMES_IN_FILE__ID__ERR[i[5:]], (p + MAX_WIN_TIME + (ends[count_index] - begins[count_index])/2, 1.5), xytext=((p+2)/ (MF_period * 0.9), 0.9 + y_offset[j%len(y_offset)]), 
                                     textcoords='axes fraction', fontsize=16,
                                     arrowprops=dict(shrink=0.0001))
                         else:
-                            ax.annotate(MAP__NAMES_IN_FILE__ID__ERR[i[5:]], (p, 0.5), xytext=((p+2)/(MF_period * 1.3), 0.75 + y_offset[j%len(y_offset)]), 
+                            ax.annotate(MAP__NAMES_IN_FILE__ID__ERR[i[5:]], (p + (ends[count_index] - begins[count_index])/2, 0.5), xytext=((p+2)/(MF_period * 1.3), 0.75 + y_offset[j%len(y_offset)]), 
                                     textcoords='axes fraction', fontsize=16,
                                     arrowprops=dict(shrink=0.0001))
 
@@ -288,13 +272,14 @@ class VISUALISER:
                 else:
                     if "Reserve" not in i:
                         if p >= windws[NUM_WINDOW_CRASHED["window_number"]*2 + 1]:
-                            ax.annotate(i, (p + MAX_WIN_TIME, 1.5), xytext=((p+2)/MF_period, 0.75 + y_offset[j%len(y_offset)]), 
+                            ax.annotate(i, (p + MAX_WIN_TIME + (ends[count_index] - begins[count_index])/2, 1.5), xytext=((p+2)/MF_period, 0.75 + y_offset[j%len(y_offset)]), 
                                     textcoords='axes fraction', 
                                     arrowprops=dict(shrink=0.0001))
                         else:
-                            ax.annotate(i, (p, 0.5), xytext=((p+2)/MF_period, 0.25 + y_offset[j%len(y_offset)]), 
+                            ax.annotate(i, (p + (ends[count_index] - begins[count_index])/2, 0.5), xytext=((p+2)/MF_period, 0.25 + y_offset[j%len(y_offset)]), 
                                     textcoords='axes fraction', 
                                     arrowprops=dict(shrink=0.0001))
+            count_index += 1
 
         #windws = list(map(int, list(np.arange(0, 240, 20))))
         begins = []
@@ -311,11 +296,6 @@ class VISUALISER:
                         (df["end"] - df["begin"]).values)), 
                         (0, 1), facecolors='black')
 
-        # print(df["begin"].values) 
-        # print(list(map(lambda x: x + MAX_WIN_TIME, df["begin"].values)))
-        # print((df["end"] - df["begin"]).values) 
-        # print(list(map(lambda x: x + MAX_WIN_TIME, (df["end"] - df["begin"]).values))) 
-
         ax.broken_barh(list(zip(
                         list(map(lambda x: x + MAX_WIN_TIME, df["begin"].values)), 
                         list(map(lambda x: x + 0, (df["end"] - df["begin"]).values))
@@ -329,21 +309,6 @@ class VISUALISER:
         # plt.yticks([])
         ax.grid(True)
         fig.set_size_inches(20, 1 * 5, forward=True)
-
-   
-        # plt.savefig("tmp1.png")
-        # plt.clf()
-        # plt.cla()
-
-        # df = pd.DataFrame({"begin": [], "end" : []})
-        # ax.broken_barh(list(zip(df["begin"].values, 
-        #                 (df["end"] - df["begin"]).values)), 
-        #                 (0, 1), facecolors='black')
-        # ax.set_ylim(0, 1)
-        # ax.set_xlim(0, MF_period)
-        # plt.xticks(np.arange(0, MF_period+1, 10.0))
-        # plt.yticks([])
-        # ax.grid(True)
 
         plt.savefig("tmp2.png")
 

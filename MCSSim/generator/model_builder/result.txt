@@ -1,14 +1,58 @@
 <trace>
 	<task id="0" name="task0">
 		<job id="1">
-			<event type="exec" time="0"/>
-			<event type="finished" time="16"/>
+			<event type="exec" time="15"/>
+			<event type="preempt" time="20"/>
+			<event type="exec" time="80"/>
+			<event type="finished" time="83"/>
 		</job>
 	</task>
 	<task id="1" name="task1">
 		<job id="1">
+			<event type="exec" time="0"/>
+			<event type="finished" time="8"/>
+		</job>
+	</task>
+	<task id="2" name="task2">
+		<job id="1">
+			<event type="exec" time="8"/>
+			<event type="finished" time="15"/>
+		</job>
+	</task>
+	<task id="3" name="task3">
+		<job id="1">
 			<event type="exec" time="20"/>
-			<event type="finished" time="36"/>
+			<event type="finished" time="27"/>
+		</job>
+	</task>
+	<task id="4" name="task4">
+		<job id="1">
+			<event type="exec" time="27"/>
+			<event type="finished" time="30"/>
+		</job>
+	</task>
+	<task id="5" name="task5">
+		<job id="1">
+			<event type="exec" time="30"/>
+			<event type="finished" time="31"/>
+		</job>
+	</task>
+	<task id="6" name="task6">
+		<job id="1">
+			<event type="exec" time="40"/>
+			<event type="finished" time="43"/>
+		</job>
+	</task>
+	<task id="7" name="task7">
+		<job id="1">
+			<event type="exec" time="43"/>
+			<event type="finished" time="48"/>
+		</job>
+	</task>
+	<task id="8" name="task8">
+		<job id="1">
+			<event type="exec" time="48"/>
+			<event type="finished" time="54"/>
 		</job>
 	</task>
 </trace>

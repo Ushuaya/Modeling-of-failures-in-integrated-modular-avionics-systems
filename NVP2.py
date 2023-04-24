@@ -130,7 +130,7 @@ def create_double_visualization(filename1, filename2, task_crasshed_id):
     font = ImageFont.truetype(font="./open-sans/OpenSans-ExtraBold.ttf", size=40)
     # draw.text((x, y),"Sample Text",(r,g,b))
     draw.text((250, 10),"No fault",(0,0,0), font=font )
-    draw.text((250, 256*2 + 10),"Crashed task: " + str(task_crasshed_id) + "; Part of crashed task: " + ("Left" if CRASHED_PART_OF_TASK == 0 else "Right"),(0,0,0), font=font )
+    draw.text((40, 256*2 + 10),"Crashed task: " + str(task_crasshed_id) + "; Part of crashed task: " + ("Left" if CRASHED_PART_OF_TASK == 0 else "Right"),(0,0,0), font=font )
     with open("num_test.pkl", "rb") as file:
         next_test = pickle.load(file)
         try: 
