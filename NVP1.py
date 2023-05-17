@@ -26,8 +26,7 @@ GRAPH_INITIAL_APP.vs["duration"] = [8, 8, 8] + [random.randint(1,7) for _ in ran
 # Partition numbers sequence must start from 0 
 MAP_PARTITION_TASK = {0: (0, 1, 2), 1: (3, 4, 5), 2: (6, 7, 8, 9, 10, 11), }
 MAP_WINDOW_PARTITION = {(0, 20): 0, (20, 40): 1, (40, 80): 2, (80, 100): 0}
-#MAP_WINDOW_PARTITION = dict((v,k) for k,v in MAP_PARTITION_WINDOW.items())
-#MAP_PARTITION_WINDOW = {0: (0, 20), 1: (20, 40), 2: (40, 80), 0: (80, 100)}
+
 
 
 
@@ -127,20 +126,12 @@ def create_double_visualization(filename1, filename2, task_crasshed_id):
     print("dir: ", dir(img))
     draw = ImageDraw.Draw(img)
     font = ImageFont.truetype(font="./open-sans/OpenSans-ExtraBold.ttf", size=40)
-    # draw.text((x, y),"Sample Text",(r,g,b))
     draw.text((250, 10),"No fault",(0,0,0), font=font )
     draw.text((250, 256*2 + 10),"Crashed task: " + str(task_crasshed_id),(0,0,0), font=font )
-    with open("num_test.pkl", "rb") as file:
-        next_test = pickle.load(file)
-        try: 
-            os.mkdir("./tests/test{}".format(next_test))
-        except:
-            pass
-        img.show()
-        img.save("./tests/test{}/RESULT.png".format(next_test))
-        next_test += 1
-    with open("num_test.pkl", "wb") as file:
-        pickle.dump(next_test, file)
+    img.show()
+    os.system("rm RESULT_nvp_1.png")
+    img.save("./RESULT_nvp_1.png")
+    
     
 def Write_xml_first_iter(filename, MF_PERIOD, GRAPH_INITIAL_APP, windows, MAP_TASK_PARTITION, WINDOW_PARTITION):
     with open(filename, "w") as file: 
@@ -155,7 +146,6 @@ def Write_xml_first_iter(filename, MF_PERIOD, GRAPH_INITIAL_APP, windows, MAP_TA
             file.write("\t\t</partition>\n")
 
         for i in WINDOW_PARTITION:
-            #file.write("\t\t<window partition=\"{}\" start=\"{}\" stop=\"{}\"/>\n".format(i, PARTITION_WINDOW[i][0], PARTITION_WINDOW[i][1]))
             file.write("\t\t<window partition=\"{}\" start=\"{}\" stop=\"{}\"/>\n".format(WINDOW_PARTITION[i], i[0], i[1]))
 
         file.write("\t</module>\n")
@@ -328,14 +318,12 @@ def write_nvp_xml_no_fault(graph_main_crash, MF_PERIOD, windows_nvp, second_main
             file.write("\t\t</partition>\n\n")
 
         file.write("\t\t<partition id=\"{}\" name=\"part_Reserve\" scheduler=\"FPPS\">\n".format(len(Map_partition_id)))
-        #file.write("\t\t\t<task deadline=\"299\" id=\"reserve\" name=\"reserve\" offset=\"0\" period=\"300\" prio=\"1\" wcet=\"100\"/>\n")
         file.write("\t\t</partition>\n\n")
 
         Map_partition_id["Reserve"] = len(Map_partition_id)
 
 
         for i in range(len(windows_nvp)):
-            #Window_elem("Main", [cur_time, win[1] - win[0] + cur_time])
             file.write("\t\t<window partition=\"{}\" start=\"{}\" stop=\"{}\"/>\n".format(Map_partition_id[windows_nvp[i].application], windows_nvp[i].time[0], windows_nvp[i].time[1]))
         file.write("\t</module>\n")
 
@@ -343,17 +331,9 @@ def write_nvp_xml_no_fault(graph_main_crash, MF_PERIOD, windows_nvp, second_main
             # _res indicates, that message must be sent to or from the other version of the task
             file.write("\t<link delay=\"0\" dst=\"{}\" src=\"{}\"/>\n".format(e.tuple[0], e.tuple[1] ))
 
-        # for e in second_main_app_graph.es:
-        #     # _res indicates, that message must be sent to or from the other version of the task
-        #     file.write("\t<link delay=\"0\" dst=\"{}\" src=\"{}\"/>\n".format(e.tuple[0], e.tuple[1] ))
 
 
         file.write("</system>\n")
-
-
-        # print("Id of crashed task: ", task_crasshed_id)
-        # print("Window with crash", window_crashed)
-        # print ("Set of tasks in window with crash: ", window_crash_task_set)
 
 
 def write_nvp_xml(graph_main_crash, MF_PERIOD, windows_nvp, second_main_app_graph, GRAPH_INITIAL_APP, CRASHED_PART_OF_TASK, window_crash_task_set):
@@ -381,22 +361,6 @@ def write_nvp_xml(graph_main_crash, MF_PERIOD, windows_nvp, second_main_app_grap
                 if i in SET_OF_SEPARATED_TASKS and i in window_crash_task_set and i == TASK_CRASHED_ID:
                     tmp_lst = list(map(int ,inter_int[i][2:4]))
                     graph_main_crash.vs[i]["duration"] = tmp_lst[1] - tmp_lst[0]
-
-        # --------------------------------------------------------------------------------------------------------------
-        # if CRASHED_PART_OF_TASK == 0:
-        #     for i in range(len(second_main_app_graph.vs)):
-        #         sv_tmp = int(second_main_app_graph.vs[i]["name"])
-        #         if sv_tmp in SET_OF_SEPARATED_TASKS and sv_tmp in window_crash_task_set and sv_tmp == TASK_CRASHED_ID:
-        #             second_main_app_graph.delete_vertices(i)
-        #             break
-        # else: 
-        #     for i in range(len(second_main_app_graph.vs)):
-        #         sv_tmp = int(second_main_app_graph.vs[i]["name"])
-        #         if sv_tmp in SET_OF_SEPARATED_TASKS and sv_tmp in window_crash_task_set and sv_tmp == TASK_CRASHED_ID:
-        #             second_main_app_graph.delete_vertices(i)
-        #             break
-        # --------------------------------------------------------------------------------------------------------------
-
 
 
         # So now we have 4 graphs for:
@@ -478,7 +442,6 @@ def write_nvp_xml(graph_main_crash, MF_PERIOD, windows_nvp, second_main_app_grap
             file.write("\t\t</partition>\n\n")
 
         file.write("\t\t<partition id=\"{}\" name=\"part_Reserve\" scheduler=\"FPPS\">\n".format(len(Map_partition_id)))
-        #file.write("\t\t\t<task deadline=\"299\" id=\"reserve\" name=\"reserve\" offset=\"0\" period=\"300\" prio=\"1\" wcet=\"100\"/>\n")
         file.write("\t\t</partition>\n\n")
 
         Map_partition_id["Reserve"] = len(Map_partition_id)
@@ -497,24 +460,19 @@ def write_nvp_xml(graph_main_crash, MF_PERIOD, windows_nvp, second_main_app_grap
             # _res indicates, that message must be sent to or from the other version of the task
             file.write("\t<link delay=\"0\" dst=\"{}\" src=\"{}\"/>\n".format(e.tuple[0] + len(GRAPH_INITIAL_APP.vs), e.tuple[1] + len(GRAPH_INITIAL_APP.vs)))
 
-        # for e in second_main_app_graph.es:
-        #     # _res indicates, that message must be sent to or from the other version of the task
-        #     file.write("\t<link delay=\"0\" dst=\"{}\" src=\"{}\"/>\n".format(e.tuple[0], e.tuple[1] ))
-
-
         file.write("</system>\n")
 
-# CHECKING FOR VALID INPUT
-# --------------------------------------------------------------------------------------------------------------
-# for i in WINDOWS: 
-#     if i[1] - i[0] <= 0:
-#         raise "window size <= 0"
-#     for j in GRAPH_INITIAL_APP.vs["duration"]:
-#         if j > (i[1] - i[0]):
-#             raise "to big task {}".format(j)
-#         if (i[1] - i[0])%j != 0:
-#             raise "Invalid task duration. Must be mupliple of window size, to aviod task preemt.".format(j)
-# --------------------------------------------------------------------------------------------------------------
+
+#CHECKING FOR VALID INPUT
+#--------------------------------------------------------------------------------------------------------------
+for i in WINDOWS: 
+    if i[1] - i[0] <= 0:
+        raise "window size <= 0"
+    for j in GRAPH_INITIAL_APP.vs["duration"]:
+        if j > (i[1] - i[0]):
+            raise "to big task {}".format(j)
+#--------------------------------------------------------------------------------------------------------------
+
 
 
 # INPUT FROM EXTERNAL FILE
@@ -738,4 +696,6 @@ visioner2.visualise(inter2, [i.time[0] for i in windows_nvp] + [windows_nvp[-1].
 # --------------------------------------------------------------------------------------------------------------
 
 create_double_visualization(PICTURE_WITHOUT_FAULT, PICTURE_FILENAME_NVP, TASK_CRASHED_ID)
+
+os.system("rm test_nvp.xml; rm test.xml;rm initial_app.png; rm no_fault.png; rm nvp_fault.png; rm tmp1.png; rm tmp2.png")
 

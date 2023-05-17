@@ -130,17 +130,10 @@ def create_double_visualization(filename1, filename2, task_crasshed_id):
     # draw.text((x, y),"Sample Text",(r,g,b))
     draw.text((250, 10),"No fault",(0,0,0), font=font )
     draw.text((250, 256*2 + 10),"Crashed task: " + str(task_crasshed_id),(0,0,0), font=font )
-    with open("num_test.pkl", "rb") as file:
-        next_test = pickle.load(file)
-        try: 
-            os.mkdir("./tests_nvp_2/test{}".format(next_test))
-        except:
-            pass
-        img.show()
-        img.save("./tests_nvp_2/test{}/RESULT.png".format(next_test))
-        next_test += 1
-    with open("num_test.pkl", "wb") as file:
-        pickle.dump(next_test, file)
+    img.show()
+    os.system("rm RESULT_nvp_2.png")
+    img.save("./RESULT_nvp_2.png")
+
     
 def Write_xml_first_iter(filename, MF_PERIOD, GRAPH_INITIAL_APP, windows, MAP_TASK_PARTITION, WINDOW_PARTITION):
     with open(filename, "w") as file: 
@@ -520,19 +513,15 @@ def write_nvp_xml(graph_main_crash, MF_PERIOD, windows_nvp, second_main_app_grap
         file.write("</system>\n")
         # --------------------------------------------------------------------------------------------------------------
 
-# CHECKING FOR VALID INPUT
-# --------------------------------------------------------------------------------------------------------------
-# for i in WINDOWS: 
-#     if i[1] - i[0] <= 0:
-#         raise "window size <= 0"
-#     for j in GRAPH_INITIAL_APP.vs["duration"]:
-#         if j > (i[1] - i[0]):
-#             raise "to big task {}".format(j)
-#         if (i[1] - i[0])%j != 0:
-#             raise "Invalid task duration. Must be mupliple of window size, to aviod task preemt.".format(j)
-# --------------------------------------------------------------------------------------------------------------
-
-
+#CHECKING FOR VALID INPUT
+#--------------------------------------------------------------------------------------------------------------
+for i in WINDOWS: 
+    if i[1] - i[0] <= 0:
+        raise "window size <= 0"
+    for j in GRAPH_INITIAL_APP.vs["duration"]:
+        if j > (i[1] - i[0]):
+            raise "to big task {}".format(j)
+#--------------------------------------------------------------------------------------------------------------
 
 
 
@@ -689,22 +678,16 @@ os.system("cd ./MCSSim/generator/model_builder; ./model_builder test_nvp.xml > r
 os.system("cp ./MCSSim/generator/model_builder/result_nvp.txt .") 
 # --------------------------------------------------------------------------------------------------------------
 
-
-
 # visualazing nvp# --------------------------------------------------------------------------------------------------------------
 parsing = parser_.INTERVAL()
 """Here specify input file."""
 inter2, inter2_int = parsing.create_int("result_nvp.txt")
 parsing.print_intervals()
 
-
-
 merge_file_1 = visioner2.visualise_nvp_2(inter2, [i.time[0] for i in windows_nvp] + [windows_nvp[-1].time[1] + 1], PICTURE_FILENAME_NVP, MF_PERIOD, window_crashed, FIXATOR_TIME, MAP__NAMES_IN_FILE__ID__ERR, info_task_err_right_prt)
 # --------------------------------------------------------------------------------------------------------------
 
-
-
-
 create_double_visualization(merge_file_2, merge_file_1, TASK_CRASHED_ID)
 
+os.system("rm test_nvp.xml; rm test.xml;rm initial_app.png; rm no_fault.png; rm nvp_fault.png; rm tmp1.png; rm tmp2.png")
 
