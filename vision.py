@@ -49,8 +49,8 @@ class VISUALISER:
                             textcoords='axes fraction', fontsize=16, 
                             arrowprops=dict(shrink=0.0001))
                 else:
-                    ax.annotate(i, (p + (ends[count_index] - begins[count_index])/2, 0.5), xytext=((p+2)/MF_period, 0.7 + y_offset[j%len(y_offset)]), 
-                            textcoords='axes fraction', 
+                    ax.annotate(i, (p + (ends[count_index] - begins[count_index])/2, 0.5), xytext=((p+2)/MF_period, 0.8 + y_offset[j%len(y_offset)]), 
+                            textcoords='axes fraction', fontsize=16,
                             arrowprops=dict(shrink=0.0001))
                 count_index += 1
             
@@ -150,8 +150,8 @@ class VISUALISER:
                             arrowprops=dict(shrink=0.0001))
                 else:
                     if "Reserve" not in i:
-                        ax.annotate(i, (p + (ends[count_index] - begins[count_index])/2, 0.5), xytext=((p+2)/MF_period, 0.25 + y_offset[j%len(y_offset)]), 
-                                textcoords='axes fraction', 
+                        ax.annotate(i, (p + (ends[count_index] - begins[count_index])/2, 0.5), xytext=((p+2)/(MF_period * 1.3), 0.8 + y_offset[j%len(y_offset)]), 
+                                textcoords='axes fraction', fontsize=16,
                                 arrowprops=dict(shrink=0.0001))
                 count_index += 1
 
@@ -272,12 +272,12 @@ class VISUALISER:
                 else:
                     if "Reserve" not in i:
                         if p >= windws[NUM_WINDOW_CRASHED["window_number"]*2 + 1]:
-                            ax.annotate(i, (p + MAX_WIN_TIME + (ends[count_index] - begins[count_index])/2, 1.5), xytext=((p+2)/MF_period, 0.75 + y_offset[j%len(y_offset)]), 
-                                    textcoords='axes fraction', 
+                            ax.annotate(i, (p + MAX_WIN_TIME + (ends[count_index] - begins[count_index])/2, 1.5), xytext=((p-5)/MF_period, 0.75 + y_offset[j%len(y_offset)]), 
+                                    textcoords='axes fraction', fontsize=16,
                                     arrowprops=dict(shrink=0.0001))
                         else:
-                            ax.annotate(i, (p + (ends[count_index] - begins[count_index])/2, 0.5), xytext=((p+2)/MF_period, 0.25 + y_offset[j%len(y_offset)]), 
-                                    textcoords='axes fraction', 
+                            ax.annotate(i, (p + (ends[count_index] - begins[count_index])/2, 0.5), xytext=((p+2)/(MF_period * 1.3), 0.25 + y_offset[j%len(y_offset)]), 
+                                    textcoords='axes fraction', fontsize=16,
                                     arrowprops=dict(shrink=0.0001))
             count_index += 1
 
