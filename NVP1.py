@@ -123,7 +123,6 @@ def create_double_visualization(filename1, filename2, task_crasshed_id):
     img2 = Image.open(filename2 + ".png")
     img.paste(img1, (0,0))
     img.paste(img2, (0,256*2))
-    print("dir: ", dir(img))
     draw = ImageDraw.Draw(img)
     font = ImageFont.truetype(font="./open-sans/OpenSans-ExtraBold.ttf", size=40)
     draw.text((250, 10),"No fault",(0,0,0), font=font )
@@ -157,7 +156,6 @@ def Write_xml_first_iter(filename, MF_PERIOD, GRAPH_INITIAL_APP, windows, MAP_TA
 def Find_carsh_window_crash_set(filename, TASK_CRASHED_ID, windows, SET_OF_SEPARATED_TASKS, CRASHED_PART_OF_TASK,):
     with open(filename) as file:
         txt = file.read().split("\n")
-        #print(txt)
         crashed_task_pos = -1
         time_task_crash_start = -1
         time_task_crash_finish = -1
@@ -196,7 +194,6 @@ def Find_carsh_window_crash_set(filename, TASK_CRASHED_ID, windows, SET_OF_SEPAR
 
         
         if crashed_task_pos != -1 and time_task_crash_start != -1 and time_task_crash_finish != -1:
-            #print(crashed_task_pos, time_task_crash_start_num, time_task_crash_finish_num, i[0], i[1])
             window_crashed = [i for i in [i if (time_task_crash_start_num >= i[0] and time_task_crash_finish_num >= i[0] and time_task_crash_start_num <= i[1] and time_task_crash_finish_num <= i[1]) else None for i in windows] if i is not None][0]
             window_crashed = {"window_time": window_crashed, "window_number": windows.index(window_crashed)}
         else: 
@@ -279,16 +276,8 @@ def write_nvp_xml_no_fault(graph_main_crash, MF_PERIOD, windows_nvp, second_main
                     Map_partition_id[i.application] = i.partition_number
                     counter += 1
 
-        #Map_partition_id["Reserve_crash"] = len(Map_partition_id)
         Map_partition_id["Fixator"] = len(Map_partition_id)
-        #Map_partition_id["Reserve"] = len(Map_partition_id)
 
-        
-        print("\n------------")
-        print(GRAPH_INITIAL_APP)
-        for i in GRAPH_INITIAL_APP.vs: 
-            print(i)
-        print("------------\n")
         
 
 
@@ -509,7 +498,6 @@ os.system("cp ./MCSSim/generator/model_builder/result.txt  .")
 parsing = parser_.INTERVAL()
 """Here specify input file."""
 inter, inter_int = parsing.create_int("result.txt")
-parsing.print_intervals()
 
 
 
@@ -551,8 +539,7 @@ for win in WINDOWS:
             reserve_win_time = sum([GRAPH_INITIAL_APP.vs[i]['duration'] for i in MAP_WINDOW_TASK[win] ])
         else: 
             reserve_win_time = 0
-        #windows_nvp += [Window_elem("Reserve", [cur_time, win[1] - win[0] + cur_time])]
-        #cur_time += win[1] - win[0]
+
         windows_nvp += [Window_elem("Reserve", [cur_time, reserve_win_time + cur_time])]
         cur_time += reserve_win_time
 
@@ -562,8 +549,7 @@ for win in WINDOWS:
         windows_nvp += [Window_elem("Fixator", [cur_time, cur_time + FIXATOR_TIME])]
         cur_time += FIXATOR_TIME
         reserve_win_time = sum([GRAPH_INITIAL_APP.vs[i]['duration'] for i in MAP_WINDOW_TASK[win] ])
-        # windows_nvp += [Window_elem("Reserve_crash", [cur_time, win[1] - win[0] + cur_time])]
-        # cur_time += win[1] - win[0]
+
         windows_nvp += [Window_elem("Reserve_crash", [cur_time, reserve_win_time + cur_time])]
         cur_time += reserve_win_time
 
@@ -584,8 +570,6 @@ for win in WINDOWS:
     cur_time += reserve_win_time
 
     
-for win in windows_nvp_no_fault: 
-    print(win)
 MF_PERIOD = windows_nvp_no_fault[-1].time[1]
 # --------------------------------------------------------------------------------------------------------------
 
@@ -661,7 +645,6 @@ os.system("cp ./MCSSim/generator/model_builder/result_nvp.txt .")
 parsing = parser_.INTERVAL()
 """Here specify input file."""
 inter2, inter2_int = parsing.create_int("result_nvp.txt")
-parsing.print_intervals()
 
 PICTURE_WITHOUT_FAULT = "no_fault"
 
@@ -687,7 +670,6 @@ os.system("cp ./MCSSim/generator/model_builder/result_nvp.txt .")
 parsing = parser_.INTERVAL()
 """Here specify input file."""
 inter2, inter2_int = parsing.create_int("result_nvp.txt")
-parsing.print_intervals()
 
 
 visioner2 = vision.VISUALISER()

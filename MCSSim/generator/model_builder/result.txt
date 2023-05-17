@@ -14,57 +14,25 @@
 	<task id="2" name="task2">
 		<job id="1">
 			<event type="exec" time="16"/>
-			<event type="preempt" time="20"/>
-			<event type="exec" time="20"/>
-			<event type="finished" time="24"/>
+			<event type="finished" time="19"/>
 		</job>
 	</task>
 	<task id="3" name="task3">
 		<job id="1">
-			<event type="exec" time="80"/>
-			<event type="finished" time="85"/>
+			<event type="exec" time="20"/>
+			<event type="finished" time="25"/>
 		</job>
 	</task>
 	<task id="4" name="task4">
 		<job id="1">
-			<event type="exec" time="85"/>
-			<event type="finished" time="88"/>
+			<event type="exec" time="25"/>
+			<event type="finished" time="28"/>
 		</job>
 	</task>
 	<task id="5" name="task5">
 		<job id="1">
-			<event type="exec" time="88"/>
-			<event type="finished" time="92"/>
-		</job>
-	</task>
-	<task id="6" name="task6">
-		<job id="1">
-			<event type="exec" time="40"/>
-			<event type="finished" time="44"/>
-		</job>
-	</task>
-	<task id="7" name="task7">
-		<job id="1">
-			<event type="exec" time="44"/>
-			<event type="finished" time="49"/>
-		</job>
-	</task>
-	<task id="8" name="task8">
-		<job id="1">
-			<event type="exec" time="49"/>
-			<event type="finished" time="54"/>
-		</job>
-	</task>
-	<task id="9" name="task9">
-		<job id="1">
-			<event type="exec" time="54"/>
-			<event type="finished" time="58"/>
-		</job>
-	</task>
-	<task id="10" name="task10">
-		<job id="1">
-			<event type="exec" time="58"/>
-			<event type="finished" time="65"/>
+			<event type="exec" time="28"/>
+			<event type="finished" time="33"/>
 		</job>
 	</task>
 </trace>
